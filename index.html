@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulador de Juros de Obra - Raul Mendes</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background-color: #f2f7fa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .login-container, .simulador {
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+      width: 350px;
+      text-align: center;
+    }
+
+    h2 {
+      color: #004AAD;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      background: #004AAD;
+      color: white;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background: #003680;
+    }
+
+    .result {
+      margin-top: 20px;
+      font-weight: bold;
+      color: #004AAD;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TELA DE LOGIN -->
+  <div class="login-container" id="login">
+    <h2>🔒 Acesso Restrito</h2>
+    <p>Digite a senha para acessar o simulador:</p>
+    <input type="password" id="senha" placeholder="Senha de acesso">
+    <button onclick="verificarSenha()">Entrar</button>
+    <p style="font-size:12px;color:#777;margin-top:10px;">© Raul Mendes</p>
+  </div>
+
+  <!-- SIMULADOR -->
+  <div class="simulador" id="simulador" style="display:none;">
+    <h2>Simulador de Juros de Obra</h2>
+
+    <label>💰 Valor do Financiamento (R$):</label>
+    <input type="text" id="financiamento" placeholder="Exemplo: 300000">
+
+    <label>💸 Seguros + Taxas (R$):</label>
+    <input type="text" id="taxas" placeholder="Exemplo: 65">
+
+    <label>📈 Juros Anual (%):</label>
+    <input type="text" id="juros" placeholder="Exemplo: 7.93">
+
+    <label>📊 TR (%):</label>
+    <input type="text" id="tr" placeholder="Exemplo: 0.22">
+
+    <label>🏗️ Percentual da Obra (%):</label>
+    <input type="text" id="obra" placeholder="Exemplo: 40">
+
+    <button onclick="calcular()">Calcular Parcela</button>
+
+    <div class="result" id="resultado">Valor da Parcela: R$ 0,00</div>
+  </div>
+
+  <script>
+    // 🔐 Função de Login
+    function verificarSenha() {
+      const senha = document.getElementById('senha').value.trim().toLowerCase();
+      if (senha === "raulmendes") {
+        document.getElementById('login').style.display = "none";
+        document.getElementById('simulador').style.display = "block";
+      } else {
+        alert("Senha incorreta! Tente novamente.");
+      }
+    }
+
+    // 🧮 Função de Cálculo
+    function formatarNumero(valor) {
+      return valor.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function calcular() {
+      const financiamento = parseFloat(document.getElementById('financiamento').value.replace(",", ".")) || 0;
+      const taxas = parseFloat(document.getElementById('taxas').value.replace(",", ".")) || 0;
+      const juros = parseFloat(document.getElementById('juros').value.replace(",", ".")) || 0;
+      const tr = parseFloat(document.getElementById('tr').value.replace(",", ".")) || 0;
+      const obra = parseFloat(document.getElementById('obra').value.replace(",", ".")) || 0;
+
+      const valorParcela =
+        financiamento * (obra / 100) *
+        (1 + ((obra / 100) * (tr / 100))) *
+        ((juros / 100) / 12) +
+        taxas;
+
+      document.getElementById('resultado').innerText =
+        `Valor da Parcela: R$ ${formatarNumero(valorParcela)}`;
+    }
+  </script>
+
+</body>
+</html>
