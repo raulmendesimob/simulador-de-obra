@@ -66,12 +66,13 @@
       margin-top: 20px;
       font-weight: bold;
       color: #004AAD;
+      font-size: 18px;
     }
   </style>
 </head>
 <body>
 
-  <!-- TELA DE LOGIN -->
+  <!-- LOGIN -->
   <div class="login-container" id="login">
     <h2>🔒 Acesso Restrito</h2>
     <p>Digite a senha para acessar o simulador:</p>
@@ -85,19 +86,19 @@
     <h2>Simulador de Juros de Obra</h2>
 
     <label>💰 Valor do Financiamento:</label>
-    <input type="text" id="financiamento" placeholder="Ex: 300000" oninput="mascaraNumero(this)">
+    <input type="text" id="financiamento" placeholder="Ex: 300000" oninput="formatarMoeda(this)">
 
     <label>💸 Seguros + Taxas:</label>
-    <input type="text" id="taxas" placeholder="Ex: 65" oninput="mascaraNumero(this)">
+    <input type="text" id="taxas" placeholder="Ex: 65" oninput="formatarMoeda(this)">
 
     <label>📈 Juros Anual (%):</label>
-    <input type="text" id="juros" placeholder="Ex: 7.93" oninput="mascaraPercentual(this)">
+    <input type="text" id="juros" placeholder="Ex: 7.93" oninput="formatarPercentual(this)">
 
     <label>📊 TR (%):</label>
-    <input type="text" id="tr" placeholder="Ex: 0.22" oninput="mascaraPercentual(this)">
+    <input type="text" id="tr" placeholder="Ex: 0.22" oninput="formatarPercentual(this)">
 
     <label>🏗️ Percentual da Obra (%):</label>
-    <input type="text" id="obra" placeholder="Ex: 40" oninput="mascaraPercentual(this)">
+    <input type="text" id="obra" placeholder="Ex: 40" oninput="formatarPercentual(this)">
 
     <div style="display:flex; justify-content: space-between;">
       <button onclick="calcular()">Calcular</button>
@@ -141,20 +142,32 @@
       document.getElementById("resultado").innerText = "Valor da Parcela: R$ 0,00";
     }
 
-    function mascaraNumero(input) {
-      input.value = input.value.replace(/[^0-9.,]/g, '');
+    // 🪄 Máscara automática
+    function formatarMoeda(input) {
+      let valor = input.value.replace(/\D/g, '');
+      valor = (valor / 100).toFixed(2) + '';
+      valor = valor.replace(".", ",");
+      valor = valor.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+      input.value = 'R$ ' + valor;
     }
 
-    function mascaraPercentual(input) {
-      input.value = input.value.replace(/[^0-9.,]/g, '');
+    function formatarPercentual(input) {
+      let valor = input.value.replace(/\D/g, '');
+      valor = (valor / 100).toFixed(2) + '';
+      valor = valor.replace(".", ",");
+      input.value = valor + '%';
+    }
+
+    function extrairNumero(texto) {
+      return parseFloat(texto.replace(/[R$%\s.]/g, '').replace(',', '.')) || 0;
     }
 
     function calcular() {
-      const financiamento = parseFloat(document.getElementById('financiamento').value.replace(",", ".")) || 0;
-      const taxas = parseFloat(document.getElementById('taxas').value.replace(",", ".")) || 0;
-      const juros = parseFloat(document.getElementById('juros').value.replace(",", ".")) || 0;
-      const tr = parseFloat(document.getElementById('tr').value.replace(",", ".")) || 0;
-      const obra = parseFloat(document.getElementById('obra').value.replace(",", ".")) || 0;
+      const financiamento = extrairNumero(document.getElementById('financiamento').value);
+      const taxas = extrairNumero(document.getElementById('taxas').value);
+      const juros = extrairNumero(document.getElementById('juros').value);
+      const tr = extrairNumero(document.getElementById('tr').value);
+      const obra = extrairNumero(document.getElementById('obra').value);
 
       const valorParcela =
         financiamento * (obra / 100) *
