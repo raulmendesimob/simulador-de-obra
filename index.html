@@ -14,32 +14,36 @@
       height: 100vh;
       margin: 0;
     }
-
     .login-container, .simulador {
       background: #fff;
       padding: 30px;
       border-radius: 12px;
       box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-      width: 350px;
+      width: 360px;
       text-align: center;
     }
-
     h2 {
       color: #004AAD;
       margin-bottom: 20px;
     }
-
+    label {
+      display: block;
+      text-align: left;
+      font-weight: 600;
+      margin-top: 10px;
+      color: #333;
+    }
     input {
       width: 100%;
       padding: 10px;
-      margin: 10px 0;
+      margin-top: 5px;
       border: 1px solid #ccc;
       border-radius: 6px;
       font-size: 16px;
     }
-
     button {
-      width: 100%;
+      margin-top: 15px;
+      width: 48%;
       padding: 12px;
       border: none;
       background: #004AAD;
@@ -49,11 +53,15 @@
       cursor: pointer;
       font-size: 16px;
     }
-
     button:hover {
       background: #003680;
     }
-
+    .btn-clear {
+      background: #777;
+    }
+    .btn-clear:hover {
+      background: #555;
+    }
     .result {
       margin-top: 20px;
       font-weight: bold;
@@ -76,41 +84,69 @@
   <div class="simulador" id="simulador" style="display:none;">
     <h2>Simulador de Juros de Obra</h2>
 
-    <label>💰 Valor do Financiamento (R$):</label>
-    <input type="text" id="financiamento" placeholder="Exemplo: 300000">
+    <label>💰 Valor do Financiamento:</label>
+    <input type="text" id="financiamento" placeholder="Ex: 300000" oninput="mascaraNumero(this)">
 
-    <label>💸 Seguros + Taxas (R$):</label>
-    <input type="text" id="taxas" placeholder="Exemplo: 65">
+    <label>💸 Seguros + Taxas:</label>
+    <input type="text" id="taxas" placeholder="Ex: 65" oninput="mascaraNumero(this)">
 
     <label>📈 Juros Anual (%):</label>
-    <input type="text" id="juros" placeholder="Exemplo: 7.93">
+    <input type="text" id="juros" placeholder="Ex: 7.93" oninput="mascaraPercentual(this)">
 
     <label>📊 TR (%):</label>
-    <input type="text" id="tr" placeholder="Exemplo: 0.22">
+    <input type="text" id="tr" placeholder="Ex: 0.22" oninput="mascaraPercentual(this)">
 
     <label>🏗️ Percentual da Obra (%):</label>
-    <input type="text" id="obra" placeholder="Exemplo: 40">
+    <input type="text" id="obra" placeholder="Ex: 40" oninput="mascaraPercentual(this)">
 
-    <button onclick="calcular()">Calcular Parcela</button>
+    <div style="display:flex; justify-content: space-between;">
+      <button onclick="calcular()">Calcular</button>
+      <button class="btn-clear" onclick="limpar()">Limpar</button>
+    </div>
 
     <div class="result" id="resultado">Valor da Parcela: R$ 0,00</div>
   </div>
 
   <script>
-    // 🔐 Função de Login
+    // 🔐 LOGIN COM CACHE LOCAL
+    window.onload = function() {
+      const acesso = localStorage.getItem("acessoRaulMendes");
+      if (acesso === "liberado") {
+        mostrarSimulador();
+      }
+    };
+
     function verificarSenha() {
       const senha = document.getElementById('senha').value.trim().toLowerCase();
       if (senha === "raulmendes") {
-        document.getElementById('login').style.display = "none";
-        document.getElementById('simulador').style.display = "block";
+        localStorage.setItem("acessoRaulMendes", "liberado");
+        mostrarSimulador();
       } else {
-        alert("Senha incorreta! Tente novamente.");
+        alert("Senha incorreta!");
       }
     }
 
-    // 🧮 Função de Cálculo
+    function mostrarSimulador() {
+      document.getElementById('login').style.display = "none";
+      document.getElementById('simulador').style.display = "block";
+    }
+
+    // 🧮 FORMATAÇÃO E CÁLCULO
     function formatarNumero(valor) {
       return valor.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function limpar() {
+      document.querySelectorAll("#simulador input").forEach(inp => inp.value = "");
+      document.getElementById("resultado").innerText = "Valor da Parcela: R$ 0,00";
+    }
+
+    function mascaraNumero(input) {
+      input.value = input.value.replace(/[^0-9.,]/g, '');
+    }
+
+    function mascaraPercentual(input) {
+      input.value = input.value.replace(/[^0-9.,]/g, '');
     }
 
     function calcular() {
