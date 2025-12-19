@@ -1,241 +1,222 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Simulador de Juros de Obra | Raul Mendes Imob</title>
-  <style>
-    body {
-      font-family: "Poppins", sans-serif;
-      background: #f3f6fb;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin: 0;
-      padding: 20px;
-      color: #222;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador de Juros de Obra</title>
+<style>
+  body {
+    font-family: "Poppins", sans-serif;
+    background: #eef7fb;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+  }
 
-    header {
-      text-align: center;
-      background: #ffffff;
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      width: 100%;
-      max-width: 500px;
-    }
+  .container {
+    background: #fff;
+    margin: 20px;
+    padding: 25px;
+    border-radius: 15px;
+    max-width: 420px;
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
 
-    header img {
-      width: 100%;
-      max-width: 400px;
-      border-radius: 8px;
-    }
+  h2 {
+    text-align: center;
+    color: #003366;
+    margin-bottom: 15px;
+  }
 
-    .social-icons img {
-      margin: 5px;
-      width: 28px;
-      transition: 0.3s;
-    }
+  iframe {
+    width: 100%;
+    border-radius: 10px;
+    margin-bottom: 10px;
+  }
 
-    .social-icons img:hover {
-      transform: scale(1.1);
-    }
+  .cta {
+    display: block;
+    width: 100%;
+    background: #003366;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 25px;
+    transition: 0.3s;
+  }
 
-    .login-box, .simulador {
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      padding: 25px;
-      width: 100%;
-      max-width: 500px;
-      margin-top: 20px;
-      text-align: center;
-    }
+  .cta:hover {
+    background: #0055aa;
+  }
 
-    input {
-      width: 90%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      margin: 8px 0;
-      font-size: 16px;
-      text-align: center;
-    }
+  label {
+    font-weight: 600;
+    color: #333;
+    display: block;
+    margin: 10px 0 5px;
+  }
 
-    button {
-      width: 95%;
-      padding: 10px;
-      background-color: #004aad;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 16px;
-      margin-top: 10px;
-    }
+  input {
+    width: 100%;
+    padding: 10px;
+    font-size: 15px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    margin-bottom: 5px;
+  }
 
-    button:hover {
-      background-color: #0066ff;
-    }
+  .tr-ref {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 10px;
+  }
 
-    .resultado {
-      margin-top: 15px;
-      font-weight: 600;
-      font-size: 18px;
-      color: #004aad;
-    }
+  .btn {
+    width: 100%;
+    border: none;
+    border-radius: 10px;
+    padding: 12px;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+    font-size: 16px;
+    transition: 0.3s;
+  }
 
-    footer {
-      margin-top: 25px;
-      font-size: 13px;
-      color: #555;
-      text-align: center;
-    }
+  .btn-green {
+    background: #009b4d;
+  }
 
-    iframe {
-      border-radius: 10px;
-      margin-top: 20px;
-    }
-  </style>
+  .btn-green:hover {
+    background: #00c060;
+  }
+
+  .btn-gray {
+    background: #ccc;
+    color: #333;
+  }
+
+  .result {
+    background: #e5f8ea;
+    color: #007b33;
+    border-radius: 10px;
+    font-weight: bold;
+    text-align: center;
+    padding: 15px;
+    margin-top: 20px;
+    font-size: 22px;
+  }
+
+  footer {
+    text-align: center;
+    font-size: 14px;
+    color: #555;
+    margin-top: 30px;
+  }
+
+  .social {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 5px;
+    gap: 8px;
+  }
+
+  .social img {
+    width: 20px;
+    height: 20px;
+  }
+</style>
 </head>
-
 <body>
 
-  <header>
-    <img src="https://i.imgur.com/0ZfRzE5.png" alt="Banner Raul Mendes Imob">
-    <h2>@raulmendes.imob</h2>
-    <p>Transformando o mercado imobiliário com tecnologia e estratégia</p>
-    <div class="social-icons">
-      <a href="https://www.instagram.com/raulmendes.imob" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram"></a>
-      <a href="https://www.youtube.com/@raulmendesimob" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" alt="YouTube"></a>
-      <a href="https://wa.me/5599999999999" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp"></a>
-    </div>
-  </header>
+<div class="container">
+  <h2>Simulador de Juros de Obra</h2>
 
-  <div class="login-box" id="login">
-    <h3>🔒 Acesso Restrito</h3>
-    <p style="color:#666; font-size:14px;">
-      💡 Dica de Senha: Nome e Sobrenome de quem te ajuda no mercado imobiliário — 10 letras
-    </p>
-    <input type="password" id="senha" placeholder="Digite a senha">
-    <button onclick="verificarSenha()">Entrar</button>
-    <p id="erro" style="color:red; display:none;">Senha incorreta. Tente novamente.</p>
-  </div>
+  <iframe height="215" src="https://www.youtube.com/embed/VIDEO_ID" title="Tutorial de Uso" allowfullscreen></iframe>
 
-  <div class="simulador" id="simulador" style="display:none;">
-    <h2>Simulador de Juros de Obra</h2>
-    <input id="financiamento" type="number" placeholder="💰 Valor do Financiamento (R$)">
-    <input id="taxas" type="number" placeholder="🏦 Seguros + Taxas (R$)">
-    <input id="juros" type="number" step="0.01" placeholder="📊 Juros Anual (%)">
-    <input id="tr" type="number" step="0.01" placeholder="📈 TR (%)">
-    <input id="obra" type="number" placeholder="🏗️ Percentual da Obra (%)" min="0" max="100">
+  <button class="cta">Saiba Mais</button>
 
-    <button onclick="calcular()">Calcular Parcela</button>
-    <div class="resultado" id="resultado">Valor da Parcela: —</div>
+  <label>💰 Valor do Financiamento (R$):</label>
+  <input type="text" id="financiamento" placeholder="Exemplo: 300000">
 
-    <button onclick="gerarPDF()">📄 Gerar PDF (5% a 100%)</button>
+  <label>📘 Seguros + Taxas (R$):</label>
+  <input type="text" id="taxas" placeholder="Exemplo: 65">
 
-    <iframe width="100%" height="200"
-      src="https://www.youtube.com/embed/dQw4w9WgXcQ"
-      title="Tutorial do Simulador"
-      frameborder="0"
-      allowfullscreen>
-    </iframe>
-  </div>
+  <label>📊 Juros Anual (%):</label>
+  <input type="text" id="juros" placeholder="Exemplo: 7.93">
+
+  <label>📈 TR (%):</label>
+  <input type="text" id="tr" placeholder="Exemplo: 0.22">
+  <div class="tr-ref">Disponível em: www.brasilindicadores.com.br/tr</div>
+
+  <label>🏗️ Percentual da Obra (%):</label>
+  <input type="text" id="obra" placeholder="Exemplo: 40">
+
+  <button class="btn btn-green" onclick="calcular()">Calcular Parcela</button>
+  <button class="btn btn-gray" onclick="limpar()">Limpar</button>
+
+  <div id="resultado" class="result">Valor da Parcela: R$ 0,00</div>
 
   <footer>
-    Desenvolvido por <b>@raulmendes.imob</b> | Todos os direitos reservados
+    Imóvel é conquista, e não sonho.
+    <div class="social">
+      <img src="https://cdn-icons-png.flaticon.com/512/1384/1384063.png" alt="Instagram">
+      @raulmendes.imob
+    </div>
   </footer>
+</div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script>
-    const senhaCorreta = "raulmendes";
-    const umDia = 24 * 60 * 60 * 1000;
+<script>
+function formatarMoeda(valor) {
+  valor = valor.replace(/\D/g, "");
+  valor = (valor / 100).toFixed(2) + "";
+  valor = valor.replace(".", ",");
+  valor = valor.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return valor;
+}
 
-    function verificarSenha() {
-      const senha = document.getElementById("senha").value.toLowerCase().trim();
-      const ultimaSessao = localStorage.getItem("ultimaSessao");
-      const agora = new Date().getTime();
+function calcular() {
+  let financiamento = parseFloat(document.getElementById("financiamento").value.replace(/\./g, "").replace(",", "."));
+  let taxas = parseFloat(document.getElementById("taxas").value.replace(",", "."));
+  let juros = parseFloat(document.getElementById("juros").value.replace(",", "."));
+  let tr = parseFloat(document.getElementById("tr").value.replace(",", "."));
+  let obra = parseFloat(document.getElementById("obra").value.replace(",", "."));
 
-      if (senha === senhaCorreta) {
-        localStorage.setItem("autenticado", "true");
-        localStorage.setItem("ultimaSessao", agora);
-        mostrarSimulador();
-      } else {
-        document.getElementById("erro").style.display = "block";
-      }
-    }
+  if (isNaN(financiamento) || isNaN(taxas) || isNaN(juros) || isNaN(tr) || isNaN(obra)) {
+    alert("Preencha todos os campos corretamente!");
+    return;
+  }
 
-    function mostrarSimulador() {
-      document.getElementById("login").style.display = "none";
-      document.getElementById("simulador").style.display = "block";
-    }
+  if (obra > 100) {
+    alert("O percentual da obra não pode ser maior que 100%!");
+    return;
+  }
 
-    window.onload = function() {
-      const autenticado = localStorage.getItem("autenticado");
-      const ultimaSessao = localStorage.getItem("ultimaSessao");
-      const agora = new Date().getTime();
+  let parcela = financiamento * (obra / 100) * (1 + ((obra / 100) * (tr / 100))) * ((juros / 100) / 12) + taxas;
 
-      if (autenticado && ultimaSessao && (agora - ultimaSessao < umDia)) {
-        mostrarSimulador();
-      } else {
-        localStorage.removeItem("autenticado");
-        localStorage.removeItem("ultimaSessao");
-      }
-    }
+  document.getElementById("resultado").innerText =
+    "Valor da Parcela: R$ " + parcela.toLocaleString("pt-BR", {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
 
-    function calcular() {
-      const financiamento = parseFloat(document.getElementById("financiamento").value) || 0;
-      const taxas = parseFloat(document.getElementById("taxas").value) || 0;
-      const juros = parseFloat(document.getElementById("juros").value) || 0;
-      const tr = parseFloat(document.getElementById("tr").value) || 0;
-      const obra = Math.min(parseFloat(document.getElementById("obra").value) || 0, 100);
+function limpar() {
+  document.getElementById("financiamento").value = "";
+  document.getElementById("taxas").value = "";
+  document.getElementById("juros").value = "";
+  document.getElementById("tr").value = "";
+  document.getElementById("obra").value = "";
+  document.getElementById("resultado").innerText = "Valor da Parcela: R$ 0,00";
+}
+</script>
 
-      const valorParcela = financiamento * (obra / 100) *
-        (1 + ((obra / 100) * (tr / 100))) *
-        ((juros / 100) / 12) + taxas;
-
-      document.getElementById("resultado").innerText =
-        `Valor da Parcela: R$ ${valorParcela.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
-    }
-
-    async function gerarPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-
-      const financiamento = parseFloat(document.getElementById("financiamento").value) || 0;
-      const taxas = parseFloat(document.getElementById("taxas").value) || 0;
-      const juros = parseFloat(document.getElementById("juros").value) || 0;
-      const tr = parseFloat(document.getElementById("tr").value) || 0;
-
-      let y = 20;
-      doc.setFontSize(14);
-      doc.text("Simulação - Juros de Obra", 20, y);
-      y += 10;
-      doc.setFontSize(10);
-      doc.text(`Financiamento: R$ ${financiamento.toLocaleString('pt-BR')}`, 20, y);
-      y += 8;
-      doc.text(`Juros: ${juros}%  |  TR: ${tr}%  |  Taxas: R$ ${taxas}`, 20, y);
-      y += 10;
-
-      doc.text("Percentual da Obra | Valor da Parcela", 20, y);
-      y += 8;
-
-      for (let p = 5; p <= 100; p += 5) {
-        const valorParcela = financiamento * (p / 100) *
-          (1 + ((p / 100) * (tr / 100))) *
-          ((juros / 100) / 12) + taxas;
-
-        doc.text(`${p}%  |  R$ ${valorParcela.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 20, y);
-        y += 8;
-      }
-
-      y += 10;
-      doc.text("Desenvolvido por @raulmendes.imob", 20, y);
-
-      doc.save("Simulacao_Juros_Obra.pdf");
-    }
-  </script>
 </body>
 </html>
