@@ -153,14 +153,14 @@
   <input type="text" id="taxas" placeholder="Exemplo: 65" oninput="formatarMoeda(this)">
 
   <label>📊 Juros Anual (%):</label>
-  <input type="text" id="juros" placeholder="Exemplo: 7.93" oninput="formatarPercentual(this)">
+  <input type="text" id="juros" placeholder="Exemplo: 7.93">
 
   <label>📈 TR (%):</label>
-  <input type="text" id="tr" placeholder="Exemplo: 0.22" oninput="formatarPercentual(this)">
+  <input type="text" id="tr" placeholder="Exemplo: 0.22">
   <div class="tr-ref">Disponível em: www.brasilindicadores.com.br/tr</div>
 
   <label>🏗️ Percentual da Obra (%):</label>
-  <input type="text" id="obra" placeholder="Exemplo: 40" oninput="formatarPercentual(this)">
+  <input type="text" id="obra" placeholder="Exemplo: 40">
 
   <button class="btn btn-green" onclick="calcular()">Calcular Parcela</button>
   <button class="btn btn-gray" onclick="limpar()">Limpar</button>
@@ -187,36 +187,30 @@ function formatarMoeda(campo) {
   campo.value = "R$ " + valor;
 }
 
-function formatarPercentual(campo) {
-  let valor = campo.value.replace(/\D/g, "");
-  if (valor === "") return campo.value = "";
-  valor = (valor / 100).toFixed(2);
-  campo.value = valor.replace(".", ",") + " %";
-}
-
 function limpar() {
   document.querySelectorAll("input").forEach(i => i.value = "");
   document.getElementById("resultado").innerText = "Valor da Parcela: R$ 0,00";
 }
 
 function calcular() {
-  let financiamento = parseFloat(document.getElementById("financiamento").value.replace(/\D/g, "")) / 100;
-  let taxas = parseFloat(document.getElementById("taxas").value.replace(/\D/g, "")) / 100;
-  let juros = parseFloat(document.getElementById("juros").value.replace(/\D/g, "")) / 100;
-  let tr = parseFloat(document.getElementById("tr").value.replace(/\D/g, "")) / 100;
-  let obra = parseFloat(document.getElementById("obra").value.replace(/\D/g, "")) / 100;
+  const financiamento = parseFloat(document.getElementById("financiamento").value.replace(/\D/g, "")) / 100;
+  const taxas = parseFloat(document.getElementById("taxas").value.replace(/\D/g, "")) / 100;
+
+  const juros = parseFloat(document.getElementById("juros").value.replace(",", "."));
+  const tr = parseFloat(document.getElementById("tr").value.replace(",", "."));
+  const obra = parseFloat(document.getElementById("obra").value.replace(",", "."));
 
   if (isNaN(financiamento) || isNaN(taxas) || isNaN(juros) || isNaN(tr) || isNaN(obra)) {
     alert("Preencha todos os campos corretamente!");
     return;
   }
 
-  if (obra > 1) {
+  if (obra > 100) {
     alert("O percentual da obra não pode ser maior que 100%!");
     return;
   }
 
-  let parcela = financiamento * obra * (1 + (obra * tr)) * (juros / 12) + taxas;
+  const parcela = financiamento * (obra / 100) * (1 + ((obra / 100) * (tr / 100))) * ((juros / 100) / 12) + taxas;
 
   document.getElementById("resultado").innerText =
     "Valor da Parcela: R$ " + parcela.toLocaleString("pt-BR", {minimumFractionDigits: 2, maximumFractionDigits: 2});
