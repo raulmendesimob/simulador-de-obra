@@ -157,8 +157,8 @@
     <option value="30">Mais de 24 meses</option>
   </select>
 
-  <button class="btn btn-green" onclick="calcularFaixas()">Calcular minhas faixas</button>
-  <button class="btn btn-gray" onclick="limpar()">Limpar</button>
+  <button class="btn btn-green" id="btnCalcular">Calcular minhas faixas</button>
+  <button class="btn btn-gray" id="btnLimpar">Limpar</button>
 
   <div id="cards" class="cards" style="display:none;"></div>
 
@@ -179,44 +179,181 @@
 
 <script>
 /** ========= Helpers ========= **/
+
+// Formata BRL sem “forçar” centavos (mas o Intl sempre mostra 2 casas; ok)
+function formatBRL(n){
+  return Number(n || 0).toLocaleString("pt-BR", { style:"currency", currency:"BRL" });
+}
+
+// Lê números do input "R$ 6.000" -> 6000
 function parseBRL(str){
   if(!str) return 0;
-  const digits = String(str).replace(/\D/g,'');
+  const digits = String(str).replace(/\D/g,''); // pega só dígitos
   if(digits === '') return 0;
-  return Number(digits) / 100;
-}
-function formatBRL(n){
-  return n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+  return Number(digits); // AGORA É EM REAIS (sem /100)
 }
 
-/**
- * Formata enquanto digita em R$ 0.000,00
- * - mantém apenas dígitos internamente
- * - simples e estável para inputmode numeric
- */
+// Máscara em tempo real: digita 6000 => "R$ 6.000"
 function bindMoneyInput(el){
   el.addEventListener("input", () => {
-    let v = el.value.replace(/\D/g,'');
-    if(v === "") { el.value = ""; return; }
-    // limita tamanho para evitar números gigantes (opcional)
-    if(v.length > 12) v = v.slice(0, 12);
+    let digits = el.value.replace(/\D/g,'');
+    if(digits === "") { el.value = ""; return; }
+    // limita pra não virar um monstro
+    if(digits.length > 12) digits = digits.slice(0, 12);
 
-    let num = (Number(v) / 100).toFixed(2);
-    let [intPart, decPart] = num.split(".");
-    intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-    el.value = `R$ ${intPart},${decPart}`;
+    const value = Number(digits); // reais
+    // Formata com separador de milhar, sem decimal no texto (mais intuitivo)
+    const formatted = value.toLocaleString("pt-BR", { maximumFractionDigits: 0 });
+    el.value = "R$ " + formatted;
   });
 
-  // ao focar, coloca cursor no fim (boa UX com máscara simples)
+  // cursor no fim (melhora UX)
   el.addEventListener("focus", () => {
     const len = el.value.length;
     setTimeout(() => el.setSelectionRange(len, len), 0);
   });
 }
 
-bindMoneyInput(document.getElementById("renda"));
-bindMoneyInput(document.getElementById("fgts"));
-bindMoneyInput(document.getElementById("ato"));
+/** ========= Cálculo ========= **/
+function parcelaPricePV(pv, jurosAA, nMeses){
+  const i = (jurosAA/100)/12;
+  if(i <= 0) return pv/nMeses;
+  const pow = Math.pow(1+i, nMeses);
+  return pv * (i * pow) / (pow - 1);
+}
+
+function picoEstimado(valorImovel, entradaImediata, prazoObra, pctEntrada, jurosAA, fatorPicoLiberacao){
+  const entradaAlvo = valorImovel * (pctEntrada/100);
+  const financiamento = Math.max(0, valorImovel - entradaAlvo);
+
+  const entradaParcelavel = Math.max(0, entradaAlvo - entradaImediata);
+  const parcelaEntradaMensal = entradaParcelavel / prazoObra;
+
+  const jurosMensal = (jurosAA/100) / 12;
+  const jurosObraPico = financiamento * jurosMensal * fatorPicoLiberacao;
+
+  const pico = parcelaEntradaMensal + jurosObraPico;
+
+  return { pico, financiamento, entradaAlvo, entradaParcelavel, parcelaEntradaMensal, jurosObraPico };
+}
+
+function encontrarMaxImovel(limitePico, entradaImediata, prazoObra, pctEntrada, jurosAA, fatorPicoLiberacao){
+  let low = 80000;
+  let high = 600000;
+
+  if(picoEstimado(low, entradaImediata, prazoObra, pctEntrada, jurosAA, fatorPicoLiberacao).pico > limitePico){
+    const dMin = picoEstimado(low, entradaImediata, prazoObra, pctEntrada, jurosAA, fatorPicoLiberacao);
+    return { valor: low, ok:false, detalhe: dMin };
+  }
+
+  for(let i=0;i<42;i++){
+    const mid = (low+high)/2;
+    const det = picoEstimado(mid, entradaImediata, prazoObra, pctEntrada, jurosAA, fatorPicoLiberacao);
+    if(det.pico <= limitePico) low = mid;
+    else high = mid;
+  }
+
+  const valor = Math.floor(low/1000)*1000;
+  const detFinal = picoEstimado(valor, entradaImediata, prazoObra, pctEntrada, jurosAA, fatorPicoLiberacao);
+  return { valor, ok:true, detalhe: detFinal };
+}
+
+function calcularFaixas(){
+  const renda = parseBRL(document.getElementById("renda").value);
+  const fgts  = parseBRL(document.getElementById("fgts").value);
+  const ato   = parseBRL(document.getElementById("ato").value);
+  const prazoObra = Number(document.getElementById("prazoSelect").value);
+
+  if(!renda || renda <= 0){
+    alert("Preencha a renda (ex: 6000).");
+    return;
+  }
+  if(!prazoObra){
+    alert("Selecione o prazo de obra.");
+    return;
+  }
+
+  const entradaImediata = (fgts || 0) + (ato || 0);
+
+  // Premissas fixas (sem perguntar)
+  const pctEntrada = 20;          // Entrada-alvo (%)
+  const jurosAA = 7.93;           // Juros anual referência
+  const prazoFin = 420;           // Meses
+  const fatorPicoLiberacao = 0.90;
+
+  const cenarios = [
+    { nome:"Imóvel ideal",   pct:0.30, tagClass:"ok",  tagText:"Confortável" },
+    { nome:"Imóvel pagável", pct:0.45, tagClass:"mid", tagText:"Vai apertar no fim" },
+    { nome:"Imóvel máximo",  pct:0.60, tagClass:"max", tagText:"No limite" }
+  ];
+
+  const cardsEl = document.getElementById("cards");
+  cardsEl.innerHTML = "";
+  cardsEl.style.display = "grid";
+
+  cenarios.forEach(c=>{
+    const limitePico = renda * c.pct;
+
+    const res = encontrarMaxImovel(
+      limitePico,
+      entradaImediata,
+      prazoObra,
+      pctEntrada,
+      jurosAA,
+      fatorPicoLiberacao
+    );
+
+    const v = res.valor;
+    const d = res.detalhe;
+
+    const parcelaFin = parcelaPricePV(d.financiamento, jurosAA, prazoFin);
+    const pctRenda = (d.pico / renda) * 100;
+
+    const html = `
+      <div class="card">
+        <h3>${c.nome}</h3>
+        <div class="big">${formatBRL(v)}</div>
+
+        <div class="meta">
+          <div style="margin-bottom:8px;">
+            <b>Financiamento estimado:</b> ${formatBRL(d.financiamento)}<br>
+            <b>Parcela do financiamento (aprox.):</b> ${formatBRL(parcelaFin)} / mês
+          </div>
+
+          <div style="margin-bottom:8px;">
+            <b>Entrada-alvo (20%):</b> ${formatBRL(d.entradaAlvo)}<br>
+            <b>Entrada imediata (FGTS + ato):</b> ${formatBRL(entradaImediata)}<br>
+            <b>Entrada mensal estimada:</b> ${formatBRL(d.parcelaEntradaMensal)} por ${prazoObra} meses
+          </div>
+
+          <div>
+            <b>Pico estimado na obra:</b> ${formatBRL(d.pico)}
+            <span style="color:#566; font-weight:700;">(~${pctRenda.toFixed(1)}% da renda)</span><br>
+            <span style="font-size:12px;color:#667;">
+              (pico = entrada mensal + juros de obra aproximado)
+            </span>
+          </div>
+
+          <span class="tag ${c.tagClass}">${c.tagText}</span>
+        </div>
+      </div>
+    `;
+    cardsEl.insertAdjacentHTML("beforeend", html);
+  });
+
+  // Bullets pós-resultado
+  const obs = [
+    "Este resultado mostra cenários e faixas prováveis — não é proposta do banco.",
+    "Prazo de obra muda tudo: quanto menor o prazo, maior tende a ser a entrada mensal.",
+    "Juros de obra variam por evolução/medições. Aqui usamos um pico aproximado para você visualizar risco.",
+    "Não consideramos INCC e outras correções contratuais (isso pode aumentar valores ao longo do tempo).",
+    "Não consideramos pós-chaves (algumas construtoras cobram). Se houver, o fluxo muda.",
+    "Quer a linha do tempo completa (entrada + evolução da obra + picos) do seu empreendimento? Dá para montar em consultoria."
+  ];
+
+  document.getElementById("obsList").innerHTML = obs.map(t=>`<li>${t}</li>`).join("");
+  document.getElementById("obs").style.display = "block";
+}
 
 function limpar(){
   ["renda","fgts","ato"].forEach(id => document.getElementById(id).value = "");
@@ -228,104 +365,16 @@ function limpar(){
   document.getElementById("obsList").innerHTML = "";
 }
 
-/** ========= Modelo simplificado =========
- * Premissas internas (sem perguntar):
- * - Entrada-alvo: 20% do imóvel
- * - Financiamento: 80% do imóvel
- * - Juros anual de referência (MCMV): 7.93% a.a.
- * - Prazo financiamento: 420 meses
- *
- * Pico na obra (aprox):
- * pico = entrada mensal + juros de obra (pico)
- *
- * Juros de obra (pico) aprox:
- * jurosObraPico = financiamento * (jurosAA/12) * fatorPicoLiberacao
- * fatorPicoLiberacao: perto do fim, grande parte do crédito já foi liberada (~0.90)
- */
-function calcularFaixas(){
-  const renda = parseBRL(document.getElementById("renda").value);
-  const fgts  = parseBRL(document.getElementById("fgts").value);
-  const ato   = parseBRL(document.getElementById("ato").value);
-  const prazoObra = Number(document.getElementById("prazoSelect").value);
+/** ========= Init ========= **/
+document.addEventListener("DOMContentLoaded", () => {
+  bindMoneyInput(document.getElementById("renda"));
+  bindMoneyInput(document.getElementById("fgts"));
+  bindMoneyInput(document.getElementById("ato"));
 
-  if(!renda || !prazoObra){
-    alert("Preencha a renda e selecione o prazo de obra.");
-    return;
-  }
+  document.getElementById("btnCalcular").addEventListener("click", calcularFaixas);
+  document.getElementById("btnLimpar").addEventListener("click", limpar);
+});
+</script>
 
-  const entradaImediata = fgts + ato;
-
-  // Premissas fixas (pode ajustar depois no código)
-  const pctEntrada = 20;      // %
-  const jurosAA = 7.93;       // % a.a.
-  const prazoFin = 420;       // meses
-  const fatorPicoLiberacao = 0.90;
-
-  // Limites de pico (cenários)
-  const cenarios = [
-    { nome:"Imóvel ideal",   pct:0.30, tagClass:"ok",  tagText:"Confortável" },
-    { nome:"Imóvel pagável", pct:0.45, tagClass:"mid", tagText:"Vai apertar no fim" },
-    { nome:"Imóvel máximo",  pct:0.60, tagClass:"max", tagText:"No limite" }
-  ];
-
-  // Juros obra (pico) + entrada mensal estimada
-  function picoEstimado(valorImovel){
-    const entradaAlvo = valorImovel * (pctEntrada/100);
-    const financiamento = Math.max(0, valorImovel - entradaAlvo);
-
-    const entradaParcelavel = Math.max(0, entradaAlvo - entradaImediata);
-    const parcelaEntradaMensal = entradaParcelavel / prazoObra;
-
-    const jurosMensal = (jurosAA/100) / 12;
-    const jurosObraPico = financiamento * jurosMensal * fatorPicoLiberacao;
-
-    const pico = parcelaEntradaMensal + jurosObraPico;
-
-    return { pico, financiamento, entradaAlvo, entradaParcelavel, parcelaEntradaMensal, jurosObraPico };
-  }
-
-  // Busca do maior valor do imóvel que respeita o limite de pico
-  function encontrarMaxImovel(limitePico){
-    let low = 80000;
-    let high = 600000;
-
-    if(picoEstimado(low).pico > limitePico){
-      return { valor: low, ok:false, detalhe: picoEstimado(low) };
-    }
-
-    for(let i=0;i<42;i++){
-      const mid = (low+high)/2;
-      const det = picoEstimado(mid);
-      if(det.pico <= limitePico) low = mid;
-      else high = mid;
-    }
-    const valor = Math.floor(low/1000)*1000;
-    return { valor, ok:true, detalhe: picoEstimado(valor) };
-  }
-
-  // Parcela do financiamento (PRICE) - sem seguros/adm (aprox)
-  function parcelaPricePV(pv){
-    const i = (jurosAA/100)/12;
-    if(i <= 0) return pv/prazoFin;
-    const fator = (i * Math.pow(1+i, prazoFin)) / (Math.pow(1+i, prazoFin)-1);
-    return pv * fator;
-  }
-
-  const cardsEl = document.getElementById("cards");
-  cardsEl.innerHTML = "";
-  cardsEl.style.display = "grid";
-
-  cenarios.forEach(c=>{
-    const limitePico = renda * c.pct;
-    const res = encontrarMaxImovel(limitePico);
-    const v = res.valor;
-    const d = res.detalhe;
-
-    const parcelaFin = parcelaPricePV(d.financiamento);
-
-    const pctRenda = (d.pico / renda) * 100;
-
-    const html = `
-      <div class="card">
-        <h3>${c.nome}</h3>
-        <div
+</body>
+</html>
