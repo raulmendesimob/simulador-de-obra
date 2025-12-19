@@ -120,20 +120,20 @@
     text-align: center;
     font-size: 14px;
     color: #555;
-    margin-top: 30px;
-  }
-
-  .social {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 5px;
-    gap: 8px;
+    margin-top: 20px;
   }
 
   .social img {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
+    vertical-align: middle;
+  }
+
+  .social a {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    margin-left: 8px;
   }
 </style>
 </head>
@@ -144,23 +144,23 @@
 
   <iframe height="215" src="https://www.youtube.com/embed/VIDEO_ID" title="Tutorial de Uso" allowfullscreen></iframe>
 
-  <button class="cta">Saiba Mais</button>
+  <button class="cta" onclick="window.location.href='https://seudominio.com/landingpage'">Saiba Mais</button>
 
   <label>💰 Valor do Financiamento (R$):</label>
-  <input type="text" id="financiamento" placeholder="Exemplo: 300000">
+  <input type="text" id="financiamento" placeholder="Exemplo: 300000" oninput="formatarMoeda(this)">
 
   <label>📘 Seguros + Taxas (R$):</label>
-  <input type="text" id="taxas" placeholder="Exemplo: 65">
+  <input type="text" id="taxas" placeholder="Exemplo: 65" oninput="formatarMoeda(this)">
 
   <label>📊 Juros Anual (%):</label>
-  <input type="text" id="juros" placeholder="Exemplo: 7.93">
+  <input type="text" id="juros" placeholder="Exemplo: 7.93" oninput="formatarPercentual(this)">
 
   <label>📈 TR (%):</label>
-  <input type="text" id="tr" placeholder="Exemplo: 0.22">
+  <input type="text" id="tr" placeholder="Exemplo: 0.22" oninput="formatarPercentual(this)">
   <div class="tr-ref">Disponível em: www.brasilindicadores.com.br/tr</div>
 
   <label>🏗️ Percentual da Obra (%):</label>
-  <input type="text" id="obra" placeholder="Exemplo: 40">
+  <input type="text" id="obra" placeholder="Exemplo: 40" oninput="formatarPercentual(this)">
 
   <button class="btn btn-green" onclick="calcular()">Calcular Parcela</button>
   <button class="btn btn-gray" onclick="limpar()">Limpar</button>
@@ -168,53 +168,58 @@
   <div id="resultado" class="result">Valor da Parcela: R$ 0,00</div>
 
   <footer>
-    Imóvel é conquista, e não sonho.
     <div class="social">
-      <img src="https://cdn-icons-png.flaticon.com/512/1384/1384063.png" alt="Instagram">
-      @raulmendes.imob
+      <a href="https://www.instagram.com/raulmendes.imob" target="_blank">
+        <img src="https://cdn-icons-png.flaticon.com/512/1384/1384063.png" alt="Instagram">
+        @raulmendes.imob
+      </a>
     </div>
   </footer>
 </div>
 
 <script>
-function formatarMoeda(valor) {
-  valor = valor.replace(/\D/g, "");
+function formatarMoeda(campo) {
+  let valor = campo.value.replace(/\D/g, "");
+  if (valor === "") return campo.value = "";
   valor = (valor / 100).toFixed(2) + "";
   valor = valor.replace(".", ",");
   valor = valor.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  return valor;
+  campo.value = "R$ " + valor;
+}
+
+function formatarPercentual(campo) {
+  let valor = campo.value.replace(/\D/g, "");
+  if (valor === "") return campo.value = "";
+  valor = (valor / 100).toFixed(2);
+  campo.value = valor.replace(".", ",") + " %";
+}
+
+function limpar() {
+  document.querySelectorAll("input").forEach(i => i.value = "");
+  document.getElementById("resultado").innerText = "Valor da Parcela: R$ 0,00";
 }
 
 function calcular() {
-  let financiamento = parseFloat(document.getElementById("financiamento").value.replace(/\./g, "").replace(",", "."));
-  let taxas = parseFloat(document.getElementById("taxas").value.replace(",", "."));
-  let juros = parseFloat(document.getElementById("juros").value.replace(",", "."));
-  let tr = parseFloat(document.getElementById("tr").value.replace(",", "."));
-  let obra = parseFloat(document.getElementById("obra").value.replace(",", "."));
+  let financiamento = parseFloat(document.getElementById("financiamento").value.replace(/\D/g, "")) / 100;
+  let taxas = parseFloat(document.getElementById("taxas").value.replace(/\D/g, "")) / 100;
+  let juros = parseFloat(document.getElementById("juros").value.replace(/\D/g, "")) / 100;
+  let tr = parseFloat(document.getElementById("tr").value.replace(/\D/g, "")) / 100;
+  let obra = parseFloat(document.getElementById("obra").value.replace(/\D/g, "")) / 100;
 
   if (isNaN(financiamento) || isNaN(taxas) || isNaN(juros) || isNaN(tr) || isNaN(obra)) {
     alert("Preencha todos os campos corretamente!");
     return;
   }
 
-  if (obra > 100) {
+  if (obra > 1) {
     alert("O percentual da obra não pode ser maior que 100%!");
     return;
   }
 
-  let parcela = financiamento * (obra / 100) * (1 + ((obra / 100) * (tr / 100))) * ((juros / 100) / 12) + taxas;
+  let parcela = financiamento * obra * (1 + (obra * tr)) * (juros / 12) + taxas;
 
   document.getElementById("resultado").innerText =
     "Valor da Parcela: R$ " + parcela.toLocaleString("pt-BR", {minimumFractionDigits: 2, maximumFractionDigits: 2});
-}
-
-function limpar() {
-  document.getElementById("financiamento").value = "";
-  document.getElementById("taxas").value = "";
-  document.getElementById("juros").value = "";
-  document.getElementById("tr").value = "";
-  document.getElementById("obra").value = "";
-  document.getElementById("resultado").innerText = "Valor da Parcela: R$ 0,00";
 }
 </script>
 
