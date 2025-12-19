@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Calculadora — Faixa de Imóvel (Obra + Entrada)</title>
+<style>
+  body{
+    font-family:"Poppins",sans-serif;
+    background:#eef7fb;
+    margin:0;padding:0;
+    display:flex;justify-content:center;align-items:flex-start;
+    min-height:100vh;
+  }
+  .container{
+    background:#fff;
+    margin:20px;
+    padding:25px;
+    border-radius:15px;
+    max-width:460px;
+    width:100%;
+    box-shadow:0 4px 12px rgba(0,0,0,0.1);
+  }
+  h2{ text-align:center;color:#003366;margin:0 0 8px; }
+  p.sub{
+    text-align:center;
+    color:#3b4a5a;
+    margin:0 0 18px;
+    font-size:13px;
+    line-height:1.35;
+  }
+  iframe{ width:100%; border-radius:10px; margin-bottom:10px; border:0; }
+  .cta{
+    display:block;width:100%;
+    background:#003366;color:#fff;border:none;border-radius:10px;
+    padding:10px;font-size:16px;font-weight:bold;cursor:pointer;
+    margin:8px 0 18px; transition:0.3s;
+  }
+  .cta:hover{ background:#0055aa; }
+  label{
+    font-weight:600;color:#333;display:block;
+    margin:10px 0 5px;
+  }
+  input, select{
+    width:100%;
+    padding:10px;
+    font-size:15px;
+    border-radius:8px;
+    border:1px solid #ccc;
+    margin-bottom:6px;
+    box-sizing:border-box;
+  }
+  .row{
+    display:flex; gap:10px;
+  }
+  .row > div{ flex:1; }
+  .hint{
+    font-size:12px;color:#666;margin:2px 0 10px;
+    line-height:1.35;
+  }
+  details{
+    margin-top:6px;
+    background:#f6fbff;
+    border:1px solid #dbeaf7;
+    border-radius:10px;
+    padding:10px;
+  }
+  details summary{
+    cursor:pointer;
+    font-weight:700;
+    color:#003366;
+    list-style:none;
+  }
+  details summary::-webkit-details-marker{ display:none; }
+  .btn{
+    width:100%;
+    border:none;border-radius:10px;
+    padding:12px;color:#fff;font-weight:bold;
+    cursor:pointer;margin-top:10px;font-size:16px;transition:0.3s;
+  }
+  .btn-green{ background:#009b4d; }
+  .btn-green:hover{ background:#00c060; }
+  .btn-gray{ background:#ccc;color:#333; }
+  .cards{
+    margin-top:16px;
+    display:grid;
+    grid-template-columns:1fr;
+    gap:10px;
+  }
+  .card{
+    border-radius:12px;
+    padding:12px;
+    border:1px solid #e6eef6;
+    background:#f9fcff;
+  }
+  .card h3{
+    margin:0 0 6px;
+    font-size:14px;
+    color:#003366;
+  }
+  .big{
+    font-size:22px;
+    font-weight:800;
+    color:#003366;
+    margin:2px 0 8px;
+  }
+  .meta{
+    font-size:13px;
+    color:#2d3a46;
+    line-height:1.35;
+  }
+  .tag{
+    display:inline-block;
+    font-size:12px;
+    padding:4px 8px;
+    border-radius:999px;
+    font-weight:700;
+    margin-top:8px;
+  }
+  .tag.ok{ background:#e5f8ea;color:#007b33; }
+  .tag.mid{ background:#fff6db;color:#7a5b00; }
+  .tag.max{ background:#ffe3e3;color:#8a1c1c; }
+
+  .obs{
+    margin-top:14px;
+    background:#ffffff;
+    border:1px dashed #c9d9ea;
+    border-radius:12px;
+    padding:12px 14px;
+  }
+  .obs h4{
+    margin:0 0 8px;
+    color:#003366;
+    font-size:14px;
+  }
+  .obs ul{
+    margin:0;
+    padding-left:18px;
+    color:#2d3a46;
+    font-size:13px;
+    line-height:1.45;
+  }
+  footer{
+    text-align:center;
+    font-size:14px;
+    color:#555;
+    margin-top:18px;
+  }
+  .social img{ width:22px;height:22px;vertical-align:middle; }
+  .social a{
+    text-decoration:none;color:#333;font-weight:500;margin-left:8px;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Faixa de Imóvel (Vida Real)</h2>
+  <p class="sub">
+    Informe só o básico e veja 3 cenários: <b>Ideal</b>, <b>Pagável</b> e <b>Máximo</b> (pico na obra).
+  </p>
+
+  <!-- Opcional: tutorial -->
+  <iframe height="215" src="https://www.youtube.com/embed/VIDEO_ID" title="Tutorial de Uso" allowfullscreen></iframe>
+
+  <!-- CTA opcional -->
+  <button class="cta" onclick="window.open('https://seulink.com', '_blank')">Entenda o processo completo (guia + consultoria)</button>
+
+  <label>💰 Renda familiar mensal (R$):</label>
+  <input type="text" id="renda" placeholder="Ex: 6000" inputmode="decimal" oninput="formatarMoeda(this)">
+
+  <div class="row">
+    <div>
+      <label>🏦 FGTS utilizável (R$):</label>
+      <input type="text" id="fgts" placeholder="Ex: 10000" inputmode="decimal" oninput="formatarMoeda(this)">
+    </div>
+    <div>
+      <label>🧾 Ato / Entrada à vista (R$):</label>
+      <input type="text" id="ato" placeholder="Ex: 15000" inputmode="decimal" oninput="formatarMoeda(this)">
+    </div>
+  </div>
+
+  <label>🏗️ Prazo de obra (meses):</label>
+  <input type="text" id="prazoObra" placeholder="Ex: 12 ou 36" inputmode="numeric">
+
+  <details>
+    <summary>➕ Intermediárias (opcional)</summary>
+    <div style="height:10px"></div>
+
+    <div class="row">
+      <div>
+        <label>📌 Quantidade:</label>
+        <input type="text" id="qtdInter" placeholder="Ex: 2" inputmode="numeric">
+      </div>
+      <div>
+        <label>💳 Total das intermediárias (R$):</label>
+        <input type="text" id="totalInter" placeholder="Ex: 6000" inputmode="decimal" oninput="formatarMoeda(this)">
+      </div>
+    </div>
+    <div class="hint">
+      Se existirem intermediárias, elas entram como “picos” durante a obra (e reduzem o que sobra para parcelar mensalmente).
+    </div>
+  </details>
+
+  <details>
+    <summary>⚙️ Ajustes (opcional)</summary>
+    <div style="height:10px"></div>
+
+    <label>📌 Entrada-alvo (% do imóvel):</label>
+    <input type="text" id="pctEntrada" placeholder="Ex: 20" value="20" inputmode="decimal">
+
+    <label>📈 Juros anual de referência (% a.a.):</label>
+    <input type="text" id="jurosAA" placeholder="Ex: 7.93" value="7.93" inputmode="decimal">
+
+    <label>🏦 Prazo do financiamento (meses):</label>
+    <input type="text" id="prazoFin" placeholder="Ex: 420" value="420" inputmode="numeric">
+
+    <div class="hint">
+      Estes ajustes servem para aproximar a realidade do seu empreendimento/região. A calculadora entrega faixa e cenário — não é proposta do banco.
+    </div>
+  </details>
+
+  <button class="btn btn-green" onclick="calcularFaixas()">Calcular minhas faixas</button>
+  <button class="btn btn-gray" onclick="limpar()">Limpar</button>
+
+  <div id="cards" class="cards" style="display:none;"></div>
+
+  <div id="obs" class="obs" style="display:none;">
+    <h4>Observações importantes</h4>
+    <ul id="obsList"></ul>
+  </div>
+
+  <footer>
+    <div class="social">
+      <a href="https://www.instagram.com/raulmendes.imob" target="_blank" rel="noopener">
+        <img src="https://cdn-icons-png.flaticon.com/512/1384/1384063.png" alt="Instagram">
+        @raulmendes.imob
+      </a>
+    </div>
+  </footer>
+</div>
+
+<script>
+/** ========= Helpers de moeda / número (pt-BR) ========= **/
+function parseBRL(str){
+  if(!str) return 0;
+  // remove tudo exceto dígitos
+  const digits = String(str).replace(/\D/g,'');
+  if(digits === '') return 0;
+  return Number(digits) / 100;
+}
+function parseNumber(str){
+  if(!str) return NaN;
+  return Number(String(str).replace(',','.').replace(/[^\d.]/g,''));
+}
+function formatBRL(n){
+  return n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+}
+function formatarMoeda(campo){
+  let valor = campo.value.replace(/\D/g,"");
+  if(valor === "") { campo.value = ""; return; }
+  valor = (valor/100).toFixed(2)+"";
+  valor = valor.replace(".",",");
+  valor = valor.replace(/\B(?=(\d{3})+(?!\d))/g,".");
+  campo.value = "R$ "+valor;
+}
+function limpar(){
+  document.querySelectorAll("input").forEach(i=>{
+    if(i.id === "pctEntrada") i.value = "20";
+    else if(i.id === "jurosAA") i.value = "7.93";
+    else if(i.id === "prazoFin") i.value = "420";
+    else i.value = "";
+  });
+  document.getElementById("cards").style.display = "none";
+  document.getElementById("cards").innerHTML = "";
+  document.getElementById("obs").style.display = "none";
+  document.getElementById("obsList").innerHTML = "";
+}
+
+/** ========= Modelo simplificado (faixas por pico de renda) =========
+ *  Ideia:
+ *  - Entrada-alvo = pctEntrada% do valor do imóvel
+ *  - Financiamento = restante
+ *  - Entrada imediata = FGTS + Ato
+ *  - Intermediárias (se houver): totalInter distribuído em qtdInter eventos (picos)
+ *  - Entrada a parcelar mensalmente = (entrada-alvo - entrada imediata - totalInter) / prazoObra
+ *  - Juros de obra (pico) aproximado: financiamento * (jurosAA/12) * fatorPicoLiberacao
+ *    fatorPicoLiberacao: assumimos que perto do fim da obra a maior parte do crédito foi liberada (~0.90).
+ *  - Pico total aproximado = parcelaEntradaMensal + (totalInter/qtdInter como pico médio) + jurosObraPico
+ *
+ *  Depois, buscamos o MAIOR valor do imóvel que respeite o limite de pico:
+ *   - Ideal: 30% da renda
+ *   - Pagável: 45% da renda
+ *   - Máximo: 60% da renda
+ */
+function calcularFaixas(){
+  const renda = parseBRL(document.getElementById("renda").value);
+  const fgts  = parseBRL(document.getElementById("fgts").value);
+  const ato   = parseBRL(document.getElementById("ato").value);
+  const prazoObra = parseInt(String(document.getElementById("prazoObra").value).replace(/\D/g,''),10);
+
+  const pctEntrada = parseNumber(document.getElementById("pctEntrada").value);
+  const jurosAA = parseNumber(document.getElementById("jurosAA").value);
+  const prazoFin = parseInt(String(document.getElementById("prazoFin").value).replace(/\D/g,''),10);
+
+  const qtdInter = parseInt(String(document.getElementById("qtdInter").value).replace(/\D/g,''),10) || 0;
+  const totalInter = parseBRL(document.getElementById("totalInter").value);
+
+  if(!renda || isNaN(prazoObra) || prazoObra <= 0){
+    alert("Preencha renda e prazo de obra (meses) corretamente.");
+    return;
+  }
+  if(isNaN(pctEntrada) || pctEntrada <= 0 || pctEntrada >= 60){
+    alert("Entrada-alvo inválida. Use algo como 20.");
+    return;
+  }
+  if(isNaN(jurosAA) || jurosAA <= 0 || jurosAA > 20){
+    alert("Juros anual inválido. Ex: 7.93");
+    return;
+  }
+  if(isNaN(prazoFin) || prazoFin < 120 || prazoFin > 480){
+    alert("Prazo do financiamento inválido. Ex: 420");
+    return;
+  }
+
+  const entradaImediata = fgts + ato;
+
+  // Limites de pico (pode ajustar depois)
+  const limites = [
+    { nome:"Imóvel ideal",   pct:0.30, tagClass:"ok",  tagText:"Confortável" },
+    { nome:"Imóvel pagável", pct:0.45, tagClass:"mid", tagText:"Vai apertar no fim" },
+    { nome:"Imóvel máximo",  pct:0.60, tagClass:"max", tagText:"No limite" }
+  ];
+
+  const cardsEl = document.getElementById("cards");
+  cardsEl.innerHTML = "";
+  cardsEl.style.display = "grid";
+
+  // Observações (bullets)
+  const obs = [
+    "O resultado mostra cenários e faixas prováveis — não é proposta do banco.",
+    "Prazo de obra influencia diretamente a entrada mensal: quanto menor o prazo, maior a parcela.",
+    "Intermediárias (se existirem) criam picos no fluxo e reduzem o que sobra para parcelar mensalmente.",
+    "Não consideramos INCC e outras correções/seguros específicos do contrato. Isso pode alterar o valor final.",
+    "Não consideramos pós-chaves (algumas construtoras cobram). Se houver, o fluxo muda.",
+    "Quer a linha do tempo completa (entrada + obra + evolução + picos)? Isso dá para montar na consultoria."
+  ];
+  const obsList = document.getElementById("obsList");
+  obsList.innerHTML = obs.map(t=>`<li>${t}</li>`).join("");
+  document.getElementById("obs").style.display = "block";
+
+  // Função de pico estimado, dado um valor de imóvel
+  function picoEstimado(valorImovel){
+    const entradaAlvo = valorImovel * (pctEntrada/100);
+    const financiamento = Math.max(0, valorImovel - entradaAlvo);
+
+    // Intermediárias como picos (média por evento)
+    const interPorEvento = (qtdInter > 0 ? totalInter / qtdInter : 0);
+
+    // Entrada que sobra para parcelar mensalmente
+    const entradaParcelavel = Math.max(0, entradaAlvo - entradaImediata - totalInter);
+    const parcelaEntradaMensal = entradaParcelavel / prazoObra;
+
+    // Juros de obra no pico (aprox)
+    const jurosMensal = (jurosAA/100) / 12;
+    const fatorPicoLiberacao = 0.90; // aprox: perto do fim, grande parte do crédito já foi liberada
+    const jurosObraPico = financiamento * jurosMensal * fatorPicoLiberacao;
+
+    const pico = parcelaEntradaMensal + interPorEvento + jurosObraPico;
+
+    return {
+      pico,
+      financiamento,
+      entradaAlvo,
+      entradaParcelavel,
+      parcelaEntradaMensal,
+      interPorEvento,
+      jurosObraPico
+    };
+  }
+
+  // Busca do maior valor do imóvel que respeita o limite de pico
+  function encontrarMaxImovel(limitePico){
+    // limites de busca (ajuste se precisar)
+    let low = 80000;
+    let high = 600000;
+
+    // se nem o mínimo cabe, devolve low com flag
+    const testeMin = picoEstimado(low).pico;
+    if(testeMin > limitePico) return { valor: low, ok:false, detalhe: picoEstimado(low) };
+
+    // binary search
+    for(let i=0;i<42;i++){
+      const mid = (low+high)/2;
+      const det = picoEstimado(mid);
+      if(det.pico <= limitePico) low = mid;
+      else high = mid;
+    }
+    const valor = Math.floor(low/1000)*1000; // arredonda para mil
+    return { valor, ok:true, detalhe: picoEstimado(valor) };
+  }
+
+  // Estimar parcela do financiamento (pós-obra) pela Tabela PRICE
+  function parcelaPricePV(pv, jurosAA, nMeses){
+    const i = (jurosAA/100)/12;
+    if(i <= 0) return pv/nMeses;
+    const fator = (i * Math.pow(1+i, nMeses)) / (Math.pow(1+i, nMeses)-1);
+    return pv * fator;
+  }
+
+  limites.forEach(l=>{
+    const limitePico = renda * l.pct;
+    const res = encontrarMaxImovel(limitePico);
+    const v = res.valor;
+    const d = res.detalhe;
+
+    // Parcela do financiamento (aprox, sem seguros/adm)
+    const parcelaFin = parcelaPricePV(d.financiamento, jurosAA, prazoFin);
+
+    // Texto de entrada mensal + intermediárias
+    let entradaTxt = `Entrada-alvo: <b>${formatBRL(d.entradaAlvo)}</b><br>`;
+    entradaTxt += `Entrada imediata (FGTS + ato): <b>${formatBRL(entradaImediata)}</b><br>`;
+    if(totalInter > 0 && qtdInter > 0){
+      entradaTxt += `Intermediárias: <b>${qtdInter}x</b> (≈ ${formatBRL(d.interPorEvento)} cada)<br>`;
+    }
+    entradaTxt += `Entrada mensal estimada: <b>${formatBRL(d.parcelaEntradaMensal)}</b> por ${prazoObra} meses`;
+
+    // Pico e leitura em %
+    const pctRenda = (d.pico / renda) * 100;
+
+    const html = `
+      <div class="card">
+        <h3>${l.nome}</h3>
+        <div class="big">${formatBRL(v)}</div>
+        <div class="meta">
+          <div style="margin-bottom:8px;">
+            <b>Financiamento estimado:</b> ${formatBRL(d.financiamento)}<br>
+            <b>Parcela do financiamento (aprox.):</b> ${formatBRL(parcelaFin)} / mês
+          </div>
+          <div style="margin-bottom:8px;">
+            ${entradaTxt}
+          </div>
+          <div>
+            <b>Pico estimado na obra:</b> ${formatBRL(d.pico)} <span style="color:#566; font-weight:700;">(~${pctRenda.toFixed(1)}% da renda)</span><br>
+            <span style="font-size:12px;color:#667;">
+              (pico = entrada mensal + intermediária média + juros de obra aproximado)
+            </span>
+          </div>
+          <span class="tag ${l.tagClass}">${l.tagText}</span>
