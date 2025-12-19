@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador de INCC - Entrada da Construtora</title>
+<style>
+  body {
+    font-family: "Poppins", sans-serif;
+    background: #eef7fb;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  .container {
+    background: #fff;
+    margin: 20px;
+    padding: 25px;
+    border-radius: 15px;
+    max-width: 450px;
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  h2 {
+    text-align: center;
+    color: #003366;
+    margin-bottom: 15px;
+  }
+
+  h3 {
+    color: #006633;
+    border-bottom: 2px solid #006633;
+    padding-bottom: 5px;
+    margin-top: 25px;
+  }
+
+  label {
+    display: block;
+    margin: 8px 0 5px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  input {
+    width: 100%;
+    padding: 10px;
+    font-size: 15px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+  }
+
+  .result {
+    background: #e5f8ea;
+    color: #007b33;
+    border-radius: 10px;
+    font-weight: bold;
+    text-align: center;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+
+  footer {
+    text-align: center;
+    margin-top: 20px;
+    color: #555;
+    font-size: 14px;
+  }
+
+  .social img {
+    width: 22px;
+    height: 22px;
+    vertical-align: middle;
+  }
+
+  .social a {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    margin-left: 8px;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Simulador de INCC</h2>
+
+  <h3>📘 Dados Fixos</h3>
+  <label>💰 Valor total da entrada (R$):</label>
+  <input type="text" id="valorEntrada" oninput="formatarMoeda(this); atualizarTudo()">
+
+  <label>📅 Prazo da obra (meses):</label>
+  <input type="number" id="prazo" placeholder="30" oninput="atualizarTudo()">
+
+  <label>📈 INCC médio mensal (%):</label>
+  <input type="text" id="incc" placeholder="0,5" oninput="atualizarTudo()">
+
+  <!-- Bloco 2 -->
+  <h3>🟩 Parcelas Mensais</h3>
+  <label>Quantidade de parcelas:</label>
+  <input type="number" id="qtdMensal" placeholder="30" oninput="atualizarTudo()">
+
+  <label>Valor da parcela em contrato (R$):</label>
+  <input type="text" id="valorMensal" oninput="formatarMoeda(this); atualizarTudo()">
+
+  <div class="result" id="ultimaMensal">Última Corrigida: R$ 0,00</div>
+  <div class="result" id="aumentoMensal">Aumento Médio Mensal: R$ 0,00</div>
+
+  <!-- Bloco 3 -->
+  <h3>🟨 Intermediárias</h3>
+  <label>Quantidade de intermediárias:</label>
+  <input type="number" id="qtdInter" placeholder="3" oninput="atualizarTudo()">
+
+  <label>Valor de cada (R$):</label>
+  <input type="text" id="valorInter" oninput="formatarMoeda(this); atualizarTudo()">
+
+  <div class="result" id="ultimaInter">Última Corrigida: R$ 0,00</div>
+  <div class="result" id="aumentoInter">Aumento Médio: R$ 0,00</div>
+
+  <!-- Bloco 4 -->
+  <h3>🟧 Pós-Chaves</h3>
+  <label>Valor total (R$):</label>
+  <input type="text" id="valorPos" oninput="formatarMoeda(this); atualizarTudo()">
+
+  <label>Quantidade de parcelas:</label>
+  <input type="number" id="qtdPos" placeholder="12" oninput="atualizarTudo()">
+
+  <div class="result" id="posContrato">Parcela em Contrato: R$ 0,00</div>
+  <div class="result" id="posCorrigido">Parcela Corrigida: R$ 0,00</div>
+
+  <footer>
+    <div class="social">
+      <a href="https://www.instagram.com/raulmendes.imob" target="_blank">
+        <img src="https://cdn-icons-png.flaticon.com/512/1384/1384063.png" alt="Instagram">
+        @raulmendes.imob
+      </a>
+    </div>
+  </footer>
+</div>
+
+<script>
+function formatarMoeda(campo) {
+  let valor = campo.value.replace(/\D/g, "");
+  if (valor === "") return campo.value = "";
+  valor = (valor / 100).toFixed(2) + "";
+  valor = valor.replace(".", ",");
+  valor = valor.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  campo.value = "R$ " + valor;
+}
+
+function parseMoeda(valor) {
+  return parseFloat(valor.replace("R$", "").replace(/\./g, "").replace(",", ".") || 0);
+}
+
+function parseNumero(valor) {
+  return parseFloat(valor.replace(",", ".") || 0);
+}
+
+function atualizarTudo() {
+  const entrada = parseMoeda(document.getElementById("valorEntrada").value);
+  const meses = parseFloat(document.getElementById("prazo").value);
+  const incc = parseNumero(document.getElementById("incc").value) / 100;
+
+  // Mensais
+  const qtdMensal = parseFloat(document.getElementById("qtdMensal").value);
+  const valorMensal = parseMoeda(document.getElementById("valorMensal").value);
+
+  if (qtdMensal && valorMensal && incc && meses) {
+    const ultima = valorMensal * Math.pow((1 + incc), qtdMensal - 1);
+    const aumento = (ultima - valorMensal) / (qtdMensal - 1);
+    document.getElementById("ultimaMensal").innerText =
+      "Última Corrigida: R$ " + ultima.toLocaleString("pt-BR", {minimumFractionDigits: 2});
+    document.getElementById("aumentoMensal").innerText =
+      "Aumento Médio Mensal: R$ " + aumento.toLocaleString("pt-BR", {minimumFractionDigits: 2});
+  }
+
+  // Intermediárias
+  const qtdInter = parseFloat(document.getElementById("qtdInter").value);
+  const valorInter = parseMoeda(document.getElementById("valorInter").value);
+
+  if (qtdInter && valorInter && incc && meses) {
+    const intervalo = meses / qtdInter;
+    const ultima = valorInter * Math.pow((1 + incc), meses);
+    const primeira = valorInter * Math.pow((1 + incc), intervalo);
+    const aumentoInter = (ultima - primeira) / (qtdInter - 1);
+    document.getElementById("ultimaInter").innerText =
+      "Última Corrigida: R$ " + ultima.toLocaleString("pt-BR", {minimumFractionDigits: 2});
+    document.getElementById("aumentoInter").innerText =
+      "Aumento Médio: R$ " + aumentoInter.toLocaleString("pt-BR", {minimumFractionDigits: 2});
+  }
+
+  // Pós-Chaves
+  const valorPos = parseMoeda(document.getElementById("valorPos").value);
+  const qtdPos = parseFloat(document.getElementById("qtdPos").value);
+
+  if (valorPos && qtdPos && meses && incc) {
+    const corrigido = valorPos * Math.pow((1 + incc), meses);
+    const parcelaContrato = valorPos / qtdPos;
+    const parcelaCorrigida = corrigido / qtdPos;
+    document.getElementById("posContrato").innerText =
+      "Parcela em Contrato: R$ " + parcelaContrato.toLocaleString("pt-BR", {minimumFractionDigits: 2});
+    document.getElementById("posCorrigido").innerText =
+      "Parcela Corrigida: R$ " + parcelaCorrigida.toLocaleString("pt-BR", {minimumFractionDigits: 2});
+  }
+}
+</script>
+
+</body>
+</html>
