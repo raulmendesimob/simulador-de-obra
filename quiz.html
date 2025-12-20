@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Quiz — Seu Momento de Compra (1º Imóvel na Planta)</title>
+<style>
+  body{
+    font-family:"Poppins",sans-serif;
+    background:#eef7fb;
+    margin:0;padding:0;
+    display:flex;justify-content:center;align-items:flex-start;
+    min-height:100vh;
+  }
+  .container{
+    background:#fff;
+    margin:20px;
+    padding:25px;
+    border-radius:15px;
+    max-width:520px;
+    width:100%;
+    box-shadow:0 4px 12px rgba(0,0,0,0.1);
+  }
+  h2{ text-align:center;color:#003366;margin:0 0 8px; }
+  p.sub{
+    text-align:center;
+    color:#3b4a5a;
+    margin:0 0 18px;
+    font-size:13px;
+    line-height:1.35;
+  }
+
+  .q{
+    border:1px solid #e6eef6;
+    background:#f9fcff;
+    border-radius:12px;
+    padding:12px;
+    margin:10px 0;
+  }
+  .q-title{
+    font-weight:700;
+    color:#003366;
+    margin-bottom:8px;
+    font-size:14px;
+    line-height:1.35;
+  }
+  .opts{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .opt{
+    display:flex;
+    align-items:flex-start;
+    gap:8px;
+    color:#2d3a46;
+    font-size:13px;
+    line-height:1.25;
+  }
+  .opt input{ margin-top:2px; }
+
+  .btn{
+    width:100%;
+    border:none;border-radius:10px;
+    padding:12px;color:#fff;font-weight:bold;
+    cursor:pointer;margin-top:10px;font-size:16px;transition:0.3s;
+  }
+  .btn-green{ background:#009b4d; }
+  .btn-green:hover{ background:#00c060; }
+  .btn-gray{ background:#ccc;color:#333; }
+  .btn-blue{ background:#003366; }
+  .btn-blue:hover{ background:#0055aa; }
+
+  .result{
+    margin-top:16px;
+    border-radius:14px;
+    padding:14px;
+    border:1px solid #e6eef6;
+    background:#ffffff;
+  }
+  .badge{
+    display:inline-block;
+    font-size:12px;
+    padding:5px 10px;
+    border-radius:999px;
+    font-weight:800;
+    margin-bottom:10px;
+  }
+  .badge.ok{ background:#e5f8ea;color:#007b33; }
+  .badge.mid{ background:#fff6db;color:#7a5b00; }
+  .badge.risk{ background:#ffe3e3;color:#8a1c1c; }
+
+  .result p{
+    margin:0 0 12px;
+    color:#2d3a46;
+    font-size:13px;
+    line-height:1.45;
+  }
+  .scoreline{
+    color:#566;
+    font-size:12px;
+    margin-top:6px;
+  }
+
+  footer{
+    text-align:center;
+    font-size:14px;
+    color:#555;
+    margin-top:18px;
+  }
+  .social img{ width:22px;height:22px;vertical-align:middle; }
+  .social a{
+    text-decoration:none;color:#333;font-weight:500;margin-left:8px;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Quiz do Comprador</h2>
+  <p class="sub">
+    10 perguntas rápidas para descobrir seu momento de compra do <b>1º imóvel na planta</b>.
+    No final, você recebe um diagnóstico e o próximo passo.
+  </p>
+
+  <form id="quizForm">
+
+    <!-- Q1 -->
+    <div class="q">
+      <div class="q-title">1) Você sabe exatamente quanto da sua renda pode ser comprometido mensalmente sem apertar sua vida?</div>
+      <div class="opts">
+        <label class="opt"><input type="radio" name="q1" value="2"> Sim, tenho clareza</label>
+        <label class="opt"><input type="radio" name="q1" value="1"> Mais ou menos</label>
+        <label class="opt"><input type="radio" name="q1" value="0"> Não faço ideia</label>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="q">
+      <div class="q-title">2) Você tem um corretor de confiança que explica o processo com calma, sem te pressionar a decidir rápido?</div>
+      <div class="opts">
+        <label class="opt"><input type="radio" name="q2" value="2"> Sim</label>
+        <label class="opt"><input type="radio" name="q2" value="1"> Mais ou menos</label>
+        <label class="opt"><input type="radio" name="q2" value="0"> Não</label>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="q">
+      <div class="q-title">3) Você entende como funciona o Minha Casa Minha Vida e se realmente se encaixa no seu perfil hoje?</div>
+      <div class="opts">
+        <label class="opt"><input type="radio" name="q3" value="2"> Sim</label>
+        <label class="opt"><input type="radio" name="q3" value="1"> Mais ou menos</label>
+        <label class="opt"><input type="radio" name="q3" value="0"> Não</label>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="q">
+      <div class="q-title">4) Você sabe diferenciar claramente o que é entrada paga à construtora e o que é financiamento feito com o banco?</div>
+      <div class="opts">
+        <label class="opt"><input type="radio" name="q4" value="2"> Sim</label>
+        <label class="opt"><input type="radio" name="q4" value="1"> Mais ou menos</label>
+        <label class="opt"><input type="radio" name="q4" value="0"> Não</label>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="q">
+      <div class="q-title">5) Você sabe a diferença entre parcela mensal, parcela anual/intermediária e parcelas pós-chaves?</div>
+      <div class="opts">
+        <label class="opt"><input type="radio" name="q5" value="2"> Sim</label>
+        <label class="opt"><input type="radio" name="q5" value="1"> Mais ou menos</label>
+        <label class="opt"><input type="radio" name="q5" value="0"> Não</label>
+      </div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="q">
+      <div class="q-title">6) Você sabe o que é INCC e como ele pode alterar o valor que você paga durante a obra?</div>
+      <div class="opts">
+        <label class="opt"><input type="radio" name="q6" value="2"> Sim</label>
+        <label class="opt"><input type="radio" name="q6" value="1"> Mais ou menos</label>
+        <label class="opt"><input type="radio" name="q6" value="0"> Não</label>
+      </div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="q">
+      <div class="q-title">7) Você entende o que são juros de obra e por que eles costumam aumentar perto da entrega do imóvel?</div>
+      <div class="opts">
+        <label class="opt"><input type="radio" name="q7" value="2"> Sim</label>
+        <label class="opt"><input type="radio" name="q7" value="1"> Mais ou menos</label>
+        <label class="opt"><input type="radio" name="q7" value="0"> Não</label>
+      </div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="q">
+      <div class="q-title">8) Você sabe avaliar fatores que influenciam o conforto térmico do apartamento (posição solar, ventilação etc.)?</div>
+      <div class="opts">
+        <label class="opt"><input type="radio" name="q8" value="2"> Sim</label>
+        <label class="opt"><input type="radio" name="q8" value="1"> Mais ou menos</label>
+        <label class="opt"><input type="radio" name="q8" value="0"> Não</label>
+      </div>
+    </div>
+
+    <!-- Q9 -->
+    <div class="q">
+      <div class="q-title">9) Você sabe identificar o que pode gerar ruído no apartamento (rua, área de lazer, torre, prumadas)?</div>
+      <div class="opts">
+        <label class="opt"><input type="radio" name="q9" value="2"> Sim</label>
+        <label class="opt"><input type="radio" name="q9" value="1"> Mais ou menos</label>
+        <label class="opt"><input type="radio" name="q9" value="0"> Não</label>
+      </div>
+    </div>
+
+    <!-- Q10 -->
+    <div class="q">
+      <div class="q-title">10) Você entende quais custos existem com documentação (ITBI, registro, escritura) e quando eles são pagos?</div>
+      <div class="opts">
+        <label class="opt"><input type="radio" name="q10" value="2"> Sim</label>
+        <label class="opt"><input type="radio" name="q10" value="1"> Mais ou menos</label>
+        <label class="opt"><input type="radio" name="q10" value="0"> Não</label>
+      </div>
+    </div>
+
+    <button type="button" class="btn btn-green" id="btnCalcular">Ver meu diagnóstico</button>
+    <button type="button" class="btn btn-gray" id="btnLimpar">Limpar</button>
+  </form>
+
+  <div id="resultBox" class="result" style="display:none;">
+    <div id="badge" class="badge"></div>
+    <p id="resultText"></p>
+    <button class="btn btn-blue" id="ctaBtn" style="display:none;">Quero o curso</button>
+    <div class="scoreline" id="scoreLine"></div>
+  </div>
+
+  <footer>
+    <div class="social">
+      <a href="https://www.instagram.com/raulmendes.imob" target="_blank" rel="noopener">
+        <img src="https://cdn-icons-png.flaticon.com/512/1384/1384063.png" alt="Instagram">
+        @raulmendes.imob
+      </a>
+    </div>
+  </footer>
+</div>
+
+<script>
+/** ========= CONFIG ========= **/
+const COURSE_URL = "https://seulinkdocurso.com"; // <- TROQUE AQUI
+// Se você quiser usar WhatsApp em vez de curso, troque o link acima.
+
+const MESSAGES = {
+  prepared: {
+    badge: { text: "Preparado", cls: "ok" },
+    text:
+      "Você demonstra uma boa noção do processo de compra do primeiro imóvel na planta e entende pontos que costumam gerar problemas. Isso reduz bastante o risco, mas cada empreendimento tem regras e fluxos diferentes. Se quiser reforçar sua segurança e aplicar isso ao seu caso real, o nosso curso organiza o processo de forma clara e prática.",
+    cta: "Quero me preparar ainda mais para minha compra"
+  },
+  middle: {
+    badge: { text: "No meio do caminho", cls: "mid" },
+    text:
+      "Você já entende parte do processo, mas ainda existem pontos que podem te levar a escolhas ruins sem perceber. Essa fase é perigosa porque dá confiança para avançar, mas deixa brechas para custos escondidos e aperto financeiro durante a obra. Se você quer entender o processo antes de assinar qualquer coisa, o nosso curso te coloca no controle.",
+    cta: "Quero entender o processo antes de decidir"
+  },
+  risk: {
+    badge: { text: "Exposto a armadilhas", cls: "risk" },
+    text:
+      "Hoje, o maior risco não é o valor do imóvel, mas comprar algo sem entender o processo. Quando obra, correções, contrato e custos não estão claros, a decisão vira aposta — e o preço disso costuma aparecer depois. Se você quer evitar erros na compra do seu primeiro imóvel, o nosso curso foi feito para te guiar com clareza.",
+    cta: "Quero evitar erros na compra do meu primeiro imóvel"
+  }
+};
+
+/** ========= LOGIC ========= **/
+function getScore() {
+  let total = 0;
+  for (let i = 1; i <= 10; i++) {
+    const checked = document.querySelector(`input[name="q${i}"]:checked`);
+    if (!checked) return null; // não respondeu tudo
+    total += Number(checked.value);
+  }
+  return total;
+}
+
+function classify(score){
+  // 10 perguntas, 0-20 pontos
+  if (score >= 16) return "prepared";
+  if (score >= 9) return "middle";
+  return "risk";
+}
+
+function showResult(level, score){
+  const box = document.getElementById("resultBox");
+  const badge = document.getElementById("badge");
+  const text = document.getElementById("resultText");
+  const ctaBtn = document.getElementById("ctaBtn");
+  const scoreLine = document.getElementById("scoreLine");
+
+  const msg = MESSAGES[level];
+
+  badge.className = `badge ${msg.badge.cls}`;
+  badge.textContent = msg.badge.text;
+
+  text.textContent = msg.text;
+
+  ctaBtn.style.display = "block";
+  ctaBtn.textContent = msg.cta;
+  ctaBtn.onclick = () => window.open(COURSE_URL, "_blank");
+
+  scoreLine.textContent = `Pontuação: ${score}/20`;
+
+  box.style.display = "block";
+  box.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function clearAll(){
+  document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+  document.getElementById("resultBox").style.display = "none";
+}
+
+document.getElementById("btnCalcular").addEventListener("click", () => {
+  const score = getScore();
+  if (score === null) {
+    alert("Responda todas as 10 perguntas para ver o diagnóstico.");
+    return;
+  }
+  const level = classify(score);
+  showResult(level, score);
+});
+
+document.getElementById("btnLimpar").addEventListener("click", clearAll);
+</script>
+
+</body>
+</html>
