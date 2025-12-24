@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador de Fluxo de Pagamento - Raul Mendes Imob</title>
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f5f9f6;
+    margin: 0;
+    padding: 0;
+    color: #222;
+  }
+
+  .container {
+    max-width: 600px;
+    background: white;
+    margin: 40px auto;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  }
+
+  h1 {
+    text-align: center;
+    color: #0b6e3b;
+    margin-bottom: 20px;
+  }
+
+  label {
+    font-weight: 600;
+    display: block;
+    margin-top: 15px;
+  }
+
+  input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+  }
+
+  .result {
+    background: #e9f7ef;
+    border-left: 5px solid #0b6e3b;
+    padding: 15px;
+    margin-top: 25px;
+    border-radius: 8px;
+  }
+
+  .option {
+    background: #f0fff4;
+    border: 1px solid #b8e2c8;
+    border-radius: 10px;
+    padding: 12px;
+    margin-top: 10px;
+  }
+
+  .option h3 {
+    color: #0b6e3b;
+    margin: 5px 0;
+  }
+
+  .footer {
+    text-align: center;
+    margin-top: 30px;
+    font-size: 14px;
+    color: #666;
+  }
+
+  .cta {
+    display: inline-block;
+    background: #0b6e3b;
+    color: white;
+    text-decoration: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-weight: bold;
+    margin-top: 10px;
+  }
+
+  .cta:hover {
+    background: #0a5e34;
+  }
+
+  .social {
+    margin-top: 15px;
+  }
+
+  .social a {
+    text-decoration: none;
+    color: #0b6e3b;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Simulador de Fluxo de Pagamento</h1>
+
+  <label>🏠 Valor do Imóvel (R$):</label>
+  <input type="number" id="imovel" placeholder="Ex: 300000" oninput="calcular()">
+
+  <label>🏦 Valor do Financiamento (R$):</label>
+  <input type="number" id="financiamento" placeholder="Ex: 200000" oninput="calcular()">
+
+  <label>💰 FGTS (R$):</label>
+  <input type="number" id="fgts" placeholder="Ex: 15000" oninput="calcular()">
+
+  <label>💸 Valor do Ato (R$):</label>
+  <input type="number" id="ato" placeholder="Ex: 10000" oninput="calcular()">
+
+  <label>📅 Prazo da Obra (meses):</label>
+  <input type="number" id="prazo" placeholder="Ex: 35" oninput="calcular()">
+
+  <label>👨‍👩‍👧‍👦 Renda Familiar Mensal (R$):</label>
+  <input type="number" id="renda" placeholder="Ex: 6000" oninput="calcular()">
+
+  <label>📊 Quantidade de Intermediárias:</label>
+  <input type="number" id="inter" placeholder="Ex: 3" oninput="calcular()">
+
+  <div class="result" id="resultado"></div>
+
+  <div class="footer">
+    <p>Quer entender melhor a sua situação?</p>
+    <a class="cta" href="https://seulink.com/consultoria" target="_blank">Agende sua Consultoria Individual (R$ 250)</a>
+    <div class="social">
+      <p>Siga nas redes: <a href="https://www.instagram.com/raulmendes.imob" target="_blank">@raulmendes.imob</a></p>
+    </div>
+  </div>
+</div>
+
+<script>
+function formatar(valor) {
+  return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+function calcular() {
+  const imovel = parseFloat(document.getElementById("imovel").value) || 0;
+  const financiamento = parseFloat(document.getElementById("financiamento").value) || 0;
+  const fgts = parseFloat(document.getElementById("fgts").value) || 0;
+  const ato = parseFloat(document.getElementById("ato").value) || 0;
+  const prazo = parseInt(document.getElementById("prazo").value) || 0;
+  const renda = parseFloat(document.getElementById("renda").value) || 0;
+  const inter = parseInt(document.getElementById("inter").value) || 1;
+
+  const entrada = imovel - financiamento - fgts;
+  const saldoRestante = entrada - ato;
+
+  if (entrada <= 0) {
+    document.getElementById("resultado").innerHTML = "<p>Preencha os valores corretamente.</p>";
+    return;
+  }
+
+  const mensalMax = renda * 0.3;
+  const totalInter = saldoRestante / 2; // base para distribuir
+
+  let opcoes = "";
+
+  for (let i = 1; i <= 3; i++) {
+    const interValor = (i * 0.25 + 0.25) * mensalMax; // 50%, 75%, 100% da renda
+    const totalIntermediarias = inter * interValor;
+    const restanteMensal = = saldoRestante - totalIntermediarias;
+    const mensal = restanteMensal / prazo;
+
+    opcoes += `
+      <div class="option">
+        <h3>💡 Opção ${i}</h3>
+        <p>Intermediárias (${inter}x): <strong>${formatar(interValor)}</strong></p>
+        <p>Mensais (${prazo}x): <strong>${formatar(mensal)}</strong></p>
+        <p><strong>Total da Entrada:</strong> ${formatar(entrada)}</p>
+      </div>`;
+  }
+
+  document.getElementById("resultado").innerHTML = `
+    <h3>Resumo</h3>
+    <p>🏠 Imóvel: <strong>${formatar(imovel)}</strong></p>
+    <p>🏦 Financiamento: <strong>${formatar(financiamento)}</strong></p>
+    <p>💸 Entrada Total: <strong>${formatar(entrada)}</strong></p>
+    <p>📆 Prazo: <strong>${prazo} meses</strong></p>
+    <p>👨‍👩‍👧‍👦 Renda: <strong>${formatar(renda)}</strong></p>
+    ${opcoes}
+  `;
+}
+</script>
+</body>
+</html>
