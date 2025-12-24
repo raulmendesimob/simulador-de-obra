@@ -42,6 +42,22 @@
     font-size: 16px;
   }
 
+  button {
+    background-color: #0b6e3b;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 20px;
+  }
+
+  button:hover {
+    background-color: #0a5f33;
+  }
+
   .result {
     background: #e9f7ef;
     border-left: 5px solid #0b6e3b;
@@ -102,25 +118,27 @@
   <h1>Simulador de Fluxo de Pagamento</h1>
 
   <label>🏠 Valor do Imóvel (R$):</label>
-  <input type="number" id="imovel" placeholder="Ex: 300000" oninput="calcular()">
+  <input type="number" id="imovel" placeholder="Ex: 300000">
 
   <label>🏦 Valor do Financiamento (R$):</label>
-  <input type="number" id="financiamento" placeholder="Ex: 200000" oninput="calcular()">
+  <input type="number" id="financiamento" placeholder="Ex: 200000">
 
   <label>💰 FGTS (R$):</label>
-  <input type="number" id="fgts" placeholder="Ex: 15000" oninput="calcular()">
+  <input type="number" id="fgts" placeholder="Ex: 15000">
 
   <label>💸 Valor do Ato (R$):</label>
-  <input type="number" id="ato" placeholder="Ex: 10000" oninput="calcular()">
+  <input type="number" id="ato" placeholder="Ex: 10000">
 
   <label>📅 Prazo da Obra (meses):</label>
-  <input type="number" id="prazo" placeholder="Ex: 35" oninput="calcular()">
+  <input type="number" id="prazo" placeholder="Ex: 35">
 
   <label>👨‍👩‍👧‍👦 Renda Familiar Mensal (R$):</label>
-  <input type="number" id="renda" placeholder="Ex: 6000" oninput="calcular()">
+  <input type="number" id="renda" placeholder="Ex: 6000">
 
   <label>📊 Quantidade de Intermediárias:</label>
-  <input type="number" id="inter" placeholder="Ex: 3" oninput="calcular()">
+  <input type="number" id="inter" placeholder="Ex: 3">
+
+  <button onclick="calcular()">Calcular</button>
 
   <div class="result" id="resultado"></div>
 
@@ -150,20 +168,19 @@ function calcular() {
   const entrada = imovel - financiamento - fgts;
   const saldoRestante = entrada - ato;
 
-  if (entrada <= 0) {
-    document.getElementById("resultado").innerHTML = "<p>Preencha os valores corretamente.</p>";
+  if (entrada <= 0 || prazo <= 0 || renda <= 0) {
+    document.getElementById("resultado").innerHTML = "<p>Preencha todos os campos corretamente.</p>";
     return;
   }
 
   const mensalMax = renda * 0.3;
-  const totalInter = saldoRestante / 2; // base para distribuir
 
   let opcoes = "";
 
   for (let i = 1; i <= 3; i++) {
-    const interValor = (i * 0.25 + 0.25) * mensalMax; // 50%, 75%, 100% da renda
+    const interValor = mensalMax * (0.5 + (i - 1) * 0.25); // 50%, 75%, 100% da renda
     const totalIntermediarias = inter * interValor;
-    const restanteMensal = = saldoRestante - totalIntermediarias;
+    const restanteMensal = saldoRestante - totalIntermediarias;
     const mensal = restanteMensal / prazo;
 
     opcoes += `
