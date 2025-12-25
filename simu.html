@@ -113,6 +113,13 @@
     color: #cc0000;
     font-weight: bold;
   }
+
+  .obs {
+    font-size: 13px;
+    color: #555;
+    margin-top: 8px;
+    font-style: italic;
+  }
 </style>
 </head>
 <body>
@@ -204,56 +211,26 @@ function calcular() {
     <p>👨‍👩‍👧‍👦 Renda: <strong>${formatar(renda)}</strong></p>
   `;
 
-  // Opção 1 - 45% intermediárias, 55% mensais
-  const inter1Total = saldoRestante * 0.45;
-  const mensal1Total = saldoRestante * 0.55;
-  const inter1Parcela = inter1Total / inter;
-  const mensal1Parcela = mensal1Total / prazo;
+  const totalMensais = mensalLimite * prazo;
+  const totalInter = interLimite * inter;
+  const totalMaximo = ato + totalMensais + totalInter;
 
-  // Opção 2 - 55% intermediárias, 45% mensais
-  const inter2Total = saldoRestante * 0.55;
-  const mensal2Total = saldoRestante * 0.45;
-  const inter2Parcela = inter2Total / inter;
-  const mensal2Parcela = mensal2Total / prazo;
+  let posChaves = 0;
+  if (entrada > totalMaximo) posChaves = entrada - totalMaximo;
 
-  let opcoes = "";
+  resultado += `
+    <div class="option bege">
+      <h3>💡 Opção Calculada</h3>
+      <p>Ato: <strong>${formatar(ato)}</strong></p>
+      <p>Intermediárias (${inter}x): <strong>${formatar(interLimite)}</strong></p>
+      <p>Mensais (${prazo}x): <strong>${formatar(mensalLimite)}</strong></p>
+      <p><strong>Total estimado:</strong> ${formatar(totalMaximo)}</p>
+      ${posChaves > 0 ? `<p class="alerta">💬 Saldo pós-chaves estimado: <strong>${formatar(posChaves)}</strong></p>` : ""}
+      <p class="obs">*Considerado 30% da renda para parcelas mensais e 100% para intermediárias.</p>
+    </div>
+  `;
 
-  // Verifica se cabe na renda
-  if (inter1Parcela <= interLimite && mensal1Parcela <= mensalLimite) {
-    opcoes += `
-      <div class="option bege">
-        <h3>💡 Opção 1</h3>
-        <p>Ato: <strong>${formatar(ato)}</strong></p>
-        <p>Intermediárias (${inter}x): <strong>${formatar(inter1Parcela)}</strong></p>
-        <p>Mensais (${prazo}x): <strong>${formatar(mensal1Parcela)}</strong></p>
-        <p><strong>Total estimado:</strong> ${formatar(entrada)}</p>
-      </div>
-    `;
-  }
-
-  if (inter2Parcela <= interLimite && mensal2Parcela <= mensalLimite) {
-    opcoes += `
-      <div class="option cinza">
-        <h3>💡 Opção 2</h3>
-        <p>Ato: <strong>${formatar(ato)}</strong></p>
-        <p>Intermediárias (${inter}x): <strong>${formatar(inter2Parcela)}</strong></p>
-        <p>Mensais (${prazo}x): <strong>${formatar(mensal2Parcela)}</strong></p>
-        <p><strong>Total estimado:</strong> ${formatar(entrada)}</p>
-      </div>
-    `;
-  }
-
-  if (!opcoes) {
-    opcoes = `
-      <div class="option vermelho">
-        <h3>🚫 Nenhum fluxo possível</h3>
-        <p>O valor da entrada ultrapassa os limites de renda informados.</p>
-        <p class="alerta">Sugestão: revisar o valor do ato ou verificar com a construtora possibilidade de pós-chaves.</p>
-      </div>
-    `;
-  }
-
-  document.getElementById("resultado").innerHTML = resultado + opcoes;
+  document.getElementById("resultado").innerHTML = resultado;
 }
 
 function limparCampos() {
