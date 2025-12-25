@@ -7,14 +7,14 @@
 <style>
   body {
     font-family: 'Poppins', sans-serif;
-    background-color: #f7f9f8;
+    background-color: #f8f9f8;
     margin: 0;
     padding: 0;
     color: #222;
   }
 
   .container {
-    max-width: 600px;
+    max-width: 650px;
     background: white;
     margin: 40px auto;
     border-radius: 16px;
@@ -74,13 +74,18 @@
     border-left: 5px solid #0b6e3b;
   }
 
-  .opcao1 { background: #fff7e6; }
-  .opcao2 { background: #f2f2f2; }
-  .opcao3 { background: #e8f7e6; }
+  .viavel {
+    background: #e8f7e6;
+    border-left: 5px solid #0b6e3b;
+  }
+
+  .inviavel {
+    background: #ffe8e8;
+    border-left: 5px solid #cc0000;
+  }
 
   .option h3 {
-    color: #0b6e3b;
-    margin: 5px 0 10px 0;
+    margin-top: 0;
   }
 
   .footer {
@@ -113,6 +118,11 @@
     text-decoration: none;
     color: #0b6e3b;
     font-weight: 600;
+  }
+
+  .alerta {
+    color: #cc0000;
+    font-weight: bold;
   }
 </style>
 </head>
@@ -153,6 +163,9 @@
     <div class="social">
       <p>Siga nas redes: <a href="https://www.instagram.com/raulmendes.imob" target="_blank">@raulmendes.imob</a></p>
     </div>
+    <p style="margin-top: 15px; font-size: 13px; color:#888;">
+      ⚠️ Esta simulação é apenas ilustrativa. Verifique regras e critérios diretamente com a construtora.
+    </p>
   </div>
 </div>
 
@@ -189,36 +202,50 @@ function calcular() {
 
   const entrada = imovel - financiamento - fgts;
   const saldoRestante = entrada - ato;
+
   const mensalMax = renda * 0.3;
+  const interMax = renda;
 
-  let opcoes = "";
-  const cores = ["opcao1", "opcao2", "opcao3"];
+  // Calcula o valor ideal baseado nas regras
+  const interValor = interMax;
+  const totalInter = interValor * inter;
+  const restanteMensal = saldoRestante - totalInter;
+  const mensal = restanteMensal / prazo;
 
-  for (let i = 1; i <= 3; i++) {
-    const interValor = mensalMax * (0.5 + (i - 1) * 0.25);
-    const totalIntermediarias = inter * interValor;
-    const restanteMensal = saldoRestante - totalIntermediarias;
-    const mensal = restanteMensal / prazo;
-
-    opcoes += `
-      <div class="option ${cores[i-1]}">
-        <h3>💡 Opção ${i}</h3>
-        <p>Ato: <strong>${formatar(ato)}</strong></p>
-        <p>Intermediárias (${inter}x): <strong>${formatar(interValor)}</strong></p>
-        <p>Mensais (${prazo}x): <strong>${formatar(mensal)}</strong></p>
-        <p><strong>Total da Entrada:</strong> ${formatar(entrada)}</p>
-      </div>`;
-  }
-
-  document.getElementById("resultado").innerHTML = `
+  let resultado = `
     <h3>Resumo</h3>
     <p>🏠 Imóvel: <strong>${formatar(imovel)}</strong></p>
     <p>🏦 Financiamento: <strong>${formatar(financiamento)}</strong></p>
     <p>💸 Entrada Total: <strong>${formatar(entrada)}</strong></p>
     <p>📆 Prazo: <strong>${prazo} meses</strong></p>
     <p>👨‍👩‍👧‍👦 Renda: <strong>${formatar(renda)}</strong></p>
-    ${opcoes}
   `;
+
+  if (mensal > mensalMax) {
+    const excesso = mensal - mensalMax;
+    resultado += `
+      <div class="option inviavel">
+        <h3>🚫 Fluxo Acima da Capacidade</h3>
+        <p>Ato: <strong>${formatar(ato)}</strong></p>
+        <p>Intermediárias (${inter}x): <strong>${formatar(interValor)}</strong></p>
+        <p>Mensais (${prazo}x): <strong>${formatar(mensal)}</strong></p>
+        <p class="alerta">⚠️ Suas parcelas mensais ultrapassam o limite de 30% da renda.</p>
+        <p>Sugestão: revisar o valor do ato ou considerar parcelas pós-chaves com a construtora.</p>
+      </div>
+    `;
+  } else {
+    resultado += `
+      <div class="option viavel">
+        <h3>✅ Fluxo Viável</h3>
+        <p>Ato: <strong>${formatar(ato)}</strong></p>
+        <p>Intermediárias (${inter}x): <strong>${formatar(interValor)}</strong></p>
+        <p>Mensais (${prazo}x): <strong>${formatar(mensal)}</strong></p>
+        <p><strong>Total da Entrada:</strong> ${formatar(entrada)}</p>
+      </div>
+    `;
+  }
+
+  document.getElementById("resultado").innerHTML = resultado;
 }
 
 function limparCampos() {
