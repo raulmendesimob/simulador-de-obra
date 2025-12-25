@@ -54,18 +54,10 @@
     margin-top: 20px;
   }
 
-  button:hover {
-    background-color: #0a5f33;
-  }
+  button:hover { background-color: #0a5f33; }
+  .limpar { background: #999; margin-top: 10px; }
 
-  .limpar {
-    background: #999;
-    margin-top: 10px;
-  }
-
-  .result {
-    margin-top: 30px;
-  }
+  .result { margin-top: 30px; }
 
   .option {
     border-radius: 12px;
@@ -74,10 +66,10 @@
   }
 
   .bege { background: #fff7e6; border-left: 6px solid #f4b400; }
-  .cinza { background: #f0f0f0; border-left: 6px solid #666; }
   .vermelho { background: #ffeaea; border-left: 6px solid #d32f2f; }
 
-  .option h3 { margin-top: 0; }
+  .alerta { color: #cc0000; font-weight: bold; }
+  .obs { font-size: 13px; color: #555; margin-top: 8px; font-style: italic; }
 
   .footer {
     text-align: center;
@@ -99,27 +91,8 @@
 
   .cta:hover { background: #0a5f33; }
 
-  .social {
-    margin-top: 15px;
-  }
-
-  .social a {
-    text-decoration: none;
-    color: #0b6e3b;
-    font-weight: 600;
-  }
-
-  .alerta {
-    color: #cc0000;
-    font-weight: bold;
-  }
-
-  .obs {
-    font-size: 13px;
-    color: #555;
-    margin-top: 8px;
-    font-style: italic;
-  }
+  .social { margin-top: 15px; }
+  .social a { text-decoration: none; color: #0b6e3b; font-weight: 600; }
 </style>
 </head>
 <body>
@@ -197,10 +170,22 @@ function calcular() {
   }
 
   const entrada = imovel - financiamento - fgts;
-  const saldoRestante = entrada - ato;
+  let saldo = entrada - ato;
 
-  const mensalLimite = renda * 0.3;
-  const interLimite = renda * 1.0;
+  const mensalMax = renda * 0.3;
+  const interMax = renda * 1.0;
+
+  let interValor = interMax;
+  let totalInter = interValor * inter;
+
+  let mensalValor = (saldo - totalInter) / prazo;
+  let posChaves = 0;
+
+  if (mensalValor > mensalMax) {
+    mensalValor = mensalMax;
+    const totalCoberto = ato + (mensalValor * prazo) + (interValor * inter);
+    posChaves = entrada - totalCoberto;
+  }
 
   let resultado = `
     <h3>Resumo</h3>
@@ -209,22 +194,12 @@ function calcular() {
     <p>💸 Entrada Total: <strong>${formatar(entrada)}</strong></p>
     <p>📆 Prazo: <strong>${prazo} meses</strong></p>
     <p>👨‍👩‍👧‍👦 Renda: <strong>${formatar(renda)}</strong></p>
-  `;
-
-  const totalMensais = mensalLimite * prazo;
-  const totalInter = interLimite * inter;
-  const totalMaximo = ato + totalMensais + totalInter;
-
-  let posChaves = 0;
-  if (entrada > totalMaximo) posChaves = entrada - totalMaximo;
-
-  resultado += `
     <div class="option bege">
       <h3>💡 Opção Calculada</h3>
       <p>Ato: <strong>${formatar(ato)}</strong></p>
-      <p>Intermediárias (${inter}x): <strong>${formatar(interLimite)}</strong></p>
-      <p>Mensais (${prazo}x): <strong>${formatar(mensalLimite)}</strong></p>
-      <p><strong>Total estimado:</strong> ${formatar(totalMaximo)}</p>
+      <p>Intermediárias (${inter}x): <strong>${formatar(interValor)}</strong></p>
+      <p>Mensais (${prazo}x): <strong>${formatar(mensalValor)}</strong></p>
+      <p><strong>Total coberto:</strong> ${formatar(ato + interValor*inter + mensalValor*prazo)}</p>
       ${posChaves > 0 ? `<p class="alerta">💬 Saldo pós-chaves estimado: <strong>${formatar(posChaves)}</strong></p>` : ""}
       <p class="obs">*Considerado 30% da renda para parcelas mensais e 100% para intermediárias.</p>
     </div>
