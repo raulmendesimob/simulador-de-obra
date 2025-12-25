@@ -71,17 +71,21 @@
     border-radius: 12px;
     padding: 15px;
     margin-top: 15px;
-    border-left: 5px solid #0b6e3b;
   }
 
-  .viavel {
-    background: #e8f7e6;
-    border-left: 5px solid #0b6e3b;
+  .confortavel {
+    background: #e9fce9;
+    border-left: 6px solid #1e7d32;
+  }
+
+  .limite {
+    background: #fffbe7;
+    border-left: 6px solid #e3b505;
   }
 
   .inviavel {
-    background: #ffe8e8;
-    border-left: 5px solid #cc0000;
+    background: #ffeaea;
+    border-left: 6px solid #d32f2f;
   }
 
   .option h3 {
@@ -205,12 +209,8 @@ function calcular() {
 
   const mensalMax = renda * 0.3;
   const interMax = renda;
-
-  // Calcula o valor ideal baseado nas regras
-  const interValor = interMax;
-  const totalInter = interValor * inter;
-  const restanteMensal = saldoRestante - totalInter;
-  const mensal = restanteMensal / prazo;
+  const mensal90 = renda * 0.27;
+  const inter90 = renda * 0.9;
 
   let resultado = `
     <h3>Resumo</h3>
@@ -221,26 +221,37 @@ function calcular() {
     <p>👨‍👩‍👧‍👦 Renda: <strong>${formatar(renda)}</strong></p>
   `;
 
-  if (mensal > mensalMax) {
-    const excesso = mensal - mensalMax;
+  const totalMax = ato + (interMax * inter) + (mensalMax * prazo);
+  const total90 = ato + (inter90 * inter) + (mensal90 * prazo);
+
+  if (entrada > totalMax) {
     resultado += `
       <div class="option inviavel">
         <h3>🚫 Fluxo Acima da Capacidade</h3>
-        <p>Ato: <strong>${formatar(ato)}</strong></p>
-        <p>Intermediárias (${inter}x): <strong>${formatar(interValor)}</strong></p>
-        <p>Mensais (${prazo}x): <strong>${formatar(mensal)}</strong></p>
-        <p class="alerta">⚠️ Suas parcelas mensais ultrapassam o limite de 30% da renda.</p>
-        <p>Sugestão: revisar o valor do ato ou considerar parcelas pós-chaves com a construtora.</p>
+        <p>Total estimado da entrada: ${formatar(entrada)}</p>
+        <p>Com a renda informada, o limite máximo estimado seria ${formatar(totalMax)}.</p>
+        <p class="alerta">Sugestão: revisar o valor do ato ou verificar possibilidade de pós-chaves com a construtora.</p>
       </div>
     `;
   } else {
+    if (entrada <= total90) {
+      resultado += `
+        <div class="option confortavel">
+          <h3>✅ Opção 1 - Fluxo Confortável (90%)</h3>
+          <p>Ato: <strong>${formatar(ato)}</strong></p>
+          <p>Intermediárias (${inter}x): <strong>${formatar(inter90)}</strong></p>
+          <p>Mensais (${prazo}x): <strong>${formatar(mensal90)}</strong></p>
+          <p><strong>Total estimado:</strong> ${formatar(total90)}</p>
+        </div>
+      `;
+    } 
     resultado += `
-      <div class="option viavel">
-        <h3>✅ Fluxo Viável</h3>
+      <div class="option limite">
+        <h3>⚡ Opção 2 - Fluxo no Limite (100%)</h3>
         <p>Ato: <strong>${formatar(ato)}</strong></p>
-        <p>Intermediárias (${inter}x): <strong>${formatar(interValor)}</strong></p>
-        <p>Mensais (${prazo}x): <strong>${formatar(mensal)}</strong></p>
-        <p><strong>Total da Entrada:</strong> ${formatar(entrada)}</p>
+        <p>Intermediárias (${inter}x): <strong>${formatar(interMax)}</strong></p>
+        <p>Mensais (${prazo}x): <strong>${formatar(mensalMax)}</strong></p>
+        <p><strong>Total estimado:</strong> ${formatar(totalMax)}</p>
       </div>
     `;
   }
