@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Login - Simulador Imobiliário</title>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
+</head>
+<body>
+  <h2>Login do Aluno</h2>
+
+  <input type="email" id="email" placeholder="Digite seu e-mail" required>
+  <br><br>
+  <input type="password" id="senha" placeholder="Digite sua senha" required>
+  <br><br>
+  <button onclick="login()">Entrar</button>
+
+  <p id="erro" style="color: red;"></p>
+
+  <script>
+    // Configuração do Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDuFpdlFDIoYPzN9mIcLRkgAC7xzRVIdCI",
+      authDomain: "simuladorimobiliario-50a95.firebaseapp.com",
+      projectId: "simuladorimobiliario-50a95",
+      storageBucket: "simuladorimobiliario-50a95.firebasestorage.app",
+      messagingSenderId: "429432049946",
+      appId: "1:429432049946:web:17c6e80eeeea53300c1ca3"
+    };
+
+    // Inicializa Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    function login() {
+      const email = document.getElementById("email").value;
+      const senha = document.getElementById("senha").value;
+
+      firebase.auth().signInWithEmailAndPassword(email, senha)
+        .then((userCredential) => {
+          // Login bem-sucedido
+          window.location.href = "simuladores.html"; // Redireciona para simuladores
+        })
+        .catch((error) => {
+          document.getElementById("erro").innerText = "Erro ao fazer login: " + error.message;
+        });
+    }
+  </script>
+</body>
+</html>
