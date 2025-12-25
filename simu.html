@@ -42,6 +42,27 @@
     font-size: 16px;
   }
 
+  button {
+    background-color: #0b6e3b;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 20px;
+  }
+
+  button:hover {
+    background-color: #0a5f33;
+  }
+
+  .limpar {
+    background: #999;
+    margin-top: 10px;
+  }
+
   .result {
     margin-top: 30px;
   }
@@ -101,25 +122,28 @@
   <h1>Simulador de Fluxo de Pagamento</h1>
 
   <label>🏠 Valor do Imóvel (R$):</label>
-  <input type="text" id="imovel" placeholder="Ex: 300.000,00" oninput="formatarCampo(this); calcular()">
+  <input type="text" id="imovel" placeholder="Ex: 300.000,00" oninput="formatarMoeda(this)">
 
   <label>🏦 Valor do Financiamento (R$):</label>
-  <input type="text" id="financiamento" placeholder="Ex: 200.000,00" oninput="formatarCampo(this); calcular()">
+  <input type="text" id="financiamento" placeholder="Ex: 200.000,00" oninput="formatarMoeda(this)">
 
   <label>💰 FGTS (R$):</label>
-  <input type="text" id="fgts" placeholder="Ex: 15.000,00" oninput="formatarCampo(this); calcular()">
+  <input type="text" id="fgts" placeholder="Ex: 15.000,00" oninput="formatarMoeda(this)">
 
   <label>💸 Valor do Ato (R$):</label>
-  <input type="text" id="ato" placeholder="Ex: 10.000,00" oninput="formatarCampo(this); calcular()">
+  <input type="text" id="ato" placeholder="Ex: 10.000,00" oninput="formatarMoeda(this)">
 
   <label>📅 Prazo da Obra (meses):</label>
-  <input type="number" id="prazo" placeholder="Ex: 35" oninput="calcular()">
+  <input type="number" id="prazo" placeholder="Ex: 35">
 
   <label>👨‍👩‍👧‍👦 Renda Familiar Mensal (R$):</label>
-  <input type="text" id="renda" placeholder="Ex: 6.000,00" oninput="formatarCampo(this); calcular()">
+  <input type="text" id="renda" placeholder="Ex: 6.000,00" oninput="formatarMoeda(this)">
 
   <label>📊 Quantidade de Intermediárias:</label>
-  <input type="number" id="inter" placeholder="Ex: 3" oninput="calcular()">
+  <input type="number" id="inter" placeholder="Ex: 3">
+
+  <button onclick="calcular()">Calcular Fluxo</button>
+  <button class="limpar" onclick="limparCampos()">Limpar Tudo</button>
 
   <div class="result" id="resultado"></div>
 
@@ -133,17 +157,74 @@
 </div>
 
 <script>
-function limparFormato(valor) {
-  return parseFloat(valor.replace(/[R$\.\s]/g, '').replace(',', '.')) || 0;
+function formatarMoeda(campo) {
+  let valor = campo.value.replace(/\D/g, "");
+  valor = (valor / 100).toFixed(2) + "";
+  valor = valor.replace(".", ",");
+  valor = valor.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  campo.value = "R$ " + valor;
 }
 
-function formatarCampo(campo) {
-  let valor = campo.value.replace(/\D/g, '');
-  valor = (valor / 100).toFixed(2) + '';
-  valor = valor.replace('.', ',');
-  valor = valor.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  campo.value = 'R$ ' + valor;
+function limparFormato(valor) {
+  return parseFloat(valor.replace(/[R$\.\s]/g, "").replace(",", ".")) || 0;
 }
 
 function formatar(valor) {
-  return valor.toLocaleString('pt-BR', { style: 'currency', currency:
+  return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+function calcular() {
+  const imovel = limparFormato(document.getElementById("imovel").value);
+  const financiamento = limparFormato(document.getElementById("financiamento").value);
+  const fgts = limparFormato(document.getElementById("fgts").value);
+  const ato = limparFormato(document.getElementById("ato").value);
+  const prazo = parseInt(document.getElementById("prazo").value) || 0;
+  const renda = limparFormato(document.getElementById("renda").value);
+  const inter = parseInt(document.getElementById("inter").value) || 1;
+
+  if (!imovel || !financiamento || !prazo || !renda) {
+    document.getElementById("resultado").innerHTML = "<p>Preencha todos os campos corretamente.</p>";
+    return;
+  }
+
+  const entrada = imovel - financiamento - fgts;
+  const saldoRestante = entrada - ato;
+  const mensalMax = renda * 0.3;
+
+  let opcoes = "";
+  const cores = ["opcao1", "opcao2", "opcao3"];
+
+  for (let i = 1; i <= 3; i++) {
+    const interValor = mensalMax * (0.5 + (i - 1) * 0.25);
+    const totalIntermediarias = inter * interValor;
+    const restanteMensal = saldoRestante - totalIntermediarias;
+    const mensal = restanteMensal / prazo;
+
+    opcoes += `
+      <div class="option ${cores[i-1]}">
+        <h3>💡 Opção ${i}</h3>
+        <p>Ato: <strong>${formatar(ato)}</strong></p>
+        <p>Intermediárias (${inter}x): <strong>${formatar(interValor)}</strong></p>
+        <p>Mensais (${prazo}x): <strong>${formatar(mensal)}</strong></p>
+        <p><strong>Total da Entrada:</strong> ${formatar(entrada)}</p>
+      </div>`;
+  }
+
+  document.getElementById("resultado").innerHTML = `
+    <h3>Resumo</h3>
+    <p>🏠 Imóvel: <strong>${formatar(imovel)}</strong></p>
+    <p>🏦 Financiamento: <strong>${formatar(financiamento)}</strong></p>
+    <p>💸 Entrada Total: <strong>${formatar(entrada)}</strong></p>
+    <p>📆 Prazo: <strong>${prazo} meses</strong></p>
+    <p>👨‍👩‍👧‍👦 Renda: <strong>${formatar(renda)}</strong></p>
+    ${opcoes}
+  `;
+}
+
+function limparCampos() {
+  document.querySelectorAll("input").forEach(input => input.value = "");
+  document.getElementById("resultado").innerHTML = "";
+}
+</script>
+</body>
+</html>
