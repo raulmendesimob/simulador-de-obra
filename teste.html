@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Simulador Imobiliário</title>
+
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: #f4f6f5;
+    margin: 0;
+    padding: 0;
+    color: #222;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 40px auto;
+    background: #fff;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+  }
+
+  h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #0b6e3b;
+  }
+
+  h2 {
+    margin-top: 40px;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 8px;
+  }
+
+  label {
+    font-weight: 600;
+    margin-top: 15px;
+    display: block;
+  }
+
+  input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .bloco {
+    margin-top: 25px;
+    padding: 20px;
+    border-radius: 12px;
+    background: #f9faf8;
+    border-left: 6px solid #0b6e3b;
+  }
+
+  button {
+    margin-top: 20px;
+    padding: 12px;
+    width: 100%;
+    border-radius: 8px;
+    border: none;
+    background: #0b6e3b;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background: #095a31;
+  }
+
+  .resultado {
+    margin-top: 20px;
+    background: #eef6f0;
+    padding: 15px;
+    border-radius: 10px;
+  }
+
+  .obs {
+    font-size: 13px;
+    color: #555;
+    margin-top: 8px;
+    font-style: italic;
+  }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h1>Simulador Imobiliário</h1>
+
+  <!-- ================= DADOS BASE ================= -->
+  <h2>📌 Dados do Imóvel</h2>
+
+  <div class="grid">
+    <div>
+      <label>Valor do Imóvel (R$)</label>
+      <input type="text" id="valorImovel" oninput="formatarMoeda(this)">
+    </div>
+
+    <div>
+      <label>Prazo da Obra (meses)</label>
+      <input type="number" id="prazoObra" placeholder="Ex: 30">
+    </div>
+  </div>
+
+  <!-- ================= FLUXO DE PAGAMENTO ================= -->
+  <div class="bloco">
+    <h2>💰 Fluxo de Pagamento</h2>
+
+    <div class="grid">
+      <div>
+        <label>Valor do Financiamento (R$)</label>
+        <input type="text" id="financiamento" oninput="formatarMoeda(this)">
+      </div>
+
+      <div>
+        <label>FGTS (R$)</label>
+        <input type="text" id="fgts" oninput="formatarMoeda(this)">
+      </div>
+
+      <div>
+        <label>Valor do Ato (R$)</label>
+        <input type="text" id="ato" oninput="formatarMoeda(this)">
+      </div>
+
+      <div>
+        <label>Renda Familiar Mensal (R$)</label>
+        <input type="text" id="renda" oninput="formatarMoeda(this)">
+      </div>
+    </div>
+
+    <button onclick="calcularFluxo()">Calcular Fluxo</button>
+
+    <div id="resultadoFluxo" class="resultado"></div>
+
+    <p class="obs">
+      * Considerado 30% da renda para parcelas mensais e 100% para intermediárias.
+    </p>
+  </div>
+
+  <!-- ================= JUROS DE OBRA ================= -->
+  <div class="bloco">
+    <h2>🏦 Juros de Obra</h2>
+
+    <div class="grid">
+      <div>
+        <label>Taxa de Juros (% a.a.)</label>
+        <input type="number" id="taxaJuros" step="0.01" placeholder="Ex: 10.5">
+      </div>
+
+      <div>
+        <label>Valor Financiado (R$)</label>
+        <input type="text" id="saldoFinanciado" oninput="formatarMoeda(this)">
+      </div>
+    </div>
+
+    <button onclick="calcularJuros()">Calcular Juros de Obra</button>
+
+    <div id="resultadoJuros" class="resultado"></div>
+
+    <p class="obs">
+      * Cálculo estimado. Taxas e indexadores podem variar conforme banco.
+    </p>
+  </div>
+
+  <!-- ================= SIMULAÇÃO COMPLETA ================= -->
+  <div class="bloco">
+    <h2>📄 Simulação Completa</h2>
+    <button onclick="gerarResumo()">Gerar Resumo Geral</button>
+    <div id="resultadoCompleto" class="resultado"></div>
+  </div>
+
+</div>
+
+<script>
+/* ================= UTILITÁRIOS ================= */
+function formatarMoeda(campo) {
+  let valor = campo.value.replace(/\D/g, "");
+  valor = (valor / 100).toFixed(2);
+  valor = valor.replace(".", ",");
+  valor = valor.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  campo.value = "R$ " + valor;
+}
+
+function limpar(valor) {
+  return parseFloat(valor.replace(/[R$\.\s]/g, "").replace(",", ".")) || 0;
+}
+
+function moeda(valor) {
+  return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+/* ================= FLUXO ================= */
+function calcularFluxo() {
+  const imovel = limpar(valorImovel.value);
+  const financiamento = limpar(financiamento.value);
+  const fgts = limpar(fgts.value);
+  const ato = limpar(ato.value);
+  const renda = limpar(renda.value);
+  const prazo = parseInt(prazoObra.value) || 0;
+
+  if (!imovel || !financiamento || !prazo || !renda) {
+    resultadoFluxo.innerHTML = "Preencha os campos necessários.";
+    return;
+  }
+
+  const entrada = imovel - financiamento - fgts;
+  const mensalMax = renda * 0.3;
+  const mensal = (entrada - ato) / prazo;
+
+  resultadoFluxo.innerHTML = `
+    <p>Entrada estimada: <strong>${moeda(entrada)}</strong></p>
+    <p>Parcela mensal estimada: <strong>${moeda(Math.min(mensal, mensalMax))}</strong></p>
+  `;
+}
+
+/* ================= JUROS DE OBRA ================= */
+function calcularJuros() {
+  const saldo = limpar(saldoFinanciado.value);
+  const taxa = parseFloat(taxaJuros.value) || 0;
+  const prazo = parseInt(prazoObra.value) || 0;
+
+  if (!saldo || !taxa || !prazo) {
+    resultadoJuros.innerHTML = "Preencha os campos necessários.";
+    return;
+  }
+
+  const jurosMensal = (taxa / 100) / 12;
+  const totalJuros = saldo * jurosMensal * prazo;
+
+  resultadoJuros.innerHTML = `
+    <p>Juros mensal estimado: <strong>${(jurosMensal * 100).toFixed(2)}%</strong></p>
+    <p>Total estimado de juros de obra: <strong>${moeda(totalJuros)}</strong></p>
+  `;
+}
+
+/* ================= RESUMO ================= */
+function gerarResumo() {
+  resultadoCompleto.innerHTML = `
+    <p>Esta simulação reúne os cálculos realizados acima.</p>
+    <p>Os valores apresentados são estimativas e servem para entendimento do processo.</p>
+  `;
+}
+</script>
+
+</body>
+</html>
