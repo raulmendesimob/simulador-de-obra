@@ -1,185 +1,185 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Simulador - Entrada & Juros de Obra</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador Imobiliário</title>
 
 <style>
-  *{ box-sizing:border-box; }
-  body{
-    margin:0;
-    font-family: Arial, Helvetica, sans-serif;
-    background:#f4f6f5;
-    color:#222;
-  }
+*{ box-sizing:border-box; }
 
-  /* ===== PAINEL FIXO SUPERIOR ===== */
-  .painel-fixo{
-  position: relative; /* deixa de ser fixo */
-  background: #fff;
-  border-bottom: 1px solid #e0e0e0;
-  padding: 16px;
+body{
+  margin:0;
+  font-family: Arial, Helvetica, sans-serif;
+  background:#f4f6f5;
+  color:#222;
 }
 
-  .painel-fixo h1{
-    margin: 0 0 16px 0;
-    text-align:center;
-    color:#0b6e3b;
-    font-size: 20px;
-  }
+/* ===== PAINEL SUPERIOR (NÃO FIXO) ===== */
+.painel-topo{
+  background:#fff;
+  border-bottom:1px solid #e0e0e0;
+  padding:16px;
+}
 
-  .painel-grid{
-    max-width: 900px;
-    margin: 0 auto;
-    display:grid;
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
+.painel-topo h1{
+  text-align:center;
+  color:#0b6e3b;
+  margin:0 0 16px;
+  font-size:22px;
+}
 
-  .campo label{
-    display:block;
-    font-size: 13px;
-    font-weight: 600;
-    margin-bottom: 6px;
-  }
+.grid-topo{
+  max-width:900px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:1fr;
+  gap:12px;
+}
 
-  .campo input, .campo select{
-    width: 100%;
-    padding: 10px 12px;
-    border-radius: 10px;
-    border: 1px solid #ccc;
-    font-size: 15px;
-    background:#fff;
-  }
+.campo label{
+  display:block;
+  font-size:13px;
+  font-weight:600;
+  margin-bottom:6px;
+}
 
-  .campo-full{
-    grid-column: 1 / -1;
-  }
+.campo input, .campo select{
+  width:100%;
+  padding:10px 12px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  font-size:15px;
+}
 
-  @media(min-width:768px){
-    .painel-grid{ grid-template-columns: repeat(2, 1fr); }
-    .painel-fixo h1{ font-size: 22px; }
-  }
+.campo-full{ grid-column:1 / -1; }
 
-  /* ===== CONTEÚDO ===== */
-  .container{
-    max-width: 900px;
-    margin: 24px auto;
-    padding: 0 16px 40px;
-  }
+@media(min-width:768px){
+  .grid-topo{ grid-template-columns:repeat(2,1fr); }
+}
 
-  /* ===== ACCORDION ===== */
-  .bloco{
-    background:#fff;
-    border-radius: 14px;
-    border:1px solid #ddd;
-    overflow:hidden;
-    margin-bottom: 16px;
-  }
+/* ===== CONTEÚDO ===== */
+.container{
+  max-width:900px;
+  margin:24px auto;
+  padding:0 16px 40px;
+}
 
-  .bloco-header{
-    padding: 16px;
-    background:#0b6e3b;
-    color:#fff;
-    font-weight: 700;
-    cursor:pointer;
-    user-select:none;
-  }
+/* ===== BLOCOS ===== */
+.bloco{
+  background:#fff;
+  border-radius:14px;
+  border:1px solid #ddd;
+  margin-bottom:18px;
+  overflow:hidden;
+}
 
-  .bloco-conteudo{
-    display:none;
-    padding: 18px;
-  }
+.bloco-header{
+  background:#0b6e3b;
+  color:#fff;
+  padding:16px;
+  font-weight:700;
+  cursor:pointer;
+}
 
-  .subgrid{
-    display:grid;
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
+.bloco-conteudo{
+  display:none;
+  padding:18px;
+}
 
-  @media(min-width:768px){
-    .subgrid{ grid-template-columns: repeat(2, 1fr); }
-    .subgrid .span2{ grid-column: 1 / -1; }
-  }
+.subgrid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:12px;
+}
 
-  .divider{
-    height:1px;
-    background:#e9e9e9;
-    margin: 14px 0;
-  }
+@media(min-width:768px){
+  .subgrid{ grid-template-columns:repeat(2,1fr); }
+  .span2{ grid-column:1 / -1; }
+}
 
-  button{
-    width: 100%;
-    padding: 12px;
-    border: none;
-    border-radius: 10px;
-    background:#0b6e3b;
-    color:#fff;
-    font-size: 15px;
-    cursor:pointer;
-    margin-top: 12px;
-  }
+.divider{
+  height:1px;
+  background:#e9e9e9;
+  margin:16px 0;
+}
 
-  button:hover{ background:#095a31; }
+button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  background:#0b6e3b;
+  color:#fff;
+  font-size:15px;
+  cursor:pointer;
+  margin-top:12px;
+}
 
-  .resultado{
-    margin-top: 14px;
-    background:#f1f7f3;
-    padding: 14px;
-    border-radius: 10px;
-  }
+button:hover{ background:#095a31; }
 
-  .alerta{
-    color:#c62828;
-    font-weight: 700;
-  }
+.resultado{
+  margin-top:14px;
+  background:#f1f7f3;
+  padding:14px;
+  border-radius:10px;
+}
 
-  .obs{
-    margin-top: 10px;
-    font-size: 12px;
-    color:#555;
-    font-style: italic;
-    line-height: 1.35;
-  }
+.alerta{
+  color:#c62828;
+  font-weight:700;
+}
 
-  .pill{
-    display:inline-block;
-    padding: 4px 10px;
-    border-radius: 999px;
-    background:#e7f3eb;
-    color:#0b6e3b;
-    font-weight:700;
-    font-size: 12px;
-  }
+.ok{
+  color:#0b6e3b;
+  font-weight:700;
+}
+
+.obs{
+  font-size:12px;
+  color:#555;
+  margin-top:10px;
+  font-style:italic;
+  line-height:1.4;
+}
+
+.pill{
+  display:inline-block;
+  padding:4px 10px;
+  border-radius:999px;
+  background:#e7f3eb;
+  color:#0b6e3b;
+  font-weight:700;
+  font-size:12px;
+}
 </style>
 </head>
 
 <body>
 
-<!-- ===== PAINEL FIXO (sempre visível) ===== -->
-<div class="painel-fixo">
-  <h1>Simulador</h1>
+<!-- ===== TOPO ===== -->
+<div class="painel-topo">
+  <h1>Simulador Imobiliário</h1>
 
-  <div class="painel-grid">
+  <div class="grid-topo">
     <div class="campo campo-full">
       <label>🏠 Valor do Imóvel (R$)</label>
-      <input id="valorImovel" inputmode="numeric" oninput="formatarMoeda(this)" placeholder="R$ 0,00">
+      <input id="valorImovel" oninput="formatarMoeda(this)" placeholder="R$ 0,00">
     </div>
 
     <div class="campo">
       <label>🏦 Valor do Financiamento (R$)</label>
-      <input id="valorFinanciamento" inputmode="numeric" oninput="formatarMoeda(this)" placeholder="R$ 0,00">
-    </div>
-
-    <div class="campo">
-      <label>📈 Taxa de Juros (% a.a.) <span class="pill">opcional</span></label>
-      <input id="taxaJuros" type="number" step="0.01" placeholder="Ex: 10,50">
+      <input id="valorFinanciamento" oninput="formatarMoeda(this)" placeholder="R$ 0,00">
     </div>
 
     <div class="campo">
       <label>💰 FGTS (R$) <span class="pill">opcional</span></label>
-      <input id="fgts" inputmode="numeric" oninput="formatarMoeda(this)" placeholder="R$ 0,00">
+      <input id="fgts" oninput="formatarMoeda(this)" placeholder="R$ 0,00">
+    </div>
+
+    <div class="campo">
+      <label>📈 Taxa de Juros (% a.a.) <span class="pill">opcional</span></label>
+      <input id="taxaJuros" type="number" step="0.01" placeholder="Ex: 10,5">
     </div>
 
     <div class="campo">
@@ -191,276 +191,245 @@
 
 <div class="container">
 
-  <!-- ===== ENTRADA / FLUXO ===== -->
-  <div class="bloco">
-    <div class="bloco-header" onclick="toggleBloco(this)">💰 Entrada / Fluxo Inicial</div>
-    <div class="bloco-conteudo">
+<!-- ===== ENTRADA ===== -->
+<div class="bloco">
+  <div class="bloco-header" onclick="toggle(this)">💰 Entrada / Fluxo Inicial</div>
+  <div class="bloco-conteudo">
 
-      <div class="subgrid">
-        <div class="campo">
-          <label>💸 Ato (R$)</label>
-          <input id="ato" inputmode="numeric" oninput="formatarMoeda(this)" placeholder="R$ 0,00">
-        </div>
-
-        <div class="campo">
-          <label>📆 Parcelas da Entrada (ex: Ato + 34)</label>
-          <input id="parcelasEntrada" type="number" placeholder="Ex: 34">
-        </div>
-
-        <div class="campo span2">
-          <label>👨‍👩‍👧‍👦 Renda Familiar Mensal (R$)</label>
-          <input id="renda" inputmode="numeric" oninput="formatarMoeda(this)" placeholder="R$ 0,00">
-        </div>
+    <div class="subgrid">
+      <div class="campo">
+        <label>💸 Valor do Ato (R$)</label>
+        <input id="ato" oninput="formatarMoeda(this)" placeholder="R$ 0,00">
       </div>
 
-      <div class="divider"></div>
-
-      <div class="subgrid">
-        <div class="campo">
-          <label>📊 Tem intermediárias?</label>
-          <select id="temInter" onchange="mostrarInter()">
-            <option value="nao">Não</option>
-            <option value="sim">Sim</option>
-          </select>
-        </div>
-
-        <div class="campo" id="campoQtdInter" style="display:none;">
-          <label>🔢 Quantidade de intermediárias</label>
-          <input id="qtdInter" type="number" placeholder="Ex: 3">
-        </div>
-
-        <div class="campo span2" id="campoValorInter" style="display:none;">
-          <label>💰 Valor da intermediária (R$) <span class="pill">se vazio, usa 100% da renda</span></label>
-          <input id="valorInter" inputmode="numeric" oninput="formatarMoeda(this)" placeholder="R$ 0,00">
-        </div>
+      <div class="campo">
+        <label>📆 Parcelas Mensais da Entrada</label>
+        <input id="parcelasEntrada" type="number" placeholder="Ex: 34">
       </div>
 
-      <button onclick="calcularEntrada()">Calcular Entrada</button>
-
-      <div id="resultadoEntrada" class="resultado"></div>
-
-      <div class="obs">
-        * A entrada é: <b>Valor do imóvel - financiamento - FGTS</b>.<br>
-        * Parcelas mensais limitadas a <b>30% da renda</b>.<br>
-        * Intermediárias limitadas a <b>100% da renda</b> (quando valor não é informado).
+      <div class="campo span2">
+        <label>👨‍👩‍👧‍👦 Renda Familiar Mensal (R$)</label>
+        <input id="renda" oninput="formatarMoeda(this)" placeholder="R$ 0,00">
       </div>
     </div>
-  </div>
 
-  <!-- ===== JUROS DE OBRA ===== -->
-  <div class="bloco">
-    <div class="bloco-header" onclick="toggleBloco(this)">🏦 Juros de Obra</div>
-    <div class="bloco-conteudo">
+    <div class="divider"></div>
 
-      <div class="obs" style="margin-top:0;">
-        Este cálculo usa: <b>Financiamento</b>, <b>Prazo da obra</b> e <b>Taxa de juros</b> (do painel superior).
+    <div class="subgrid">
+      <div class="campo">
+        <label>📊 Tem Intermediárias?</label>
+        <select id="temInter" onchange="toggleInter()">
+          <option value="nao">Não</option>
+          <option value="sim">Sim</option>
+        </select>
       </div>
 
-      <button onclick="calcularJurosObra()">Calcular Juros de Obra</button>
+      <div class="campo" id="boxQtdInter" style="display:none;">
+        <label>🔢 Quantidade de Intermediárias</label>
+        <input id="qtdInter" type="number">
+      </div>
 
-      <div id="resultadoJuros" class="resultado"></div>
-
-      <div class="obs">
-        * Estimativa simples: juros mensal = (taxa a.a. / 12). Não considera TR/variações do banco.
+      <div class="campo span2" id="boxValorInter" style="display:none;">
+        <label>💰 Valor da Intermediária (R$) <span class="pill">se vazio, usa 100% da renda</span></label>
+        <input id="valorInter" oninput="formatarMoeda(this)" placeholder="R$ 0,00">
       </div>
     </div>
+
+    <div class="divider"></div>
+
+    <div class="subgrid">
+      <div class="campo">
+        <label>🏗️ Construtora aceita saldo pós-chaves?</label>
+        <select id="aceitaPos" onchange="togglePos()">
+          <option value="nao">Não</option>
+          <option value="sim">Sim</option>
+        </select>
+      </div>
+
+      <div class="campo" id="boxPercPos" style="display:none;">
+        <label>📊 % máximo do valor do imóvel</label>
+        <input id="percPos" type="number" step="0.1" placeholder="Ex: 8">
+      </div>
+
+      <div class="campo" id="boxParcPos" style="display:none;">
+        <label>📆 Máx. parcelas pós-chaves</label>
+        <input id="parcelasPos" type="number" placeholder="Ex: 24">
+      </div>
+    </div>
+
+    <button onclick="calcularEntrada()">Calcular Entrada</button>
+
+    <div id="resultadoEntrada" class="resultado"></div>
+
+    <div class="obs">
+      * Mensais limitadas a 30% da renda.<br>
+      * Intermediárias: se valor vazio, usa 100% da renda.<br>
+      * Pós-chaves depende da regra da construtora.
+    </div>
   </div>
+</div>
+
+<!-- ===== JUROS DE OBRA ===== -->
+<div class="bloco">
+  <div class="bloco-header" onclick="toggle(this)">🏦 Juros de Obra</div>
+  <div class="bloco-conteudo">
+
+    <button onclick="calcularJuros()">Calcular Juros de Obra</button>
+
+    <div id="resultadoJuros" class="resultado"></div>
+
+    <div class="obs">
+      * Cálculo estimado (juros simples). Não considera TR ou variações bancárias.
+    </div>
+  </div>
+</div>
 
 </div>
 
 <script>
-  /* ===== UI ===== */
-  function toggleBloco(header){
-    const conteudo = header.nextElementSibling;
-    conteudo.style.display = (conteudo.style.display === "block") ? "none" : "block";
+/* ===== UI ===== */
+function toggle(h){
+  const c = h.nextElementSibling;
+  c.style.display = c.style.display === "block" ? "none" : "block";
+}
+
+function toggleInter(){
+  const sim = temInter.value === "sim";
+  boxQtdInter.style.display = sim ? "block" : "none";
+  boxValorInter.style.display = sim ? "block" : "none";
+}
+
+function togglePos(){
+  const sim = aceitaPos.value === "sim";
+  boxPercPos.style.display = sim ? "block" : "none";
+  boxParcPos.style.display = sim ? "block" : "none";
+}
+
+/* ===== MOEDA ===== */
+function formatarMoeda(c){
+  let v = c.value.replace(/\D/g,"");
+  if(!v){ c.value=""; return; }
+  v = (v/100).toFixed(2).replace(".",",");
+  v = v.replace(/\B(?=(\d{3})+(?!\d))/g,".");
+  c.value = "R$ " + v;
+}
+
+function limpar(v){
+  return parseFloat(v.replace(/[R$\.\s]/g,"").replace(",",".")) || 0;
+}
+
+function moeda(n){
+  return n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+}
+
+/* ===== ENTRADA ===== */
+function calcularEntrada(){
+  const imovel = limpar(valorImovel.value);
+  const financ = limpar(valorFinanciamento.value);
+  const fgtsV = limpar(fgts.value);
+  const atoV = limpar(ato.value);
+  const rendaV = limpar(renda.value);
+  const parcelas = parseInt(parcelasEntrada.value)||0;
+
+  if(!imovel||!financ||!rendaV||!parcelas){
+    resultadoEntrada.innerHTML="<p class='alerta'>Preencha os campos obrigatórios.</p>";
+    return;
   }
 
-  function mostrarInter(){
-    const sim = document.getElementById("temInter").value === "sim";
-    document.getElementById("campoQtdInter").style.display = sim ? "block" : "none";
-    document.getElementById("campoValorInter").style.display = sim ? "block" : "none";
-    if(!sim){
-      document.getElementById("qtdInter").value = "";
-      document.getElementById("valorInter").value = "";
+  const entradaTotal = imovel - financ - fgtsV;
+  if(entradaTotal<=0){
+    resultadoEntrada.innerHTML="<p class='alerta'>Entrada inválida.</p>";
+    return;
+  }
+
+  let saldo = entradaTotal - atoV;
+  if(saldo<0){
+    resultadoEntrada.innerHTML="<p class='alerta'>Ato maior que a entrada.</p>";
+    return;
+  }
+
+  let interTotal = 0;
+  let interUnit = 0;
+
+  if(temInter.value==="sim"){
+    const q = parseInt(qtdInter.value)||0;
+    if(!q){
+      resultadoEntrada.innerHTML="<p class='alerta'>Informe a quantidade de intermediárias.</p>";
+      return;
+    }
+    interUnit = limpar(valorInter.value)||rendaV;
+    interTotal = interUnit*q;
+    saldo -= interTotal;
+    if(saldo<0){
+      resultadoEntrada.innerHTML="<p class='alerta'>Intermediárias maiores que o saldo.</p>";
+      return;
     }
   }
 
-  /* ===== Formatação moeda ===== */
-  function formatarMoeda(campo){
-    let v = (campo.value || "").replace(/\D/g, "");
-    if(v.length === 0){
-      campo.value = "";
-      return;
-    }
-    v = (parseInt(v,10) / 100).toFixed(2);
-    v = v.replace(".", ",");
-    v = v.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-    campo.value = "R$ " + v;
+  const mensalMax = rendaV*0.3;
+  let mensalCalc = saldo/parcelas;
+  let mensalFinal = mensalCalc;
+  let saldoPos = 0;
+  let aviso = "";
+
+  if(mensalCalc>mensalMax){
+    mensalFinal = mensalMax;
+    saldoPos = saldo - mensalFinal*parcelas;
+    aviso = "<p class='alerta'>Mensais limitadas a 30% da renda.</p>";
   }
 
-  function limparMoeda(v){
-    return parseFloat((v || "").replace(/[R$\.\s]/g, "").replace(",", ".")) || 0;
-  }
-
-  function moeda(num){
-    return num.toLocaleString("pt-BR",{ style:"currency", currency:"BRL" });
-  }
-
-  /* ===== Cálculo Entrada ===== */
-  function calcularEntrada(){
-    const valorImovel = limparMoeda(document.getElementById("valorImovel").value);
-    const financiamento = limparMoeda(document.getElementById("valorFinanciamento").value);
-    const fgts = limparMoeda(document.getElementById("fgts").value);
-
-    const ato = limparMoeda(document.getElementById("ato").value);
-    const parcelasEntrada = parseInt(document.getElementById("parcelasEntrada").value) || 0;
-    const renda = limparMoeda(document.getElementById("renda").value);
-
-    const temInter = document.getElementById("temInter").value === "sim";
-    const qtdInter = temInter ? (parseInt(document.getElementById("qtdInter").value) || 0) : 0;
-    const valorInterManual = temInter ? limparMoeda(document.getElementById("valorInter").value) : 0;
-
-    const out = document.getElementById("resultadoEntrada");
-
-    // validações mínimas
-    if(!valorImovel || !financiamento){
-      out.innerHTML = `<p class="alerta">Preencha Valor do Imóvel e Valor do Financiamento no painel superior.</p>`;
-      return;
-    }
-    if(!renda || !parcelasEntrada){
-      out.innerHTML = `<p class="alerta">Preencha Renda Mensal e Parcelas da Entrada.</p>`;
-      return;
-    }
-
-    const entradaTotal = valorImovel - financiamento - fgts;
-    if(entradaTotal <= 0){
-      out.innerHTML = `<p class="alerta">A entrada calculada ficou <= 0. Verifique imóvel, financiamento e FGTS.</p>`;
-      return;
-    }
-
-    // Ato não é "obrigatório" tecnicamente, mas faz parte do seu fluxo
-    // Se vier vazio, trata como 0 (sem quebrar).
-    const entradaRestanteBruta = entradaTotal - ato;
-
-    if(entradaRestanteBruta < 0){
-      out.innerHTML = `<p class="alerta">O Ato está maior que a entrada total. Ajuste o valor do ato.</p>`;
-      return;
-    }
-
-    // Intermediárias
-    let interValorUnit = 0;
-    let totalInter = 0;
-
-    if(temInter){
-      if(qtdInter <= 0){
-        out.innerHTML = `<p class="alerta">Você marcou que tem intermediárias, mas não informou a quantidade.</p>`;
-        return;
+  let posMsg="";
+  if(saldoPos>0){
+    if(aceitaPos.value!=="sim"){
+      posMsg=`<p class='alerta'>Saldo restante ${moeda(saldoPos)} e construtora não aceita pós-chaves.</p>`;
+    }else{
+      const perc = parseFloat(percPos.value)||0;
+      const maxParc = parseInt(parcelasPos.value)||0;
+      const limite = imovel*(perc/100);
+      if(!perc||!maxParc){
+        posMsg="<p class='alerta'>Informe as regras do pós-chaves.</p>";
+      }else if(saldoPos>limite){
+        posMsg=`<p class='alerta'>Saldo pós-chaves ${moeda(saldoPos)} ultrapassa o limite ${moeda(limite)}.</p>`;
+      }else{
+        posMsg=`<p class='ok'>Pós-chaves viável: ${moeda(saldoPos)} em até ${maxParc} parcelas.</p>`;
       }
-      // se valor estiver vazio, usa 100% da renda
-      interValorUnit = (valorInterManual > 0) ? valorInterManual : renda;
-
-      totalInter = interValorUnit * qtdInter;
     }
-
-    // Saldo após intermediárias
-    let saldoAposInter = entradaRestanteBruta - totalInter;
-
-    // Se intermediárias comeram mais que o saldo, vira "saldo negativo" (ou seja, passou do necessário)
-    // Aqui vamos travar porque não faz sentido intermediárias serem maiores que o saldo da entrada.
-    if(saldoAposInter < 0){
-      out.innerHTML = `
-        <p class="alerta">As intermediárias estão maiores que a entrada restante após o ato.</p>
-        <p>Entrada restante (após ato): <b>${moeda(entradaRestanteBruta)}</b></p>
-        <p>Total intermediárias: <b>${moeda(totalInter)}</b></p>
-        <p class="obs">Ajuste a quantidade/valor das intermediárias para não ultrapassar o saldo da entrada.</p>
-      `;
-      return;
-    }
-
-    // Mensais limitadas a 30% da renda
-    const mensalMax = renda * 0.30;
-    let mensalCalculada = (parcelasEntrada > 0) ? (saldoAposInter / parcelasEntrada) : 0;
-
-    let mensalFinal = mensalCalculada;
-    let saldoPosChaves = 0;
-    let alertaLimite = "";
-
-    if(mensalCalculada > mensalMax){
-      mensalFinal = mensalMax;
-      const totalCobertoMensais = mensalFinal * parcelasEntrada;
-      saldoPosChaves = saldoAposInter - totalCobertoMensais;
-
-      alertaLimite = `<p class="alerta">⚠️ No cálculo direto, as mensais ultrapassariam 30% da renda. Aplicamos o limite e sobrou saldo.</p>`;
-    } else {
-      saldoPosChaves = 0;
-    }
-
-    // Monta saída
-    const entradaRestanteAposAto = entradaRestanteBruta;
-    const entradaRestanteAposInter = saldoAposInter;
-
-    out.innerHTML = `
-      <h3 style="margin-top:0;">Resumo da Entrada</h3>
-
-      <p>Entrada total: <b>${moeda(entradaTotal)}</b></p>
-      <p>Ato: <b>${moeda(ato)}</b></p>
-
-      <div class="divider"></div>
-
-      <p>Entrada restante (após ato): <b>${moeda(entradaRestanteAposAto)}</b></p>
-
-      ${temInter ? `
-        <p>Intermediárias (${qtdInter}x): <b>${moeda(interValorUnit)}</b></p>
-        <p>Total intermediárias: <b>${moeda(totalInter)}</b></p>
-        <p>Saldo para mensais (após intermediárias): <b>${moeda(entradaRestanteAposInter)}</b></p>
-      ` : `
-        <p>Intermediárias: <b>Não</b></p>
-        <p>Saldo para mensais: <b>${moeda(entradaRestanteAposInter)}</b></p>
-      `}
-
-      <div class="divider"></div>
-
-      <p>Mensais (${parcelasEntrada}x): <b>${moeda(mensalFinal)}</b> <span class="pill">limite 30% renda: ${moeda(mensalMax)}</span></p>
-
-      ${alertaLimite}
-
-      ${saldoPosChaves > 0 ? `
-        <p class="alerta">Saldo restante (pós-chaves / a negociar): ${moeda(saldoPosChaves)}</p>
-      ` : `
-        <p style="color:#0b6e3b; font-weight:700;">✅ Saldo totalmente coberto dentro do limite.</p>
-      `}
-    `;
   }
 
-  /* ===== Cálculo Juros de Obra (simples) ===== */
-  function calcularJurosObra(){
-    const financiamento = limparMoeda(document.getElementById("valorFinanciamento").value);
-    const prazoObra = parseInt(document.getElementById("prazoObra").value) || 0;
-    const taxa = parseFloat(document.getElementById("taxaJuros").value) || 0;
+  resultadoEntrada.innerHTML=`
+    <h3>Resumo</h3>
+    <p>Entrada total: <b>${moeda(entradaTotal)}</b></p>
+    <p>Ato: <b>${moeda(atoV)}</b></p>
+    <p>Intermediárias: <b>${temInter.value==="sim"?moeda(interUnit)+" x "+qtdInter.value:"Não"}</b></p>
+    <p>Mensais (${parcelas}x): <b>${moeda(mensalFinal)}</b></p>
+    ${aviso}
+    ${posMsg}
+  `;
+}
 
-    const out = document.getElementById("resultadoJuros");
+/* ===== JUROS ===== */
+function calcularJuros(){
+  const financ = limpar(valorFinanciamento.value);
+  const prazo = parseInt(prazoObra.value)||0;
+  const taxa = parseFloat(taxaJuros.value)||0;
 
-    if(!financiamento || !prazoObra){
-      out.innerHTML = `<p class="alerta">Preencha Valor do Financiamento e Prazo da Obra no painel superior.</p>`;
-      return;
-    }
-    if(!taxa){
-      out.innerHTML = `<p class="alerta">Para calcular Juros de Obra, informe a Taxa de Juros (% a.a.) no painel superior.</p>`;
-      return;
-    }
-
-    const jurosMensal = (taxa / 100) / 12;
-    const totalEstimado = financiamento * jurosMensal * prazoObra;
-
-    out.innerHTML = `
-      <h3 style="margin-top:0;">Resumo do Juros de Obra (estimado)</h3>
-      <p>Taxa informada: <b>${taxa.toFixed(2)}% a.a.</b></p>
-      <p>Taxa mensal estimada: <b>${(jurosMensal*100).toFixed(3)}% a.m.</b></p>
-      <p>Prazo da obra: <b>${prazoObra} meses</b></p>
-      <div class="divider"></div>
-      <p>Total estimado de juros de obra: <b>${moeda(totalEstimado)}</b></p>
-    `;
+  if(!financ||!prazo){
+    resultadoJuros.innerHTML="<p class='alerta'>Preencha financiamento e prazo.</p>";
+    return;
   }
+  if(!taxa){
+    resultadoJuros.innerHTML="<p class='alerta'>Informe a taxa de juros.</p>";
+    return;
+  }
+
+  const jm = (taxa/100)/12;
+  const total = financ*jm*prazo;
+
+  resultadoJuros.innerHTML=`
+    <h3>Juros de Obra (estimado)</h3>
+    <p>Total estimado: <b>${moeda(total)}</b></p>
+  `;
+}
 </script>
 
 </body>
