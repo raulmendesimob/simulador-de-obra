@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Simulador Imobiliário</title>
 
 <style>
@@ -13,8 +13,6 @@ body{
   background:#f4f6f5;
   color:#222;
 }
-
-/* ===== TOPO ===== */
 .painel-topo{
   background:#fff;
   border-bottom:1px solid #e0e0e0;
@@ -39,34 +37,31 @@ body{
   font-weight:600;
   margin-bottom:6px;
 }
-.campo input, .campo select{
+.campo input,.campo select{
   width:100%;
   padding:10px 12px;
   border-radius:10px;
   border:1px solid #ccc;
   font-size:15px;
-  background:#fff;
 }
-.campo-full{ grid-column:1 / -1; }
+.campo-full{ grid-column:1/-1; }
 
 @media(min-width:768px){
   .grid-topo{ grid-template-columns:repeat(2,1fr); }
   .grid-imovel{
+    grid-column:1/-1;
     display:grid;
     grid-template-columns:2fr 1fr;
     gap:12px;
-    grid-column:1 / -1;
   }
 }
 
-/* ===== CONTEÚDO ===== */
 .container{
   max-width:900px;
   margin:24px auto;
   padding:0 16px 40px;
 }
 
-/* ===== BLOCOS ===== */
 .bloco{
   background:#fff;
   border-radius:14px;
@@ -85,7 +80,6 @@ body{
   align-items:center;
 }
 .toggle-icon{
-  font-size:18px;
   background:rgba(255,255,255,0.15);
   border-radius:6px;
   width:22px;
@@ -94,10 +88,8 @@ body{
   align-items:center;
   justify-content:center;
 }
-.bloco-conteudo{
-  display:none;
-  padding:18px;
-}
+.bloco-conteudo{ display:none; padding:18px; }
+
 .subgrid{
   display:grid;
   grid-template-columns:1fr;
@@ -105,15 +97,15 @@ body{
 }
 @media(min-width:768px){
   .subgrid{ grid-template-columns:repeat(2,1fr); }
-  .span2{ grid-column:1 / -1; }
+  .span2{ grid-column:1/-1; }
 }
+
 .divider{
   height:1px;
   background:#e9e9e9;
   margin:16px 0;
 }
 
-/* ===== VISUAL ===== */
 .bloco-inter{ background:#f3faf6; padding:12px; border-radius:10px; }
 .bloco-pos{ background:#f2f6fb; padding:12px; border-radius:10px; }
 
@@ -128,7 +120,6 @@ button{
   cursor:pointer;
   margin-top:12px;
 }
-button:hover{ background:#095a31; }
 
 .resultado{
   margin-top:14px;
@@ -144,22 +135,16 @@ button:hover{ background:#095a31; }
   display:grid;
   grid-template-columns:1fr;
   gap:10px;
-  padding:10px;
-  border-radius:10px;
   background:#fff;
   border:1px solid #e6efe9;
+  padding:10px;
+  border-radius:10px;
 }
 @media(min-width:768px){
   .inter-row{ grid-template-columns:1fr 1fr; }
 }
-.mini-label{ font-size:13px; font-weight:600; }
 
-/* ===== FIXO ===== */
-#fluxoBox{
-  position:sticky;
-  top:10px;
-  z-index:10;
-}
+#fluxoBox{ position:sticky; top:10px; z-index:5; }
 </style>
 </head>
 
@@ -167,9 +152,9 @@ button:hover{ background:#095a31; }
 
 <div class="painel-topo">
   <h1>Simulador Imobiliário</h1>
-
   <div class="grid-topo">
-    <div class="grid-imovel campo-full">
+
+    <div class="grid-imovel">
       <div class="campo">
         <label>🏠 Valor do Imóvel (R$)</label>
         <input id="valorImovel" oninput="formatarMoeda(this)">
@@ -236,37 +221,13 @@ button:hover{ background:#095a31; }
           </select>
         </div>
 
-        <div class="campo">
+        <div class="campo" id="boxQtdInter" style="display:none;">
           <label>🔢 Quantidade de Intermediárias / Anual</label>
           <input id="qtdInter" type="number" oninput="renderInterRows()">
         </div>
 
         <div class="campo span2" id="boxInterRows" style="display:none;">
           <div class="inter-list" id="interList"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="divider"></div>
-
-    <div class="bloco-pos">
-      <div class="subgrid">
-        <div class="campo">
-          <label>🏗️ Construtora aceita saldo pós-chaves?</label>
-          <select id="aceitaPos" onchange="togglePos()">
-            <option value="nao">Não</option>
-            <option value="sim">Sim</option>
-          </select>
-        </div>
-
-        <div class="campo" id="boxPercPos" style="display:none;">
-          <label>📊 % máximo do valor do imóvel</label>
-          <input id="percPos" type="number" step="0.1">
-        </div>
-
-        <div class="campo" id="boxParcPos" style="display:none;">
-          <label>📆 Máx. parcelas pós-chaves</label>
-          <input id="parcelasPos" type="number">
         </div>
       </div>
     </div>
@@ -297,62 +258,61 @@ function limpar(v){
 function moeda(n){
   return n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 }
+
 function gerarMesAno(){
-  const hoje=new Date(), arr=[];
+  const h=new Date(), arr=[];
   const m=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
   for(let i=0;i<48;i++){
-    const d=new Date(hoje.getFullYear(),hoje.getMonth()+i,1);
-    arr.push({v:`${d.getFullYear()}-${d.getMonth()+1}`, t:`${m[d.getMonth()]}/${String(d.getFullYear()).slice(-2)}`});
+    const d=new Date(h.getFullYear(),h.getMonth()+i,1);
+    arr.push(`${m[d.getMonth()]}/${String(d.getFullYear()).slice(-2)}`);
   }
   return arr;
 }
+
 (function(){
   const sel=document.getElementById("entregaSelect");
-  gerarMesAno().forEach(o=>{
-    const op=document.createElement("option");
-    op.value=o.v; op.textContent=o.t;
-    sel.appendChild(op);
+  gerarMesAno().forEach(t=>{
+    const o=document.createElement("option");
+    o.textContent=t; sel.appendChild(o);
   });
 })();
 
 function toggleBloco(el){
-  const c=el.nextElementSibling;
-  const i=el.querySelector(".toggle-icon");
-  const aberto=c.style.display==="block";
-  c.style.display=aberto?"none":"block";
-  i.textContent=aberto?"+":"–";
+  const conteudo=el.nextElementSibling;
+  const icon=el.querySelector(".toggle-icon");
+  const aberto=conteudo.style.display==="block";
+  conteudo.style.display=aberto?"none":"block";
+  icon.textContent=aberto?"+":"–";
 }
 
 function toggleInter(){
-  document.getElementById("boxInterRows").style.display =
-    document.getElementById("temInter").value==="sim"?"block":"none";
-  renderInterRows();
+  const sim=document.getElementById("temInter").value==="sim";
+  boxQtdInter.style.display=sim?"block":"none";
+  boxInterRows.style.display=sim?"block":"none";
+  if(!sim){
+    qtdInter.value="";
+    interList.innerHTML="";
+  }
 }
 
 function renderInterRows(){
-  const q=parseInt(document.getElementById("qtdInter").value)||0;
-  const list=document.getElementById("interList");
-  list.innerHTML="";
+  const q=parseInt(qtdInter.value)||0;
+  interList.innerHTML="";
+  const meses=gerarMesAno();
   for(let i=1;i<=q;i++){
     const r=document.createElement("div");
     r.className="inter-row";
     r.innerHTML=`
       <div>
-        <span class="mini-label">${i}ª Intermediária / Anual</span>
-        <select>${gerarMesAno().map(o=>`<option value="${o.v}">${o.t}</option>`).join("")}</select>
+        <label>${i}ª Intermediária / Anual</label>
+        <select>${meses.map(m=>`<option>${m}</option>`).join("")}</select>
       </div>
       <div>
-        <span class="mini-label">Valor (R$)</span>
+        <label>Valor (R$)</label>
         <input oninput="formatarMoeda(this)">
       </div>`;
-    list.appendChild(r);
+    interList.appendChild(r);
   }
-}
-
-function togglePos(){
-  const s=document.getElementById("aceitaPos").value==="sim";
-  boxPercPos.style.display=s?"block":"none";
-  boxParcPos.style.display=s?"block":"none";
 }
 
 function calcularEntrada(){
@@ -363,20 +323,23 @@ function calcularEntrada(){
         re=limpar(renda.value),
         p=parseInt(parcelasEntrada.value)||0;
 
-  const out=document.getElementById("resultadoEntrada");
+  const out=resultadoEntrada;
   if(!im||!fi||!re||!p){
     out.innerHTML="<p class='alerta'>Preencha os campos obrigatórios.</p>";
     return;
   }
 
-  let entrada=im-fi-fg;
+  const entrada=im-fi-fg;
   let saldo=entrada-at;
 
-  let interTotal=0;
-  document.querySelectorAll("#interList input").forEach(i=>{
-    interTotal+=limpar(i.value)||re;
-  });
-  saldo-=interTotal;
+  const interVals=[];
+  if(temInter.value==="sim"){
+    document.querySelectorAll("#interList input").forEach(i=>{
+      interVals.push(limpar(i.value)||re);
+    });
+  }
+
+  interVals.forEach(v=>saldo-=v);
 
   let mensal=saldo/p;
   let resto=0;
@@ -385,25 +348,28 @@ function calcularEntrada(){
     resto=saldo-(mensal*p);
   }
 
-  let aviso="";
-  if(resto>0){
-    aviso=`<p class="alerta">Saldo restante: ${moeda(resto)}</p>`;
+  let interTexto="";
+  if(interVals.length){
+    const iguais=interVals.every(v=>v===interVals[0]);
+    interTexto=iguais
+      ? `Intermediárias (${interVals.length}x): <b>${moeda(interVals[0])}</b>`
+      : `Intermediárias (${interVals.length}x): <b>${interVals.map(v=>moeda(v)).join(" | ")}</b>`;
   }
 
   out.innerHTML=`
     <h3>Fluxo de Pagamento – Entrada</h3>
-    <p>📅 Previsão de entrega: <b>${entregaSelect.selectedOptions[0]?.textContent||"-"}</b></p>
+    <p>📅 Previsão de entrega: <b>${entregaSelect.value||"-"}</b></p>
     <p>Entrada total: <b>${moeda(entrada)}</b></p>
     <div class="divider"></div>
     <p>Ato: <b>${moeda(at)}</b></p>
-    <p>Intermediárias (${document.querySelectorAll("#interList input").length}): <b>${moeda(interTotal)}</b></p>
+    ${interTexto}
     <p>Mensais (${p}x): <b>${moeda(mensal)}</b></p>
-    ${aviso}
+    ${resto>0?`<p class="alerta">Saldo restante: ${moeda(resto)}</p>`:""}
   `;
 }
 
 function limparFluxo(){
-  document.getElementById("resultadoEntrada").innerHTML="";
+  resultadoEntrada.innerHTML="";
 }
 </script>
 
