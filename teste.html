@@ -74,7 +74,6 @@ body{
   overflow:hidden;
 }
 .bloco-header{
-  background:#0b6e3b;
   color:#fff;
   padding:14px 16px;
   font-weight:700;
@@ -83,8 +82,11 @@ body{
   justify-content:space-between;
   align-items:center;
 }
+.header-entrada{ background:#0b6e3b; }
+.header-juros{ background:#d97706; }
+
 .toggle-icon{
-  background:rgba(255,255,255,0.15);
+  background:rgba(255,255,255,0.2);
   border-radius:6px;
   width:22px;
   height:22px;
@@ -92,6 +94,7 @@ body{
   align-items:center;
   justify-content:center;
 }
+
 .bloco-conteudo{
   display:none;
   padding:18px;
@@ -113,41 +116,43 @@ body{
   margin:16px 0;
 }
 
-.bloco-inter{
-  background:#f3faf6;
-  padding:12px;
-  border-radius:10px;
-}
-
+/* ===== BOTÕES ===== */
+.btn-entrada{ background:#0b6e3b; }
+.btn-juros{ background:#d97706; }
 button{
   width:100%;
   padding:12px;
   border:none;
   border-radius:10px;
-  background:#0b6e3b;
   color:#fff;
   font-size:15px;
   cursor:pointer;
   margin-top:12px;
 }
 
+.btn-limpar{
+  background:#e5e7eb;
+  color:#333;
+  font-size:14px;
+  padding:8px;
+}
+.btn-limpar:hover{ background:#d1d5db; }
+
+/* ===== RESULTADOS ===== */
 .resultado{
   background:#f1f7f3;
   padding:16px;
   border-radius:12px;
-  margin-bottom:12px;
+  margin-bottom:10px;
 }
-
 .alerta{
   color:#c62828;
   font-weight:700;
 }
 
-.inter-list{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
+/* ===== INTERMEDIÁRIAS ===== */
+.bloco-inter{ background:#f3faf6; padding:12px; border-radius:10px; }
+.inter-list{ display:flex; flex-direction:column; gap:10px; }
 .inter-row{
   display:grid;
   grid-template-columns:1fr;
@@ -162,8 +167,7 @@ button{
 }
 
 /* ===== FLUXOS FIXOS ===== */
-#fluxoEntrada,
-#fluxoJuros{
+#fluxoEntrada,#fluxoJuros{
   position:sticky;
   top:10px;
   z-index:5;
@@ -209,112 +213,117 @@ button{
 
 <div class="container">
 
-  <!-- ===== BLOCO ENTRADA ===== -->
-  <div class="bloco">
-    <div class="bloco-header" onclick="toggleBloco(this)">
-      <span>💰 Entrada / Fluxo Inicial</span>
-      <span class="toggle-icon">+</span>
+<!-- ===== ENTRADA ===== -->
+<div class="bloco">
+  <div class="bloco-header header-entrada" onclick="toggleBloco(this)">
+    <span>💰 Entrada / Fluxo Inicial</span>
+    <span class="toggle-icon">+</span>
+  </div>
+
+  <div class="bloco-conteudo">
+
+    <div class="subgrid">
+      <div class="campo">
+        <label>💸 Valor do Ato (R$)</label>
+        <input id="ato" oninput="formatarMoeda(this)">
+      </div>
+      <div class="campo">
+        <label>🗓️ MESES / PARCELAS</label>
+        <input id="parcelasEntrada" type="number">
+      </div>
+      <div class="campo span2">
+        <label>👨‍👩‍👧‍👦 Renda Familiar Mensal (R$)</label>
+        <input id="renda" oninput="formatarMoeda(this)">
+      </div>
     </div>
 
-    <div class="bloco-conteudo">
-      <div class="subgrid">
-        <div class="campo">
-          <label>💸 Valor do Ato (R$)</label>
-          <input id="ato" oninput="formatarMoeda(this)">
-        </div>
+    <div class="divider"></div>
 
-        <div class="campo">
-          <label>🗓️ MESES / PARCELAS</label>
-          <input id="parcelasEntrada" type="number">
-        </div>
-
-        <div class="campo span2">
-          <label>👨‍👩‍👧‍👦 Renda Familiar Mensal (R$)</label>
-          <input id="renda" oninput="formatarMoeda(this)">
-        </div>
+    <div class="bloco-inter">
+      <div class="campo span2">
+        <label>📊 Tem Intermediárias?</label>
+        <select id="temInter" onchange="toggleInter()">
+          <option value="nao">Não</option>
+          <option value="sim">Sim</option>
+        </select>
       </div>
 
-      <div class="divider"></div>
-
-      <div class="bloco-inter">
-        <div class="subgrid">
-          <div class="campo span2">
-            <label>📊 Tem Intermediárias?</label>
-            <select id="temInter" onchange="toggleInter()">
-              <option value="nao">Não</option>
-              <option value="sim">Sim</option>
-            </select>
-          </div>
-
-          <div class="campo" id="boxQtdInter" style="display:none;">
-            <label>🔢 Quantidade de Intermediárias / Anual</label>
-            <input id="qtdInter" type="number" oninput="renderInterRows()">
-          </div>
-
-          <div class="campo span2" id="boxInterRows" style="display:none;">
-            <div class="inter-list" id="interList"></div>
-          </div>
-        </div>
+      <div class="campo" id="boxQtdInter" style="display:none;">
+        <label>🔢 Quantidade de Intermediárias / Anual</label>
+        <input id="qtdInter" type="number" oninput="renderInterRows()">
       </div>
 
-      <button onclick="calcularEntrada()">Calcular Entrada</button>
-    </div>
-  </div>
-
-  <!-- ===== FLUXO ENTRADA ===== -->
-  <div id="fluxoEntrada">
-    <div id="resultadoEntrada" class="resultado"></div>
-    <button onclick="limparEntrada()">Limpar Fluxo Entrada</button>
-  </div>
-
-  <!-- ===== BLOCO JUROS DE OBRA ===== -->
-  <div class="bloco">
-    <div class="bloco-header" onclick="toggleBloco(this)">
-      <span>🏗️ Juros de Obra</span>
-      <span class="toggle-icon">+</span>
-    </div>
-
-    <div class="bloco-conteudo">
-      <div class="subgrid">
-
-        <div class="campo">
-          <label>📈 Percentual da Obra (%)</label>
-          <input id="percObra" type="number" step="0.1">
-        </div>
-
-        <div class="campo">
-          <label>📊 Taxa de Juros Anual (%)</label>
-          <input id="jurosAnual" type="number" step="0.01">
-        </div>
-
-        <div class="campo">
-          <label>📉 TR (%)</label>
-          <input id="tr" type="number" step="0.001" value="0.17">
-        </div>
-
-        <div class="campo">
-          <label>🧾 Taxas e Seguros (R$)</label>
-          <input id="taxas" value="R$ 65,00" oninput="formatarMoeda(this)">
-        </div>
-
-        <div class="campo span2">
-          <small>
-            TR média estimada. Valores atualizados em:
-            <a href="https://www.debit.com.br/tabelas/tr-bacen" target="_blank">BACEN</a>
-          </small>
-        </div>
-
+      <div class="campo span2" id="boxInterRows" style="display:none;">
+        <div class="inter-list" id="interList"></div>
       </div>
-
-      <button onclick="calcularJuros()">Calcular Juros de Obra</button>
     </div>
+
+    <div class="divider"></div>
+
+    <!-- PÓS-CHAVES -->
+    <div class="campo span2">
+      <label>🏗️ Construtora aceita saldo pós-chaves?</label>
+      <select id="aceitaPos" onchange="togglePos()">
+        <option value="nao">Não</option>
+        <option value="sim">Sim</option>
+      </select>
+    </div>
+
+    <div class="subgrid" id="boxPos" style="display:none;">
+      <div class="campo">
+        <label>% máximo do valor do imóvel</label>
+        <input id="percPos" type="number">
+      </div>
+      <div class="campo">
+        <label>Máx. parcelas pós-chaves</label>
+        <input id="parcelasPos" type="number">
+      </div>
+    </div>
+
+    <button class="btn-entrada" onclick="calcularEntrada()">Calcular Entrada</button>
+  </div>
+</div>
+
+<div id="fluxoEntrada">
+  <div id="resultadoEntrada" class="resultado"></div>
+  <button class="btn-limpar" onclick="limparEntrada()">Limpar fluxo de entrada</button>
+</div>
+
+<!-- ===== JUROS DE OBRA ===== -->
+<div class="bloco">
+  <div class="bloco-header header-juros" onclick="toggleBloco(this)">
+    <span>🏗️ Juros de Obra</span>
+    <span class="toggle-icon">+</span>
   </div>
 
-  <!-- ===== FLUXO JUROS ===== -->
-  <div id="fluxoJuros">
-    <div id="resultadoJuros" class="resultado"></div>
-    <button onclick="limparJuros()">Limpar Juros de Obra</button>
+  <div class="bloco-conteudo">
+    <div class="subgrid">
+      <div class="campo">
+        <label>% da Obra</label>
+        <input id="percObra" type="number">
+      </div>
+      <div class="campo">
+        <label>Taxa de Juros Anual (%)</label>
+        <input id="jurosAnual" type="number">
+      </div>
+      <div class="campo">
+        <label>TR (%) <small>– média 0,17%</small></label>
+        <input id="tr" type="number" value="0.17">
+      </div>
+      <div class="campo">
+        <label>Taxas e Seguros (R$) <small>– média R$ 65</small></label>
+        <input id="taxas" value="R$ 65,00" oninput="formatarMoeda(this)">
+      </div>
+    </div>
+
+    <button class="btn-juros" onclick="calcularJuros()">Calcular Juros de Obra</button>
   </div>
+</div>
+
+<div id="fluxoJuros">
+  <div id="resultadoJuros" class="resultado"></div>
+  <button class="btn-limpar" onclick="limparJuros()">Limpar juros de obra</button>
+</div>
 
 </div>
 
@@ -332,7 +341,6 @@ function limpar(v){
 function moeda(n){
   return n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 }
-
 function gerarMesAno(){
   const h=new Date(), arr=[];
   const m=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
@@ -369,7 +377,6 @@ function toggleInter(){
     interList.innerHTML="";
   }
 }
-
 function renderInterRows(){
   const q=parseInt(qtdInter.value)||0;
   interList.innerHTML="";
@@ -378,16 +385,13 @@ function renderInterRows(){
     const r=document.createElement("div");
     r.className="inter-row";
     r.innerHTML=`
-      <div>
-        <label>${i}ª Intermediária / Anual</label>
-        <select>${meses.map(m=>`<option>${m}</option>`).join("")}</select>
-      </div>
-      <div>
-        <label>Valor (R$)</label>
-        <input oninput="formatarMoeda(this)">
-      </div>`;
+      <div><label>${i}ª Intermediária / Anual</label><select>${meses.map(m=>`<option>${m}</option>`).join("")}</select></div>
+      <div><label>Valor (R$)</label><input oninput="formatarMoeda(this)"></div>`;
     interList.appendChild(r);
   }
+}
+function togglePos(){
+  boxPos.style.display=aceitaPos.value==="sim"?"grid":"none";
 }
 
 function calcularEntrada(){
@@ -421,60 +425,43 @@ function calcularEntrada(){
     resto=saldo-(mensal*p);
   }
 
-  let interTexto="";
-  if(inter.length){
-    const iguais=inter.every(v=>v===inter[0]);
-    interTexto=iguais
-      ? `<p>Intermediárias (${inter.length}x): <b>${moeda(inter[0])}</b></p>`
-      : `<p>Intermediárias (${inter.length}x): <b>${inter.map(v=>moeda(v)).join(" | ")}</b></p>`;
-  }
-
   resultadoEntrada.innerHTML=`
     <h3>Fluxo de Pagamento – Entrada</h3>
     <p>📅 Previsão de entrega: <b>${entregaSelect.value}</b></p>
     <p>Entrada total: <b>${moeda(entrada)}</b></p>
     <div class="divider"></div>
     <p>Ato: <b>${moeda(at)}</b></p>
-    ${interTexto}
+    ${inter.length?`<p>Intermediárias (${inter.length}x): <b>${moeda(inter[0])}</b></p>`:""}
     <p>Mensais (${p}x): <b>${moeda(mensal)}</b></p>
     ${resto>0?`<p class="alerta">Saldo restante: ${moeda(resto)}</p>`:""}
   `;
 }
+function limparEntrada(){ resultadoEntrada.innerHTML=""; }
 
-function limparEntrada(){
-  resultadoEntrada.innerHTML="";
-}
-
-/* ===== JUROS DE OBRA ===== */
+/* ===== JUROS ===== */
 function calcularJuros(){
   const financiamento=limpar(valorFinanciamento.value),
-        percObraVal=parseFloat(percObra.value)||0,
+        perc=parseFloat(percObra.value)||0,
         juros=parseFloat(jurosAnual.value)||0,
         trVal=parseFloat(tr.value)||0,
         taxasVal=limpar(taxas.value);
 
-  if(!financiamento||!percObraVal||!juros){
+  if(!financiamento||!perc||!juros){
     resultadoJuros.innerHTML="<p class='alerta'>Preencha os campos obrigatórios.</p>";
     return;
   }
 
-  const liberado=financiamento*(percObraVal/100);
-  const jurosMensal=(juros/100)/12;
-  const trMensal=(trVal/100);
-
-  const parcela=(liberado*jurosMensal)+(liberado*trMensal)+taxasVal;
+  const liberado=financiamento*(perc/100);
+  const parcela=(liberado*((juros/100)/12))+(liberado*(trVal/100))+taxasVal;
 
   resultadoJuros.innerHTML=`
     <h3>Juros de Obra (Estimativa)</h3>
-    <p>Valor financiado liberado: <b>${moeda(liberado)}</b></p>
+    <p>Percentual da obra considerado: <b>${perc}%</b></p>
     <p>Parcela estimada mensal: <b>${moeda(parcela)}</b></p>
-    <small>Valor aproximado. Pode variar conforme avanço da obra, TR mensal e políticas do banco.</small>
+    <em>Valor aproximado para fins de simulação. Pode variar conforme TR mensal e políticas do banco.</em>
   `;
 }
-
-function limparJuros(){
-  resultadoJuros.innerHTML="";
-}
+function limparJuros(){ resultadoJuros.innerHTML=""; }
 </script>
 
 </body>
