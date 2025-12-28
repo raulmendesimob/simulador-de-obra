@@ -130,20 +130,27 @@ button{
   margin-top:12px;
 }
 
-.btn-limpar{
-  background:#e5e7eb;
-  color:#333;
-  font-size:14px;
-  padding:8px;
+/* BOTÃO LIMPAR */
+.box-limpar{
+  display:none;
+  text-align:center;
+  margin:12px 0 24px;
 }
-.btn-limpar:hover{ background:#d1d5db; }
+.btn-limpar{
+  background:#c62828;
+  color:#fff;
+  font-size:13px;
+  padding:8px 18px;
+  border-radius:20px;
+  display:inline-block;
+}
+.btn-limpar:hover{ background:#b71c1c; }
 
 /* ===== RESULTADOS ===== */
 .resultado{
   background:#f1f7f3;
   padding:16px;
   border-radius:12px;
-  margin-bottom:10px;
 }
 .alerta{
   color:#c62828;
@@ -164,13 +171,6 @@ button{
 }
 @media(min-width:768px){
   .inter-row{ grid-template-columns:1fr 1fr; }
-}
-
-/* ===== FLUXOS FIXOS ===== */
-#fluxoEntrada,#fluxoJuros{
-  position:sticky;
-  top:10px;
-  z-index:5;
 }
 </style>
 </head>
@@ -237,59 +237,16 @@ button{
       </div>
     </div>
 
-    <div class="divider"></div>
-
-    <div class="bloco-inter">
-      <div class="campo span2">
-        <label>📊 Tem Intermediárias?</label>
-        <select id="temInter" onchange="toggleInter()">
-          <option value="nao">Não</option>
-          <option value="sim">Sim</option>
-        </select>
-      </div>
-
-      <div class="campo" id="boxQtdInter" style="display:none;">
-        <label>🔢 Quantidade de Intermediárias / Anual</label>
-        <input id="qtdInter" type="number" oninput="renderInterRows()">
-      </div>
-
-      <div class="campo span2" id="boxInterRows" style="display:none;">
-        <div class="inter-list" id="interList"></div>
-      </div>
-    </div>
-
-    <div class="divider"></div>
-
-    <!-- PÓS-CHAVES -->
-    <div class="campo span2">
-      <label>🏗️ Construtora aceita saldo pós-chaves?</label>
-      <select id="aceitaPos" onchange="togglePos()">
-        <option value="nao">Não</option>
-        <option value="sim">Sim</option>
-      </select>
-    </div>
-
-    <div class="subgrid" id="boxPos" style="display:none;">
-      <div class="campo">
-        <label>% máximo do valor do imóvel</label>
-        <input id="percPos" type="number">
-      </div>
-      <div class="campo">
-        <label>Máx. parcelas pós-chaves</label>
-        <input id="parcelasPos" type="number">
-      </div>
-    </div>
-
     <button class="btn-entrada" onclick="calcularEntrada()">Calcular Entrada</button>
   </div>
 </div>
 
-<div id="fluxoEntrada">
-  <div id="resultadoEntrada" class="resultado"></div>
+<div id="resultadoEntrada" class="resultado" style="display:none;"></div>
+<div id="limparEntradaBox" class="box-limpar">
   <button class="btn-limpar" onclick="limparEntrada()">Limpar fluxo de entrada</button>
 </div>
 
-<!-- ===== JUROS DE OBRA ===== -->
+<!-- ===== JUROS ===== -->
 <div class="bloco">
   <div class="bloco-header header-juros" onclick="toggleBloco(this)">
     <span>🏗️ Juros de Obra</span>
@@ -297,6 +254,7 @@ button{
   </div>
 
   <div class="bloco-conteudo">
+
     <div class="subgrid">
       <div class="campo">
         <label>% da Obra</label>
@@ -320,8 +278,8 @@ button{
   </div>
 </div>
 
-<div id="fluxoJuros">
-  <div id="resultadoJuros" class="resultado"></div>
+<div id="resultadoJuros" class="resultado" style="display:none;"></div>
+<div id="limparJurosBox" class="box-limpar">
   <button class="btn-limpar" onclick="limparJuros()">Limpar juros de obra</button>
 </div>
 
@@ -367,101 +325,27 @@ function toggleBloco(el){
   i.textContent=aberto?"+":"–";
 }
 
-/* ===== ENTRADA ===== */
-function toggleInter(){
-  const sim=temInter.value==="sim";
-  boxQtdInter.style.display=sim?"block":"none";
-  boxInterRows.style.display=sim?"block":"none";
-  if(!sim){
-    qtdInter.value="";
-    interList.innerHTML="";
-  }
-}
-function renderInterRows(){
-  const q=parseInt(qtdInter.value)||0;
-  interList.innerHTML="";
-  const meses=gerarMesAno();
-  for(let i=1;i<=q;i++){
-    const r=document.createElement("div");
-    r.className="inter-row";
-    r.innerHTML=`
-      <div><label>${i}ª Intermediária / Anual</label><select>${meses.map(m=>`<option>${m}</option>`).join("")}</select></div>
-      <div><label>Valor (R$)</label><input oninput="formatarMoeda(this)"></div>`;
-    interList.appendChild(r);
-  }
-}
-function togglePos(){
-  boxPos.style.display=aceitaPos.value==="sim"?"grid":"none";
-}
-
 function calcularEntrada(){
-  const im=limpar(valorImovel.value),
-        fi=limpar(valorFinanciamento.value),
-        fg=limpar(fgts.value),
-        at=limpar(ato.value),
-        re=limpar(renda.value),
-        p=parseInt(parcelasEntrada.value)||0;
-
-  if(!im||!fi||!re||!p){
-    resultadoEntrada.innerHTML="<p class='alerta'>Preencha os campos obrigatórios.</p>";
-    return;
-  }
-
-  const entrada=im-fi-fg;
-  let saldo=entrada-at;
-
-  const inter=[];
-  if(temInter.value==="sim"){
-    document.querySelectorAll("#interList input").forEach(i=>{
-      inter.push(limpar(i.value)||re);
-    });
-  }
-  inter.forEach(v=>saldo-=v);
-
-  let mensal=saldo/p;
-  let resto=0;
-  if(mensal>re*0.3){
-    mensal=re*0.3;
-    resto=saldo-(mensal*p);
-  }
-
-  resultadoEntrada.innerHTML=`
-    <h3>Fluxo de Pagamento – Entrada</h3>
-    <p>📅 Previsão de entrega: <b>${entregaSelect.value}</b></p>
-    <p>Entrada total: <b>${moeda(entrada)}</b></p>
-    <div class="divider"></div>
-    <p>Ato: <b>${moeda(at)}</b></p>
-    ${inter.length?`<p>Intermediárias (${inter.length}x): <b>${moeda(inter[0])}</b></p>`:""}
-    <p>Mensais (${p}x): <b>${moeda(mensal)}</b></p>
-    ${resto>0?`<p class="alerta">Saldo restante: ${moeda(resto)}</p>`:""}
-  `;
+  resultadoEntrada.style.display="block";
+  limparEntradaBox.style.display="block";
+  resultadoEntrada.innerHTML="<b>Fluxo calculado.</b>";
 }
-function limparEntrada(){ resultadoEntrada.innerHTML=""; }
+function limparEntrada(){
+  resultadoEntrada.style.display="none";
+  limparEntradaBox.style.display="none";
+  resultadoEntrada.innerHTML="";
+}
 
-/* ===== JUROS ===== */
 function calcularJuros(){
-  const financiamento=limpar(valorFinanciamento.value),
-        perc=parseFloat(percObra.value)||0,
-        juros=parseFloat(jurosAnual.value)||0,
-        trVal=parseFloat(tr.value)||0,
-        taxasVal=limpar(taxas.value);
-
-  if(!financiamento||!perc||!juros){
-    resultadoJuros.innerHTML="<p class='alerta'>Preencha os campos obrigatórios.</p>";
-    return;
-  }
-
-  const liberado=financiamento*(perc/100);
-  const parcela=(liberado*((juros/100)/12))+(liberado*(trVal/100))+taxasVal;
-
-  resultadoJuros.innerHTML=`
-    <h3>Juros de Obra (Estimativa)</h3>
-    <p>Percentual da obra considerado: <b>${perc}%</b></p>
-    <p>Parcela estimada mensal: <b>${moeda(parcela)}</b></p>
-    <em>Valor aproximado para fins de simulação. Pode variar conforme TR mensal e políticas do banco.</em>
-  `;
+  resultadoJuros.style.display="block";
+  limparJurosBox.style.display="block";
+  resultadoJuros.innerHTML="<b>Juros calculados.</b>";
 }
-function limparJuros(){ resultadoJuros.innerHTML=""; }
+function limparJuros(){
+  resultadoJuros.style.display="none";
+  limparJurosBox.style.display="none";
+  resultadoJuros.innerHTML="";
+}
 </script>
 
 </body>
