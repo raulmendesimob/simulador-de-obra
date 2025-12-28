@@ -6,10 +6,7 @@
 <title>Simulador de Fluxo de Pagamento</title>
 
 <style>
-/* ================= RESET ================= */
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
@@ -18,13 +15,13 @@ body {
   color: #222;
 }
 
-/* ================= PAINEL FIXO ================= */
+/* ===== PAINEL FIXO ===== */
 .painel-fixo {
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: #ffffff;
-  border-bottom: 1px solid #e0e0e0;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
   padding: 16px;
 }
 
@@ -32,10 +29,9 @@ body {
   text-align: center;
   color: #0b6e3b;
   font-size: 20px;
-  margin: 0 0 16px 0;
+  margin-bottom: 16px;
 }
 
-/* GRID RESPONSIVO */
 .painel-grid {
   max-width: 900px;
   margin: 0 auto;
@@ -46,7 +42,7 @@ body {
 
 .campo label {
   font-size: 13px;
-  font-weight: 600;
+  font-weight: bold;
   margin-bottom: 4px;
   display: block;
 }
@@ -59,41 +55,32 @@ body {
   font-size: 15px;
 }
 
-.campo-full {
-  grid-column: 1 / -1;
-}
+.campo-full { grid-column: 1 / -1; }
 
-/* DESKTOP */
 @media (min-width: 768px) {
-  .painel-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .painel-fixo h1 {
-    font-size: 22px;
-  }
+  .painel-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
-/* ================= CONTEÚDO ================= */
+/* ===== CONTEÚDO ===== */
 .container {
   max-width: 900px;
   margin: 24px auto;
   padding: 0 16px 40px;
 }
 
-/* ================= ACCORDION ================= */
+/* ===== BLOCO ===== */
 .bloco {
-  background: #ffffff;
+  background: #fff;
   border-radius: 14px;
-  margin-bottom: 16px;
   border: 1px solid #ddd;
+  margin-bottom: 20px;
   overflow: hidden;
 }
 
 .bloco-header {
   padding: 16px;
   background: #0b6e3b;
-  color: #ffffff;
+  color: #fff;
   font-weight: bold;
   cursor: pointer;
 }
@@ -109,14 +96,13 @@ button {
   border-radius: 10px;
   border: none;
   background: #0b6e3b;
-  color: #ffffff;
+  color: #fff;
   font-size: 15px;
   cursor: pointer;
+  margin-top: 15px;
 }
 
-button:hover {
-  background: #095a31;
-}
+button:hover { background: #095a31; }
 
 .resultado {
   margin-top: 16px;
@@ -125,10 +111,7 @@ button:hover {
   border-radius: 10px;
 }
 
-.alerta {
-  color: #c62828;
-  font-weight: bold;
-}
+.alerta { color: #c62828; font-weight: bold; }
 
 .obs {
   font-size: 12px;
@@ -136,29 +119,26 @@ button:hover {
   margin-top: 10px;
   font-style: italic;
 }
+
+hr { margin: 20px 0; }
 </style>
 </head>
 
 <body>
 
-<!-- ================= PAINEL FIXO ================= -->
+<!-- ===== PAINEL FIXO ===== -->
 <div class="painel-fixo">
   <h1>Simulador de Fluxo de Pagamento</h1>
 
   <div class="painel-grid">
     <div class="campo campo-full">
       <label>🏠 Valor do Imóvel (R$)</label>
-      <input id="valorImovel" oninput="formatarMoeda(this)">
+      <input id="imovel" oninput="formatarMoeda(this)">
     </div>
 
     <div class="campo">
       <label>🏦 Valor do Financiamento (R$)</label>
-      <input id="valorFinanciamento" oninput="formatarMoeda(this)">
-    </div>
-
-    <div class="campo">
-      <label>📈 Taxa de Juros (% a.a.)</label>
-      <input id="taxaJuros" type="number" step="0.01" placeholder="Opcional">
+      <input id="financiamento" oninput="formatarMoeda(this)">
     </div>
 
     <div class="campo">
@@ -167,39 +147,51 @@ button:hover {
     </div>
 
     <div class="campo">
+      <label>📈 Taxa de Juros (% a.a.)</label>
+      <input id="taxaJuros" type="number" step="0.01" placeholder="Opcional">
+    </div>
+
+    <div class="campo">
       <label>📅 Prazo da Obra (meses)</label>
-      <input id="prazoObra" type="number" placeholder="Ex: 35">
+      <input id="prazoObra" type="number">
     </div>
   </div>
 </div>
 
-<!-- ================= CONTEÚDO ================= -->
+<!-- ===== CONTEÚDO ===== -->
 <div class="container">
 
-  <!-- ENTRADA + INCC -->
   <div class="bloco">
-    <div class="bloco-header" onclick="toggleBloco(this)">
-      💰 Entrada + INCC
+    <div class="bloco-header" onclick="toggle(this)">
+      💰 Entrada / Fluxo Inicial
     </div>
-    <div class="bloco-conteudo">
-      <button onclick="calcularEntrada()">Calcular Entrada</button>
-      <div id="resultadoEntrada" class="resultado"></div>
-      <p class="obs">
-        * FGTS é opcional. INCC poderá ser aplicado sobre o saldo da construtora.
-      </p>
-    </div>
-  </div>
 
-  <!-- JUROS DE OBRA -->
-  <div class="bloco">
-    <div class="bloco-header" onclick="toggleBloco(this)">
-      🏦 Juros de Obra
-    </div>
     <div class="bloco-conteudo">
-      <button onclick="calcularJuros()">Calcular Juros de Obra</button>
-      <div id="resultadoJuros" class="resultado"></div>
+
+      <label>💸 Valor do Ato (R$)</label>
+      <input id="ato" oninput="formatarMoeda(this)">
+
+      <label>📆 Parcelas da Entrada (ex: Ato + 34)</label>
+      <input id="parcelasEntrada" type="number">
+
+      <label>👨‍👩‍👧‍👦 Renda Familiar Mensal (R$)</label>
+      <input id="renda" oninput="formatarMoeda(this)">
+
+      <hr>
+
+      <label>📊 Quantidade de Intermediárias</label>
+      <input id="qtdInter" type="number" placeholder="Ex: 3">
+
+      <label>💰 Valor da Intermediária (R$)</label>
+      <input id="valorInter" oninput="formatarMoeda(this)" placeholder="Se vazio, usa 100% da renda">
+
+      <button onclick="calcularEntrada()">Calcular Entrada</button>
+
+      <div id="resultado" class="resultado"></div>
+
       <p class="obs">
-        * Necessário informar a Taxa de Juros para este cálculo.
+        * Parcelas mensais limitadas a 30% da renda.<br>
+        * Intermediárias limitadas a 100% da renda.
       </p>
     </div>
   </div>
@@ -207,70 +199,63 @@ button:hover {
 </div>
 
 <script>
-/* ================= UTIL ================= */
+/* ===== UTIL ===== */
 function formatarMoeda(campo) {
-  let valor = campo.value.replace(/\D/g, "");
-  valor = (valor / 100).toFixed(2);
-  valor = valor.replace(".", ",");
-  valor = valor.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  campo.value = "R$ " + valor;
+  let v = campo.value.replace(/\D/g, "");
+  v = (v / 100).toFixed(2).replace(".", ",");
+  v = v.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  campo.value = "R$ " + v;
 }
 
-function limpar(valor) {
-  return parseFloat(valor.replace(/[R$\.\s]/g, "").replace(",", ".")) || 0;
+function limpar(v) {
+  return parseFloat(v.replace(/[R$\.\s]/g, "").replace(",", ".")) || 0;
 }
 
-/* ================= ACCORDION ================= */
-function toggleBloco(header) {
-  const conteudo = header.nextElementSibling;
-  conteudo.style.display = conteudo.style.display === "block" ? "none" : "block";
+function toggle(el) {
+  const c = el.nextElementSibling;
+  c.style.display = c.style.display === "block" ? "none" : "block";
 }
 
-/* ================= ENTRADA ================= */
+/* ===== CÁLCULO DA ENTRADA ===== */
 function calcularEntrada() {
-  const imovel = limpar(valorImovel.value);
-  const financiamento = limpar(valorFinanciamento.value);
+  const imovel = limpar(imovel.value);
+  const financiamento = limpar(financiamento.value);
   const fgts = limpar(fgts.value);
-  const prazo = parseInt(prazoObra.value) || 0;
+  const ato = limpar(ato.value);
+  const renda = limpar(renda.value);
 
-  if (!imovel || !financiamento || !prazo) {
-    resultadoEntrada.innerHTML =
-      "<p class='alerta'>Preencha Valor do Imóvel, Financiamento e Prazo da Obra.</p>";
+  const parcelas = parseInt(parcelasEntrada.value) || 0;
+  const qtdInter = parseInt(qtdInter.value) || 0;
+  const valorInterManual = limpar(valorInter.value);
+
+  if (!imovel || !financiamento || !renda || !parcelas) {
+    resultado.innerHTML = "<p class='alerta'>Preencha os campos obrigatórios.</p>";
     return;
   }
 
-  const entrada = imovel - financiamento - fgts;
+  const entradaTotal = imovel - financiamento - fgts;
+  let saldo = entradaTotal - ato;
 
-  resultadoEntrada.innerHTML = `
-    <p>Entrada estimada: <strong>R$ ${entrada.toLocaleString('pt-BR')}</strong></p>
-    <p>Prazo da obra: <strong>${prazo} meses</strong></p>
-  `;
-}
+  const interValor = valorInterManual > 0 ? valorInterManual : renda;
+  const totalInter = interValor * qtdInter;
+  saldo -= totalInter;
 
-/* ================= JUROS DE OBRA ================= */
-function calcularJuros() {
-  const financiamento = limpar(valorFinanciamento.value);
-  const taxa = parseFloat(taxaJuros.value) || 0;
-  const prazo = parseInt(prazoObra.value) || 0;
+  const mensalMax = renda * 0.3;
+  let mensal = saldo / parcelas;
 
-  if (!financiamento || !prazo) {
-    resultadoJuros.innerHTML =
-      "<p class='alerta'>Preencha Financiamento e Prazo da Obra.</p>";
-    return;
+  let posChaves = 0;
+  if (mensal > mensalMax) {
+    mensal = mensalMax;
+    posChaves = saldo - (mensal * parcelas);
   }
 
-  if (!taxa) {
-    resultadoJuros.innerHTML =
-      "<p class='alerta'>Para calcular Juros de Obra, informe a Taxa de Juros.</p>";
-    return;
-  }
-
-  const jurosMensal = (taxa / 100) / 12;
-  const total = financiamento * jurosMensal * prazo;
-
-  resultadoJuros.innerHTML = `
-    <p>Taxa mensal estimada: <strong>${(jurosMensal * 100).toFixed(2)}%</strong></p>
-    <p>Total estimado de juros de obra: <strong>R$ ${total.toLocaleString('pt-BR')}</strong></p>
+  resultado.innerHTML = `
+    <h3>Resumo da Entrada</h3>
+    <p>Entrada total: <strong>R$ ${entradaTotal.toLocaleString('pt-BR')}</strong></p>
+    <p>Ato: <strong>R$ ${ato.toLocaleString('pt-BR')}</strong></p>
+    <p>Intermediárias (${qtdInter}x): <strong>R$ ${interValor.toLocaleString('pt-BR')}</strong></p>
+    <p>Parcelas mensais (${parcelas}x): <strong>R$ ${mensal.toLocaleString('pt-BR')}</strong></p>
+    ${posChaves > 0 ? `<p class="alerta">Saldo pós-chaves estimado: R$ ${posChaves.toLocaleString('pt-BR')}</p>` : ""}
   `;
 }
 </script>
