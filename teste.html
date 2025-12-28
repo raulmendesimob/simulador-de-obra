@@ -161,8 +161,9 @@ button{
   .inter-row{ grid-template-columns:1fr 1fr; }
 }
 
-/* ===== FLUXO FIXO ===== */
-#fluxoBox{
+/* ===== FLUXOS FIXOS ===== */
+#fluxoEntrada,
+#fluxoJuros{
   position:sticky;
   top:10px;
   z-index:5;
@@ -210,14 +211,12 @@ button{
 
   <!-- ===== BLOCO ENTRADA ===== -->
   <div class="bloco">
-
     <div class="bloco-header" onclick="toggleBloco(this)">
       <span>💰 Entrada / Fluxo Inicial</span>
       <span class="toggle-icon">+</span>
     </div>
 
     <div class="bloco-conteudo">
-
       <div class="subgrid">
         <div class="campo">
           <label>💸 Valor do Ato (R$)</label>
@@ -259,18 +258,65 @@ button{
       </div>
 
       <button onclick="calcularEntrada()">Calcular Entrada</button>
-
-    </div><!-- FECHA .bloco-conteudo -->
-
-  </div><!-- FECHA .bloco -->
-
-  <!-- ===== FLUXO (FORA DO BLOCO) ===== -->
-  <div id="fluxoBox">
-    <div id="resultadoEntrada" class="resultado"></div>
-    <button onclick="limparFluxo()">Limpar Fluxo</button>
+    </div>
   </div>
 
-</div><!-- FECHA .container -->
+  <!-- ===== FLUXO ENTRADA ===== -->
+  <div id="fluxoEntrada">
+    <div id="resultadoEntrada" class="resultado"></div>
+    <button onclick="limparEntrada()">Limpar Fluxo Entrada</button>
+  </div>
+
+  <!-- ===== BLOCO JUROS DE OBRA ===== -->
+  <div class="bloco">
+    <div class="bloco-header" onclick="toggleBloco(this)">
+      <span>🏗️ Juros de Obra</span>
+      <span class="toggle-icon">+</span>
+    </div>
+
+    <div class="bloco-conteudo">
+      <div class="subgrid">
+
+        <div class="campo">
+          <label>📈 Percentual da Obra (%)</label>
+          <input id="percObra" type="number" step="0.1">
+        </div>
+
+        <div class="campo">
+          <label>📊 Taxa de Juros Anual (%)</label>
+          <input id="jurosAnual" type="number" step="0.01">
+        </div>
+
+        <div class="campo">
+          <label>📉 TR (%)</label>
+          <input id="tr" type="number" step="0.001" value="0.17">
+        </div>
+
+        <div class="campo">
+          <label>🧾 Taxas e Seguros (R$)</label>
+          <input id="taxas" value="R$ 65,00" oninput="formatarMoeda(this)">
+        </div>
+
+        <div class="campo span2">
+          <small>
+            TR média estimada. Valores atualizados em:
+            <a href="https://www.debit.com.br/tabelas/tr-bacen" target="_blank">BACEN</a>
+          </small>
+        </div>
+
+      </div>
+
+      <button onclick="calcularJuros()">Calcular Juros de Obra</button>
+    </div>
+  </div>
+
+  <!-- ===== FLUXO JUROS ===== -->
+  <div id="fluxoJuros">
+    <div id="resultadoJuros" class="resultado"></div>
+    <button onclick="limparJuros()">Limpar Juros de Obra</button>
+  </div>
+
+</div>
 
 <script>
 function formatarMoeda(c){
@@ -296,7 +342,6 @@ function gerarMesAno(){
   }
   return arr;
 }
-
 (function(){
   const sel=document.getElementById("entregaSelect");
   gerarMesAno().forEach(t=>{
@@ -314,6 +359,7 @@ function toggleBloco(el){
   i.textContent=aberto?"+":"–";
 }
 
+/* ===== ENTRADA ===== */
 function toggleInter(){
   const sim=temInter.value==="sim";
   boxQtdInter.style.display=sim?"block":"none";
@@ -395,8 +441,39 @@ function calcularEntrada(){
   `;
 }
 
-function limparFluxo(){
+function limparEntrada(){
   resultadoEntrada.innerHTML="";
+}
+
+/* ===== JUROS DE OBRA ===== */
+function calcularJuros(){
+  const financiamento=limpar(valorFinanciamento.value),
+        percObraVal=parseFloat(percObra.value)||0,
+        juros=parseFloat(jurosAnual.value)||0,
+        trVal=parseFloat(tr.value)||0,
+        taxasVal=limpar(taxas.value);
+
+  if(!financiamento||!percObraVal||!juros){
+    resultadoJuros.innerHTML="<p class='alerta'>Preencha os campos obrigatórios.</p>";
+    return;
+  }
+
+  const liberado=financiamento*(percObraVal/100);
+  const jurosMensal=(juros/100)/12;
+  const trMensal=(trVal/100);
+
+  const parcela=(liberado*jurosMensal)+(liberado*trMensal)+taxasVal;
+
+  resultadoJuros.innerHTML=`
+    <h3>Juros de Obra (Estimativa)</h3>
+    <p>Valor financiado liberado: <b>${moeda(liberado)}</b></p>
+    <p>Parcela estimada mensal: <b>${moeda(parcela)}</b></p>
+    <small>Valor aproximado. Pode variar conforme avanço da obra, TR mensal e políticas do banco.</small>
+  `;
+}
+
+function limparJuros(){
+  resultadoJuros.innerHTML="";
 }
 </script>
 
