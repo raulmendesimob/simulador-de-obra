@@ -369,4 +369,38 @@ function calcularEntrada(){
   let posMsg="";
   if(resto>0){
     if(aceitaPos.value!=="sim"){
-      posMsg=`<p class='alerta'>Saldo restante ${moeda(resto)} e construtora não acei
+      posMsg=`<p class='alerta'>Saldo restante ${moeda(resto)} e construtora não aceita pós-chaves.</p>`;
+    }else{
+      const perc=parseFloat(percPos.value)||0;
+      const lim=im*(perc/100);
+      posMsg=resto<=lim
+        ? `<p class='ok'>Pós-chaves viável: ${moeda(resto)}</p>`
+        : `<p class='alerta'>Saldo ${moeda(resto)} excede limite da construtora (${moeda(lim)}).</p>`;
+    }
+  }
+
+  resultadoEntrada.innerHTML=`
+    <h3>Resumo</h3>
+    <p>Entrada total: <b>${moeda(im-fi-fg)}</b></p>
+    <p>Ato: <b>${moeda(at)}</b></p>
+    ${fim?`<p>📅 Previsão de término da obra: <b>${fim}</b></p>`:""}
+    <p>Mensais (${pa}x): <b>${moeda(mensal)}</b></p>
+    ${posMsg}
+  `;
+}
+
+function calcularJuros(){
+  const fi=limpar(valorFinanciamento.value);
+  const pr=parseInt(prazoObra.value)||0;
+  const tx=parseFloat(taxaJuros.value)||0;
+  if(!fi||!pr||!tx){
+    resultadoJuros.innerHTML="<p class='alerta'>Preencha financiamento, prazo e taxa.</p>";
+    return;
+  }
+  const jm=(tx/100)/12;
+  resultadoJuros.innerHTML=`<p>Total estimado: <b>${moeda(fi*jm*pr)}</b></p>`;
+}
+</script>
+
+</body>
+</html>
