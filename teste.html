@@ -1,245 +1,33 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Simulador Imobiliário</title>
-
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    background: #f2f2f2;
-    margin: 0;
-    padding: 0;
-  }
-
-  /* ===== PAINEL FIXO ===== */
-  .painel-fixo {
-    position: sticky;
-    top: 0;
-    background: #ffffff;
-    border-bottom: 2px solid #ddd;
-    padding: 15px;
-    z-index: 1000;
-  }
-
-  .painel-fixo h2 {
-    margin: 0 0 10px 0;
-  }
-
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 10px;
-  }
-
-  label {
-    font-size: 13px;
-    font-weight: bold;
-  }
-
-  input {
-    width: 100%;
-    padding: 8px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-  }
-
-  /* ===== CONTEÚDO ===== */
-  .container {
-    max-width: 900px;
-    margin: 30px auto;
-    padding: 20px;
-  }
-
-  .bloco {
-    background: #fff;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    overflow: hidden;
-    border: 1px solid #ddd;
-  }
-
-  .bloco-header {
-    padding: 15px;
-    background: #0b6e3b;
-    color: white;
-    cursor: pointer;
-    font-weight: bold;
-  }
-
-  .bloco-conteudo {
-    display: none;
-    padding: 20px;
-  }
-
-  button {
-    margin-top: 15px;
-    padding: 10px;
-    width: 100%;
-    border: none;
-    border-radius: 8px;
-    background: #0b6e3b;
-    color: #fff;
-    font-size: 15px;
-    cursor: pointer;
-  }
-
-  .resultado {
-    margin-top: 15px;
-    background: #f5f9f6;
-    padding: 12px;
-    border-radius: 8px;
-  }
-
-  .alerta {
-    color: #c62828;
-    font-weight: bold;
-  }
-
-  .obs {
-    font-size: 12px;
-    color: #555;
-    margin-top: 8px;
-    font-style: italic;
-  }
-</style>
-</head>
-
-<body>
-
-<!-- ================= PAINEL SUPERIOR FIXO ================= -->
 <div class="painel-fixo">
-  <h2>📌 Dados Base da Simulação</h2>
+  <h1>Simulador de Fluxo de Pagamento</h1>
 
-  <div class="grid">
-    <div>
-      <label>Valor do Imóvel (R$)</label>
+  <div class="painel-grid">
+    <!-- Valor do Imóvel -->
+    <div class="campo campo-full">
+      <label>🏠 Valor do Imóvel (R$)</label>
       <input id="valorImovel" oninput="formatarMoeda(this)">
     </div>
 
-    <div>
-      <label>Valor do Financiamento (R$)</label>
+    <!-- Financiamento + Juros -->
+    <div class="campo">
+      <label>🏦 Valor do Financiamento (R$)</label>
       <input id="valorFinanciamento" oninput="formatarMoeda(this)">
     </div>
 
-    <div>
-      <label>FGTS (opcional)</label>
-      <input id="fgts" oninput="formatarMoeda(this)">
+    <div class="campo">
+      <label>📈 Taxa de Juros (% a.a.)</label>
+      <input id="taxaJuros" type="number" step="0.01" placeholder="Opcional">
     </div>
 
-    <div>
-      <label>Taxa de Juros % a.a. (opcional)</label>
-      <input id="taxaJuros" type="number" step="0.01">
+    <!-- FGTS + Prazo -->
+    <div class="campo">
+      <label>💰 FGTS (R$)</label>
+      <input id="fgts" oninput="formatarMoeda(this)" placeholder="Opcional">
     </div>
 
-    <div>
-      <label>Prazo da Obra (meses)</label>
-      <input id="prazoObra" type="number">
+    <div class="campo">
+      <label>📅 Prazo da Obra (meses)</label>
+      <input id="prazoObra" type="number" placeholder="Ex: 35">
     </div>
   </div>
 </div>
-
-<div class="container">
-
-  <!-- ================= ENTRADA / INCC ================= -->
-  <div class="bloco">
-    <div class="bloco-header" onclick="toggleBloco(this)">
-      💰 Entrada + INCC
-    </div>
-
-    <div class="bloco-conteudo">
-      <button onclick="calcularEntrada()">Calcular Entrada</button>
-      <div id="resultadoEntrada" class="resultado"></div>
-
-      <p class="obs">
-        * FGTS é opcional. INCC poderá ser aplicado sobre o saldo da construtora.
-      </p>
-    </div>
-  </div>
-
-  <!-- ================= JUROS DE OBRA ================= -->
-  <div class="bloco">
-    <div class="bloco-header" onclick="toggleBloco(this)">
-      🏦 Juros de Obra
-    </div>
-
-    <div class="bloco-conteudo">
-      <button onclick="calcularJuros()">Calcular Juros de Obra</button>
-      <div id="resultadoJuros" class="resultado"></div>
-
-      <p class="obs">
-        * Necessário informar a taxa de juros para este cálculo.
-      </p>
-    </div>
-  </div>
-
-</div>
-
-<script>
-/* ===== UTIL ===== */
-function formatarMoeda(campo) {
-  let v = campo.value.replace(/\D/g, "");
-  v = (v / 100).toFixed(2).replace(".", ",");
-  v = v.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  campo.value = "R$ " + v;
-}
-
-function limpar(valor) {
-  return parseFloat(valor.replace(/[R$\.\s]/g, "").replace(",", ".")) || 0;
-}
-
-/* ===== ACCORDION ===== */
-function toggleBloco(header) {
-  const conteudo = header.nextElementSibling;
-  conteudo.style.display = conteudo.style.display === "block" ? "none" : "block";
-}
-
-/* ===== ENTRADA / INCC ===== */
-function calcularEntrada() {
-  const imovel = limpar(valorImovel.value);
-  const financiamento = limpar(valorFinanciamento.value);
-  const fgts = limpar(fgts.value);
-  const prazo = parseInt(prazoObra.value) || 0;
-
-  if (!imovel || !financiamento || !prazo) {
-    resultadoEntrada.innerHTML = "<p class='alerta'>Preencha Valor do Imóvel, Financiamento e Prazo.</p>";
-    return;
-  }
-
-  const entrada = imovel - financiamento - fgts;
-
-  resultadoEntrada.innerHTML = `
-    <p>Entrada estimada: <strong>R$ ${entrada.toLocaleString('pt-BR')}</strong></p>
-    <p>Prazo da obra: <strong>${prazo} meses</strong></p>
-  `;
-}
-
-/* ===== JUROS DE OBRA ===== */
-function calcularJuros() {
-  const financiamento = limpar(valorFinanciamento.value);
-  const taxa = parseFloat(taxaJuros.value) || 0;
-  const prazo = parseInt(prazoObra.value) || 0;
-
-  if (!financiamento || !prazo) {
-    resultadoJuros.innerHTML = "<p class='alerta'>Preencha Financiamento e Prazo.</p>";
-    return;
-  }
-
-  if (!taxa) {
-    resultadoJuros.innerHTML = "<p class='alerta'>Para calcular Juros de Obra, informe a Taxa de Juros.</p>";
-    return;
-  }
-
-  const jurosMensal = (taxa / 100) / 12;
-  const total = financiamento * jurosMensal * prazo;
-
-  resultadoJuros.innerHTML = `
-    <p>Taxa mensal estimada: <strong>${(jurosMensal * 100).toFixed(2)}%</strong></p>
-    <p>Total estimado de juros de obra: <strong>R$ ${total.toLocaleString('pt-BR')}</strong></p>
-  `;
-}
-</script>
-
-</body>
-</html>
