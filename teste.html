@@ -13,6 +13,8 @@ body{
   background:#f4f6f5;
   color:#222;
 }
+
+/* ===== TOPO ===== */
 .painel-topo{
   background:#fff;
   border-bottom:1px solid #e0e0e0;
@@ -56,12 +58,14 @@ body{
   }
 }
 
+/* ===== CONTAINER ===== */
 .container{
   max-width:900px;
   margin:24px auto;
   padding:0 16px 40px;
 }
 
+/* ===== BLOCO ===== */
 .bloco{
   background:#fff;
   border-radius:14px;
@@ -88,7 +92,10 @@ body{
   align-items:center;
   justify-content:center;
 }
-.bloco-conteudo{ display:none; padding:18px; }
+.bloco-conteudo{
+  display:none;
+  padding:18px;
+}
 
 .subgrid{
   display:grid;
@@ -106,8 +113,11 @@ body{
   margin:16px 0;
 }
 
-.bloco-inter{ background:#f3faf6; padding:12px; border-radius:10px; }
-.bloco-pos{ background:#f2f6fb; padding:12px; border-radius:10px; }
+.bloco-inter{
+  background:#f3faf6;
+  padding:12px;
+  border-radius:10px;
+}
 
 button{
   width:100%;
@@ -122,15 +132,22 @@ button{
 }
 
 .resultado{
-  margin-top:14px;
   background:#f1f7f3;
-  padding:14px;
-  border-radius:10px;
+  padding:16px;
+  border-radius:12px;
+  margin-bottom:12px;
 }
 
-.alerta{ color:#c62828; font-weight:700; }
+.alerta{
+  color:#c62828;
+  font-weight:700;
+}
 
-.inter-list{ display:flex; flex-direction:column; gap:10px; }
+.inter-list{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
 .inter-row{
   display:grid;
   grid-template-columns:1fr;
@@ -144,12 +161,18 @@ button{
   .inter-row{ grid-template-columns:1fr 1fr; }
 }
 
-#fluxoBox{ position:sticky; top:10px; z-index:5; }
+/* ===== FLUXO FIXO ===== */
+#fluxoBox{
+  position:sticky;
+  top:10px;
+  z-index:5;
+}
 </style>
 </head>
 
 <body>
 
+<!-- ===== TOPO ===== -->
 <div class="painel-topo">
   <h1>Simulador Imobiliário</h1>
   <div class="grid-topo">
@@ -179,70 +202,75 @@ button{
       <label>📅 Previsão de Entrega (mês/ano)</label>
       <select id="entregaSelect"></select>
     </div>
+
   </div>
 </div>
 
 <div class="container">
 
-<div class="bloco">
-  <div class="bloco-header" onclick="toggleBloco(this)">
-    <span>💰 Entrada / Fluxo Inicial</span>
-    <span class="toggle-icon">+</span>
-  </div>
+  <!-- ===== BLOCO ENTRADA ===== -->
+  <div class="bloco">
 
-  <div class="bloco-conteudo">
-
-    <div class="subgrid">
-      <div class="campo">
-        <label>💸 Valor do Ato (R$)</label>
-        <input id="ato" oninput="formatarMoeda(this)">
-      </div>
-
-      <div class="campo">
-        <label>🗓️ MESES / PARCELAS</label>
-        <input id="parcelasEntrada" type="number">
-      </div>
-
-      <div class="campo span2">
-        <label>👨‍👩‍👧‍👦 Renda Familiar Mensal (R$)</label>
-        <input id="renda" oninput="formatarMoeda(this)">
-      </div>
+    <div class="bloco-header" onclick="toggleBloco(this)">
+      <span>💰 Entrada / Fluxo Inicial</span>
+      <span class="toggle-icon">+</span>
     </div>
 
-    <div class="divider"></div>
+    <div class="bloco-conteudo">
 
-    <div class="bloco-inter">
       <div class="subgrid">
         <div class="campo">
-          <label>📊 Tem Intermediárias?</label>
-          <select id="temInter" onchange="toggleInter()">
-            <option value="nao">Não</option>
-            <option value="sim">Sim</option>
-          </select>
+          <label>💸 Valor do Ato (R$)</label>
+          <input id="ato" oninput="formatarMoeda(this)">
         </div>
 
-        <div class="campo" id="boxQtdInter" style="display:none;">
-          <label>🔢 Quantidade de Intermediárias / Anual</label>
-          <input id="qtdInter" type="number" oninput="renderInterRows()">
+        <div class="campo">
+          <label>🗓️ MESES / PARCELAS</label>
+          <input id="parcelasEntrada" type="number">
         </div>
 
-        <div class="campo span2" id="boxInterRows" style="display:none;">
-          <div class="inter-list" id="interList"></div>
+        <div class="campo span2">
+          <label>👨‍👩‍👧‍👦 Renda Familiar Mensal (R$)</label>
+          <input id="renda" oninput="formatarMoeda(this)">
         </div>
       </div>
-    </div>
 
-    <button onclick="calcularEntrada()">Calcular Entrada</button>
+      <div class="divider"></div>
 
-    <div id="fluxoBox">
-      <div id="resultadoEntrada" class="resultado"></div>
-      <button onclick="limparFluxo()">Limpar Fluxo</button>
-    </div>
+      <div class="bloco-inter">
+        <div class="subgrid">
+          <div class="campo span2">
+            <label>📊 Tem Intermediárias?</label>
+            <select id="temInter" onchange="toggleInter()">
+              <option value="nao">Não</option>
+              <option value="sim">Sim</option>
+            </select>
+          </div>
 
+          <div class="campo" id="boxQtdInter" style="display:none;">
+            <label>🔢 Quantidade de Intermediárias / Anual</label>
+            <input id="qtdInter" type="number" oninput="renderInterRows()">
+          </div>
+
+          <div class="campo span2" id="boxInterRows" style="display:none;">
+            <div class="inter-list" id="interList"></div>
+          </div>
+        </div>
+      </div>
+
+      <button onclick="calcularEntrada()">Calcular Entrada</button>
+
+    </div><!-- FECHA .bloco-conteudo -->
+
+  </div><!-- FECHA .bloco -->
+
+  <!-- ===== FLUXO (FORA DO BLOCO) ===== -->
+  <div id="fluxoBox">
+    <div id="resultadoEntrada" class="resultado"></div>
+    <button onclick="limparFluxo()">Limpar Fluxo</button>
   </div>
-</div>
 
-</div>
+</div><!-- FECHA .container -->
 
 <script>
 function formatarMoeda(c){
@@ -273,20 +301,21 @@ function gerarMesAno(){
   const sel=document.getElementById("entregaSelect");
   gerarMesAno().forEach(t=>{
     const o=document.createElement("option");
-    o.textContent=t; sel.appendChild(o);
+    o.textContent=t;
+    sel.appendChild(o);
   });
 })();
 
 function toggleBloco(el){
-  const conteudo=el.nextElementSibling;
-  const icon=el.querySelector(".toggle-icon");
-  const aberto=conteudo.style.display==="block";
-  conteudo.style.display=aberto?"none":"block";
-  icon.textContent=aberto?"+":"–";
+  const c=el.nextElementSibling;
+  const i=el.querySelector(".toggle-icon");
+  const aberto=c.style.display==="block";
+  c.style.display=aberto?"none":"block";
+  i.textContent=aberto?"+":"–";
 }
 
 function toggleInter(){
-  const sim=document.getElementById("temInter").value==="sim";
+  const sim=temInter.value==="sim";
   boxQtdInter.style.display=sim?"block":"none";
   boxInterRows.style.display=sim?"block":"none";
   if(!sim){
@@ -323,23 +352,21 @@ function calcularEntrada(){
         re=limpar(renda.value),
         p=parseInt(parcelasEntrada.value)||0;
 
-  const out=resultadoEntrada;
   if(!im||!fi||!re||!p){
-    out.innerHTML="<p class='alerta'>Preencha os campos obrigatórios.</p>";
+    resultadoEntrada.innerHTML="<p class='alerta'>Preencha os campos obrigatórios.</p>";
     return;
   }
 
   const entrada=im-fi-fg;
   let saldo=entrada-at;
 
-  const interVals=[];
+  const inter=[];
   if(temInter.value==="sim"){
     document.querySelectorAll("#interList input").forEach(i=>{
-      interVals.push(limpar(i.value)||re);
+      inter.push(limpar(i.value)||re);
     });
   }
-
-  interVals.forEach(v=>saldo-=v);
+  inter.forEach(v=>saldo-=v);
 
   let mensal=saldo/p;
   let resto=0;
@@ -349,16 +376,16 @@ function calcularEntrada(){
   }
 
   let interTexto="";
-  if(interVals.length){
-    const iguais=interVals.every(v=>v===interVals[0]);
+  if(inter.length){
+    const iguais=inter.every(v=>v===inter[0]);
     interTexto=iguais
-      ? `Intermediárias (${interVals.length}x): <b>${moeda(interVals[0])}</b>`
-      : `Intermediárias (${interVals.length}x): <b>${interVals.map(v=>moeda(v)).join(" | ")}</b>`;
+      ? `<p>Intermediárias (${inter.length}x): <b>${moeda(inter[0])}</b></p>`
+      : `<p>Intermediárias (${inter.length}x): <b>${inter.map(v=>moeda(v)).join(" | ")}</b></p>`;
   }
 
-  out.innerHTML=`
+  resultadoEntrada.innerHTML=`
     <h3>Fluxo de Pagamento – Entrada</h3>
-    <p>📅 Previsão de entrega: <b>${entregaSelect.value||"-"}</b></p>
+    <p>📅 Previsão de entrega: <b>${entregaSelect.value}</b></p>
     <p>Entrada total: <b>${moeda(entrada)}</b></p>
     <div class="divider"></div>
     <p>Ato: <b>${moeda(at)}</b></p>
