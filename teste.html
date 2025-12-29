@@ -5,11 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Simulador Imobiliário</title>
 
+<!-- jsPDF (PDF) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <style>
-  * { box-sizing: border-box; }
+  *{box-sizing:border-box}
   body{
     margin:0;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family:Arial,Helvetica,sans-serif;
     background:#f4f6f5;
     color:#222;
   }
@@ -46,10 +49,10 @@
     border:1px solid #ccc;
     font-size:15px;
   }
-  .campo-full{ grid-column:1/-1; }
+  .campo-full{grid-column:1/-1}
 
   @media(min-width:768px){
-    .grid-topo{ grid-template-columns:repeat(2,1fr); }
+    .grid-topo{grid-template-columns:repeat(2,1fr)}
     .grid-imovel{
       grid-column:1/-1;
       display:grid;
@@ -65,13 +68,13 @@
     padding:0 16px 40px;
   }
 
-  /* ===== BLOCO (ACCORDION) ===== */
+  /* ===== BLOCOS ===== */
   .bloco{
     background:#fff;
     border-radius:14px;
     border:1px solid #ddd;
     overflow:hidden;
-    margin-bottom:14px; /* mais “colado”, sem buracos */
+    margin-bottom:14px;
   }
   .bloco-header{
     color:#fff;
@@ -82,11 +85,10 @@
     justify-content:space-between;
     align-items:center;
   }
-  .header-entrada{ background:#0b6e3b; }
-  .header-juros{ background:#d97706; }
-
+  .header-entrada{background:#0b6e3b}
+  .header-juros{background:#d97706}
   .toggle-icon{
-    background:rgba(255,255,255,0.2);
+    background:rgba(255,255,255,.2);
     border-radius:6px;
     width:22px;
     height:22px;
@@ -95,10 +97,7 @@
     justify-content:center;
     font-weight:900;
   }
-  .bloco-conteudo{
-    display:none;
-    padding:18px;
-  }
+  .bloco-conteudo{display:none;padding:18px}
 
   .subgrid{
     display:grid;
@@ -106,8 +105,8 @@
     gap:12px;
   }
   @media(min-width:768px){
-    .subgrid{ grid-template-columns:repeat(2,1fr); }
-    .span2{ grid-column:1/-1; }
+    .subgrid{grid-template-columns:repeat(2,1fr)}
+    .span2{grid-column:1/-1}
   }
 
   .divider{
@@ -116,13 +115,10 @@
     margin:16px 0;
   }
 
-  /* ===== SEÇÕES VISUAIS ===== */
-  .bloco-inter{ background:#f3faf6; padding:12px; border-radius:10px; }
-  .bloco-pos{ background:#f2f6fb; padding:12px; border-radius:10px; }
+  .bloco-inter{background:#f3faf6;padding:12px;border-radius:10px}
+  .bloco-pos{background:#f2f6fb;padding:12px;border-radius:10px}
 
   /* ===== BOTÕES ===== */
-  .btn-entrada{ background:#0b6e3b; }
-  .btn-juros{ background:#d97706; }
   button{
     width:100%;
     padding:12px;
@@ -133,47 +129,34 @@
     cursor:pointer;
     margin-top:12px;
   }
+  .btn-entrada{background:#0b6e3b}
+  .btn-juros{background:#d97706}
+  .btn-limpar{
+    background:#c62828;
+    width:auto;
+    padding:10px 14px;
+    font-size:13px;
+    border-radius:8px;
+  }
+  .box-limpar{
+    display:none;
+    margin-top:10px;
+    text-align:right;
+  }
 
   /* ===== RESULTADOS ===== */
   .resultado{
-    display:none;          /* só aparece quando calculado */
+    display:none;
     background:#f1f7f3;
     padding:16px;
     border-radius:12px;
-    margin:10px 0 0;       /* sem espaço gigante */
+    margin-top:12px;
   }
-  .alerta{
-    color:#c62828;
-    font-weight:700;
-  }
-  .obs{
-    font-style:italic;
-    color:#444;
-    margin-top:10px;
-    display:block;
-  }
+  .alerta{color:#c62828;font-weight:700}
+  .obs{font-style:italic;color:#444;margin-top:10px;display:block}
 
-  /* ===== LIMPAR (pequeno, central, vermelho, só quando calculado) ===== */
-  .box-limpar{
-    display:none;           /* só aparece quando calculado */
-    text-align:center;
-    margin:10px 0 18px;
-  }
-  .btn-limpar{
-    width:auto;
-    display:inline-block;
-    background:#c62828;
-    color:#fff;
-    font-size:13px;
-    padding:8px 16px;
-    border-radius:999px;
-    border:none;
-    cursor:pointer;
-  }
-  .btn-limpar:hover{ background:#b71c1c; }
-
-  /* ===== INTERMEDIÁRIAS LIST ===== */
-  .inter-list{ display:flex; flex-direction:column; gap:10px; }
+  /* ===== INTERMEDIÁRIAS ===== */
+  .inter-list{display:flex;flex-direction:column;gap:10px}
   .inter-row{
     display:grid;
     grid-template-columns:1fr;
@@ -184,14 +167,14 @@
     border-radius:10px;
   }
   @media(min-width:768px){
-    .inter-row{ grid-template-columns:1fr 1fr; }
+    .inter-row{grid-template-columns:1fr 1fr}
   }
 </style>
 </head>
 
 <body>
 
-<!-- ===== TOPO ===== -->
+<!-- TOPO -->
 <div class="painel-topo">
   <h1>Simulador Imobiliário</h1>
   <div class="grid-topo">
@@ -258,17 +241,17 @@
       <!-- INTERMEDIÁRIAS -->
       <div class="bloco-inter">
         <div class="subgrid">
-          <div class="campo">
-            <label>📊 Tem Intermediárias?</label>
+          <div class="campo span2">
+            <label>📌 Tem intermediárias?</label>
             <select id="temInter" onchange="toggleInter()">
               <option value="nao">Não</option>
               <option value="sim">Sim</option>
             </select>
           </div>
 
-          <div class="campo" id="boxQtdInter" style="display:none;">
-            <label>🔢 Quantidade de Intermediárias / Anual</label>
-            <input id="qtdInter" type="number" min="1" oninput="renderInterRows()">
+          <div class="campo span2" id="boxInterQtd" style="display:none;">
+            <label>Quantidade de Intermediárias/Anual</label>
+            <input id="qtdInter" type="number" min="1" max="4" value="1" onchange="renderInterRows()">
           </div>
 
           <div class="campo span2" id="boxInterRows" style="display:none;">
@@ -290,14 +273,14 @@
             </select>
           </div>
 
-          <div class="campo" id="boxPosPerc" style="display:none;">
-            <label>% máximo do valor do imóvel</label>
-            <input id="percPos" type="number" min="0" step="0.1">
+          <div class="campo" id="boxPercPos" style="display:none;">
+            <label>% Máximo pós-chaves</label>
+            <input id="percPos" type="number" min="0" step="0.1" placeholder="Ex.: 8">
           </div>
 
-          <div class="campo" id="boxPosParc" style="display:none;">
+          <div class="campo" id="boxParcelasPos" style="display:none;">
             <label>Máx. parcelas pós-chaves</label>
-            <input id="parcelasPos" type="number" min="1">
+            <input id="parcelasPos" type="number" min="1" placeholder="Ex.: 24">
           </div>
         </div>
       </div>
@@ -320,10 +303,11 @@
     </div>
 
     <div class="bloco-conteudo">
+
       <div class="subgrid">
         <div class="campo">
-          <label>% da Obra</label>
-          <input id="percObra" type="number" min="0" step="0.1">
+          <label>% da Obra (liberado)</label>
+          <input id="percObra" type="number" min="0" step="0.1" placeholder="Ex.: 30">
         </div>
 
         <div class="campo">
@@ -332,12 +316,12 @@
         </div>
 
         <div class="campo">
-          <label>TR (%) <small>– valor médio 0,17%</small></label>
-          <input id="tr" type="number" step="0.001" value="0.17">
+          <label>TR (%) <small style="font-weight:normal;opacity:.8;">– valor médio 0,17%</small></label>
+          <input id="tr" type="number" step="0.01" value="0.17">
         </div>
 
         <div class="campo">
-          <label>Taxas e Seguros (R$) <small>– usado valor médio R$ 65</small></label>
+          <label>Taxas e Seguros (R$) <small style="font-weight:normal;opacity:.8;">– usado valor médio R$ 65</small></label>
           <input id="taxas" value="R$ 65,00" oninput="formatarMoeda(this)">
         </div>
       </div>
@@ -352,71 +336,122 @@
     <button class="btn-limpar" onclick="limparJuros()">Limpar juros de obra</button>
   </div>
 
+  <!-- ===== GERAR PDF (NOVO) ===== -->
+  <div class="bloco">
+    <div class="bloco-header header-entrada">
+      <span>📄 Gerar PDF</span>
+      <span class="toggle-icon"> </span>
+    </div>
+
+    <div class="bloco-conteudo" style="display:block;">
+      <div class="subgrid">
+        <div class="campo span2">
+          <label>Empreendimento</label>
+          <input id="pdfEmpreendimento" placeholder="Ex.: Residencial X">
+        </div>
+
+        <div class="campo span2">
+          <label>Corretor</label>
+          <input id="pdfCorretor" placeholder="Seu nome">
+        </div>
+
+        <div class="campo span2">
+          <label style="display:flex;gap:10px;align-items:center;font-weight:600;">
+            <input type="checkbox" id="pdfChkINCC">
+            Incluir estimativa de INCC (0,5% ao mês)
+          </label>
+        </div>
+
+        <div class="campo span2">
+          <label style="display:flex;gap:10px;align-items:center;font-weight:600;">
+            <input type="checkbox" id="pdfChkJurosTabela">
+            Exibir tabela de Juros de Obra (10% em 10%)
+          </label>
+        </div>
+
+        <div class="campo span2" style="font-size:13px;color:#444;">
+          <b>Data do documento:</b> <span id="pdfDataDoc"></span>
+        </div>
+      </div>
+
+      <button class="btn-entrada" onclick="gerarPDF()">Gerar PDF da Simulação</button>
+    </div>
+  </div>
+
 </div>
 
 <script>
-  // ===== Helpers =====
   function formatarMoeda(c){
-    let v=(c.value||"").replace(/\D/g,"");
-    if(!v){ c.value=""; return; }
-    v=(parseInt(v)/100).toFixed(2).replace(".",",");
-    v=v.replace(/\B(?=(\d{3})+(?!\d))/g,".");
-    c.value="R$ "+v;
+    let v=(c.value||"").replace(/\D/g,"")
+    if(!v){c.value="";return}
+    v=(parseInt(v)/100).toFixed(2).replace(".",",")
+    v=v.replace(/\B(?=(\d{3})+(?!\d))/g,".")
+    c.value="R$ "+v
   }
+
   function limparMoeda(v){
-    return parseFloat((v||"").replace(/[R$\.\s]/g,"").replace(",", "."))||0;
+    return parseFloat((v||"").replace(/[R$\.\s]/g,"").replace(",", "."))||0
   }
+
   function moeda(n){
-    return n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+    return n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})
   }
+
   function gerarMesAno(){
-    const h=new Date(), arr=[];
-    const m=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+    const h=new Date()
+    const arr=[]
+    const m=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
     for(let i=0;i<48;i++){
-      const d=new Date(h.getFullYear(),h.getMonth()+i,1);
-      arr.push(`${m[d.getMonth()]}/${String(d.getFullYear()).slice(-2)}`);
+      const d=new Date(h.getFullYear(),h.getMonth()+i,1)
+      arr.push(`${m[d.getMonth()]}/${String(d.getFullYear()).slice(-2)}`)
     }
-    return arr;
+    return arr
   }
+
   (function(){
-    const sel=document.getElementById("entregaSelect");
+    const s=document.getElementById("entregaSelect")
     gerarMesAno().forEach(t=>{
-      const o=document.createElement("option");
-      o.textContent=t;
-      sel.appendChild(o);
-    });
-  })();
+      const o=document.createElement("option")
+      o.textContent=t
+      s.appendChild(o)
+    })
+  })()
 
-  // ===== Accordion =====
   function toggleBloco(el){
-    const c=el.nextElementSibling;
-    const i=el.querySelector(".toggle-icon");
-    const aberto=c.style.display==="block";
-    c.style.display=aberto?"none":"block";
-    i.textContent=aberto?"+":"–";
+    const c=el.nextElementSibling
+    const i=el.querySelector(".toggle-icon")
+    const aberto=c.style.display==="block"
+    c.style.display=aberto?"none":"block"
+    i.textContent=aberto?"+":"–"
   }
 
-  // ===== Intermediárias =====
   function toggleInter(){
-    const sim=document.getElementById("temInter").value==="sim";
-    document.getElementById("boxQtdInter").style.display=sim?"block":"none";
-    document.getElementById("boxInterRows").style.display=sim?"block":"none";
-    if(!sim){
-      document.getElementById("qtdInter").value="";
-      document.getElementById("interList").innerHTML="";
+    const tem = document.getElementById("temInter").value
+    const boxQtd = document.getElementById("boxInterQtd")
+    const boxRows = document.getElementById("boxInterRows")
+    if(tem==="sim"){
+      boxQtd.style.display="block"
+      boxRows.style.display="block"
+      renderInterRows()
+    } else {
+      // se não tem intermediárias: esconder e zerar inputs
+      boxQtd.style.display="none"
+      boxRows.style.display="none"
+      document.getElementById("interList").innerHTML=""
+      document.getElementById("qtdInter").value = 1
     }
   }
 
   function renderInterRows(){
-    const q=parseInt(document.getElementById("qtdInter").value)||0;
-    const interList=document.getElementById("interList");
-    interList.innerHTML="";
-    if(q<=0) return;
+    const q=parseInt(document.getElementById("qtdInter").value)||0
+    const interList=document.getElementById("interList")
+    interList.innerHTML=""
+    if(q<=0) return
 
-    const meses=gerarMesAno();
+    const meses=gerarMesAno()
     for(let i=1;i<=q;i++){
-      const r=document.createElement("div");
-      r.className="inter-row";
+      const r=document.createElement("div")
+      r.className="inter-row"
       r.innerHTML=`
         <div>
           <label>${i}ª Intermediária / Anual</label>
@@ -424,103 +459,140 @@
         </div>
         <div>
           <label>Valor (R$)</label>
-          <input oninput="formatarMoeda(this)">
-        </div>`;
-      interList.appendChild(r);
+          <input oninput="formatarMoeda(this)" placeholder="(vazio = 100% da renda)">
+        </div>
+      `
+      interList.appendChild(r)
     }
   }
 
-  // ===== Pós-chaves =====
   function togglePos(){
-    const sim=document.getElementById("aceitaPos").value==="sim";
-    document.getElementById("boxPosPerc").style.display=sim?"block":"none";
-    document.getElementById("boxPosParc").style.display=sim?"block":"none";
-    if(!sim){
-      document.getElementById("percPos").value="";
-      document.getElementById("parcelasPos").value="";
+    const aceita = document.getElementById("aceitaPos").value
+    document.getElementById("boxPercPos").style.display = (aceita==="sim") ? "block" : "none"
+    document.getElementById("boxParcelasPos").style.display = (aceita==="sim") ? "block" : "none"
+    if(aceita!=="sim"){
+      document.getElementById("percPos").value = ""
+      document.getElementById("parcelasPos").value = ""
     }
   }
 
-  // ===== Cálculo Entrada =====
   function calcularEntrada(){
-    const im=limparMoeda(document.getElementById("valorImovel").value);
-    const fi=limparMoeda(document.getElementById("valorFinanciamento").value);
-    const fg=limparMoeda(document.getElementById("fgts").value);
-    const at=limparMoeda(document.getElementById("ato").value);
-    const re=limparMoeda(document.getElementById("renda").value);
-    const p=parseInt(document.getElementById("parcelasEntrada").value)||0;
+    const im=limparMoeda(document.getElementById("valorImovel").value)
+    const fi=limparMoeda(document.getElementById("valorFinanciamento").value)
+    const fg=limparMoeda(document.getElementById("fgts").value)
+    const at=limparMoeda(document.getElementById("ato").value)
+    const re=limparMoeda(document.getElementById("renda").value)
+    const p=parseInt(document.getElementById("parcelasEntrada").value)||0
 
-    const out=document.getElementById("resultadoEntrada");
-    const btnBox=document.getElementById("limparEntradaBox");
+    const out=document.getElementById("resultadoEntrada")
+    const btnBox=document.getElementById("limparEntradaBox")
 
-    // obrigatórios
     if(!im || !fi || !re || !p){
-      out.style.display="block";
-      btnBox.style.display="none";
-      out.innerHTML = `<p class="alerta">Preencha os campos obrigatórios (Imóvel, Financiamento, Renda e Meses/Parcelas).</p>`;
-      return;
+      out.style.display="block"
+      btnBox.style.display="none"
+      out.innerHTML = `<p class="alerta">Preencha os campos obrigatórios (Imóvel, Financiamento, Renda e Meses/Parcelas).</p>`
+      return
     }
 
-    // Entrada total
-    const entrada = im - fi - fg;
-    let saldo = entrada - at;
+    const entrada = im - fi - fg
+    let saldo = entrada - at
 
-    // Intermediárias (valores individuais)
-    const interVals = [];
-    const temInter = document.getElementById("temInter").value === "sim";
+    // Intermediárias
+    const interVals = []
+    const interMeta = [] // para PDF/INCC (data, mesesAte, valorBase)
+    const temInter = document.getElementById("temInter").value === "sim"
     if(temInter){
-      document.querySelectorAll("#interList input").forEach(inp=>{
-        const v = limparMoeda(inp.value);
-        interVals.push(v>0 ? v : re); // se vazio, usa 100% da renda
-      });
+      const rows = document.querySelectorAll("#interList .inter-row")
+      rows.forEach((row) => {
+        const sel = row.querySelector("select")
+        const inp = row.querySelector("input")
+        const data = sel ? sel.value : "-"
+        const mesesAte = sel ? sel.selectedIndex : 0
+        const v = limparMoeda(inp ? inp.value : "")
+        const valorBase = (v>0 ? v : re) // se vazio, usa 100% da renda
+        interVals.push(valorBase)
+        interMeta.push({ data, mesesAte, valorBase })
+      })
     }
-    interVals.forEach(v=> saldo -= v);
+    interVals.forEach(v=> saldo -= v)
 
     // Mensais (limite 30% renda)
-    let mensal = saldo / p;
-    let resto = 0;
-    const limiteMensal = re * 0.30;
+    let mensal = saldo / p
+    let resto = 0
+    const limiteMensal = re * 0.30
 
     if(mensal > limiteMensal){
-      mensal = limiteMensal;
-      resto = saldo - (mensal * p);
+      mensal = limiteMensal
+      resto = saldo - (mensal * p)
     }
 
-    // Pós-chaves (se sobrou resto)
-    let posTexto = "";
-    let alertTexto = "";
+    // Pós-chaves
+    let posTexto = ""
+    let alertTexto = ""
 
     if(resto > 0){
-      const aceitaPos = document.getElementById("aceitaPos").value === "sim";
+      const aceitaPos = document.getElementById("aceitaPos").value === "sim"
       if(aceitaPos){
-        const percPos = parseFloat(document.getElementById("percPos").value)||0;
-        const parcelasPos = parseInt(document.getElementById("parcelasPos").value)||0;
-        const maxPos = im * (percPos/100);
+        const percPos = parseFloat(document.getElementById("percPos").value)||0
+        const parcelasPos = parseInt(document.getElementById("parcelasPos").value)||0
+        const maxPos = im * (percPos/100)
 
         if(percPos<=0 || parcelasPos<=0){
-          alertTexto = `<p class="alerta">Sobrou saldo: ${moeda(resto)}. Para usar pós-chaves, preencha % máximo e máx. parcelas.</p>`;
+          alertTexto = `<p class="alerta">Sobrou saldo: ${moeda(resto)}. Para usar pós-chaves, preencha % máximo e máx. parcelas.</p>`
         } else if(resto <= maxPos){
-          const posParcela = resto / parcelasPos;
-          posTexto = `<p>Pós-chaves (${parcelasPos}x): <b>${moeda(posParcela)}</b></p>`;
-          // saldo coberto via pós-chaves → zera alerta
-          resto = 0;
+          const posParcela = resto / parcelasPos
+          posTexto = `<p>Pós-chaves (${parcelasPos}x): <b>${moeda(posParcela)}</b></p>`
+          resto = 0
         } else {
-          alertTexto = `<p class="alerta">Sobrou saldo: ${moeda(resto)}. Pós-chaves aceita até ${moeda(maxPos)} (${percPos}% do imóvel). Não cobre o saldo.</p>`;
+          alertTexto = `<p class="alerta">Sobrou saldo: ${moeda(resto)}. A construtora aceita até ${moeda(maxPos)} (${percPos}% do imóvel). Não cobre o saldo.</p>`
         }
       } else {
-        alertTexto = `<p class="alerta">Sobrou saldo: ${moeda(resto)}. Entrada não cobre dentro do limite e não há pós-chaves.</p>`;
+        alertTexto = `<p class="alerta">Sobrou saldo: ${moeda(resto)}. Entrada não cobre dentro do limite e não há pós-chaves.</p>`
       }
     }
 
-    // Texto intermediárias (mostrar 1 valor se iguais, senão lista)
-    let interTexto = "";
-    if(interVals.length){
-      const iguais = interVals.every(v => v === interVals[0]);
+    // Texto intermediárias
+    let interTexto = ""
+    if(temInter && interVals.length){
+      const iguais = interVals.every(v=>v===interVals[0])
       if(iguais){
-        interTexto = `<p>Intermediárias (${interVals.length}x): <b>${moeda(interVals[0])}</b></p>`;
+        interTexto = `<p>Intermediárias (${interVals.length}): <b>${moeda(interVals[0])}</b></p>`
       } else {
-        interTexto = `<p>Intermediárias (${interVals.length}x): <b>${interVals.map(v=>moeda(v)).join(" | ")}</b></p>`;
+        interTexto = `<p>Intermediárias (${interVals.length}): <b>${interVals.map(v=>moeda(v)).join(" | ")}</b></p>`
       }
+    }
+
+    // salvar último cálculo (para PDF)
+    const mesesAteEntrega = (document.getElementById("entregaSelect") ? document.getElementById("entregaSelect").selectedIndex : 0)
+    const parcelasPosVal = parseInt(document.getElementById("parcelasPos").value)||0
+
+    // tenta capturar parcela pós-chaves caso tenha sido calculada
+    let posParcelaVal = null
+    if(posTexto && posTexto.includes("Pós-chaves") && parcelasPosVal>0){
+      const mPos = posTexto.match(/<b>(R\$[^<]+)<\/b>/)
+      if(mPos && mPos[1]){
+        posParcelaVal = limparMoeda(mPos[1])
+      }
+    }
+
+    // alerta sem HTML
+    let alertaTextoPlano = ""
+    if(alertTexto){
+      alertaTextoPlano = alertTexto.replace(/<[^>]*>/g,"").replace(/\s+/g," ").trim()
+    }
+
+    window.__lastEntradaCalc = {
+      entradaTotal: entrada,
+      ato: at,
+      parcelas: p,
+      mensal: mensal,
+      interVals: interVals,
+      interMeta: interMeta,
+      posAtivo: (posParcelaVal !== null),
+      parcelasPos: parcelasPosVal,
+      posParcela: posParcelaVal,
+      mesesAteEntrega: mesesAteEntrega,
+      alerta: alertaTextoPlano
     }
 
     out.innerHTML = `
@@ -533,57 +605,312 @@
       <p>Mensais (${p}x): <b>${moeda(mensal)}</b></p>
       ${posTexto}
       ${alertTexto}
-    `;
+    `
 
-    out.style.display = "block";
-    btnBox.style.display = "block";
+    out.style.display="block"
+    btnBox.style.display="block"
   }
 
   function limparEntrada(){
-    document.getElementById("resultadoEntrada").style.display="none";
-    document.getElementById("resultadoEntrada").innerHTML="";
-    document.getElementById("limparEntradaBox").style.display="none";
+    document.getElementById("resultadoEntrada").style.display="none"
+    document.getElementById("resultadoEntrada").innerHTML=""
+    document.getElementById("limparEntradaBox").style.display="none"
+    window.__lastEntradaCalc = null
   }
 
-  // ===== Cálculo Juros de Obra =====
   function calcularJuros(){
-    const financiamento = limparMoeda(document.getElementById("valorFinanciamento").value);
-    const perc = parseFloat(document.getElementById("percObra").value)||0;
-    const juros = parseFloat(document.getElementById("jurosAnual").value)||0;
-    const trVal = parseFloat(document.getElementById("tr").value)||0;
-    const taxas = limparMoeda(document.getElementById("taxas").value);
+    const financiamento = limparMoeda(document.getElementById("valorFinanciamento").value)
+    const perc = parseFloat(document.getElementById("percObra").value)||0
+    const jurosAnual = parseFloat(document.getElementById("jurosAnual").value)||0
+    const tr = parseFloat(document.getElementById("tr").value)||0
+    const taxas = limparMoeda(document.getElementById("taxas").value)
 
-    const out = document.getElementById("resultadoJuros");
-    const btnBox = document.getElementById("limparJurosBox");
-
-    if(!financiamento || !perc || !juros){
-      out.style.display="block";
-      btnBox.style.display="none";
-      out.innerHTML = `<p class="alerta">Preencha os campos obrigatórios (% da obra, juros anual e financiamento no cabeçalho).</p>`;
-      return;
+    // salvar parâmetros (para PDF)
+    window.__lastJurosInputs = {
+      financiamento: financiamento,
+      jurosAnual: jurosAnual,
+      tr: tr,
+      taxas: taxas
     }
 
-    const liberado = financiamento * (perc/100);
-    const jurosMensal = (juros/100)/12;
-    const trMensal = (trVal/100);
+    const out=document.getElementById("resultadoJuros")
+    const btnBox=document.getElementById("limparJurosBox")
 
-    const parcela = (liberado*jurosMensal) + (liberado*trMensal) + taxas;
+    if(!financiamento || !perc || !jurosAnual){
+      out.style.display="block"
+      btnBox.style.display="none"
+      out.innerHTML = `<p class="alerta">Preencha os campos obrigatórios (Financiamento, % da obra e taxa de juros anual).</p>`
+      return
+    }
+
+    const liberado = financiamento*(perc/100)
+    const parcela = (liberado*((jurosAnual/100)/12)) + (liberado*(tr/100)) + taxas
 
     out.innerHTML = `
       <h3>Juros de Obra (Estimativa)</h3>
       <p>Percentual da obra considerado: <b>${perc}%</b></p>
       <p>Parcela estimada mensal: <b>${moeda(parcela)}</b></p>
       <span class="obs">Valor aproximado para fins de simulação. Pode variar conforme TR mensal e políticas do banco.</span>
-    `;
+    `
 
-    out.style.display="block";
-    btnBox.style.display="block";
+    out.style.display="block"
+    btnBox.style.display="block"
   }
 
   function limparJuros(){
-    document.getElementById("resultadoJuros").style.display="none";
-    document.getElementById("resultadoJuros").innerHTML="";
-    document.getElementById("limparJurosBox").style.display="none";
+    document.getElementById("resultadoJuros").style.display="none"
+    document.getElementById("resultadoJuros").innerHTML=""
+    document.getElementById("limparJurosBox").style.display="none"
+  }
+
+  // ===== PDF (NOVO) =====
+  // preencher data automática do PDF (na UI)
+  (function(){
+    const el = document.getElementById("pdfDataDoc")
+    if(el){
+      el.textContent = new Date().toLocaleDateString("pt-BR")
+    }
+  })()
+
+  async function gerarPDF(){
+    if(!window.jspdf || !window.jspdf.jsPDF){
+      alert("Biblioteca do PDF não carregou. Verifique sua conexão com a internet (jsPDF).")
+      return
+    }
+
+    const { jsPDF } = window.jspdf
+    const doc = new jsPDF({ unit: "mm", format: "a4" })
+
+    const hoje = new Date()
+    const dataDoc = hoje.toLocaleDateString("pt-BR")
+
+    const empreendimento = (document.getElementById("pdfEmpreendimento")?.value || "").trim() || "-"
+    const corretor = (document.getElementById("pdfCorretor")?.value || "").trim() || "-"
+    const incluirINCC = !!document.getElementById("pdfChkINCC")?.checked
+    const incluirTabelaJuros = !!document.getElementById("pdfChkJurosTabela")?.checked
+
+    const unidade = (document.getElementById("unidade")?.value || "").trim() || "-"
+    const valorImovelTxt = document.getElementById("valorImovel")?.value || "-"
+    const valorFinTxt = document.getElementById("valorFinanciamento")?.value || "-"
+    const fgtsTxt = document.getElementById("fgts")?.value || "R$ 0,00"
+    const atoTxt = document.getElementById("ato")?.value || "R$ 0,00"
+    const rendaTxt = document.getElementById("renda")?.value || "R$ 0,00"
+    const parcelasTxt = document.getElementById("parcelasEntrada")?.value || "-"
+    const entregaTxt = document.getElementById("entregaSelect")?.value || "-"
+
+    const writeWrap = (text, x, y, maxW, lineH) => {
+      const lines = doc.splitTextToSize(text, maxW)
+      doc.text(lines, x, y)
+      return y + (lines.length * lineH)
+    }
+
+    let y = 14
+    const left = 14
+    const right = 196
+    const maxW = right - left
+
+    // Título
+    doc.setFont("helvetica","bold")
+    doc.setFontSize(14)
+    doc.text("SIMULAÇÃO FINANCEIRA – IMÓVEL NA PLANTA", 105, y, { align:"center" })
+    y += 7
+
+    doc.setDrawColor(200)
+    doc.line(left, y, right, y)
+    y += 6
+
+    // Cabeçalho
+    doc.setFont("helvetica","bold")
+    doc.setFontSize(11)
+    doc.text("Cabeçalho", left, y)
+    y += 6
+
+    doc.setFont("helvetica","normal")
+    doc.setFontSize(10)
+    y = writeWrap(`Empreendimento: ${empreendimento}`, left, y, maxW, 5)
+    y = writeWrap(`Unidade/Bloco/Andar: ${unidade}`, left, y, maxW, 5)
+    y = writeWrap(`Corretor: ${corretor}`, left, y, maxW, 5)
+    y = writeWrap(`Data do documento: ${dataDoc}`, left, y, maxW, 5)
+    y += 2
+
+    doc.setDrawColor(220)
+    doc.line(left, y, right, y)
+    y += 6
+
+    // Resumo financeiro
+    doc.setFont("helvetica","bold")
+    doc.setFontSize(11)
+    doc.text("Resumo Financeiro", left, y)
+    y += 6
+
+    doc.setFont("helvetica","normal")
+    doc.setFontSize(10)
+    y = writeWrap(`Valor do imóvel: ${valorImovelTxt}`, left, y, maxW, 5)
+    y = writeWrap(`Valor do financiamento: ${valorFinTxt}`, left, y, maxW, 5)
+    y = writeWrap(`FGTS considerado: ${fgtsTxt}`, left, y, maxW, 5)
+    y = writeWrap(`Ato: ${atoTxt}`, left, y, maxW, 5)
+    y = writeWrap(`Renda familiar: ${rendaTxt}`, left, y, maxW, 5)
+    y = writeWrap(`Meses/Parcelas: ${parcelasTxt}`, left, y, maxW, 5)
+    y = writeWrap(`Previsão de entrega: ${entregaTxt}`, left, y, maxW, 5)
+
+    y += 2
+    doc.setDrawColor(220)
+    doc.line(left, y, right, y)
+    y += 6
+
+    // Fluxo Entrada
+    doc.setFont("helvetica","bold")
+    doc.setFontSize(11)
+    doc.text("Fluxo de Pagamento – Entrada", left, y)
+    y += 6
+
+    doc.setFont("helvetica","normal")
+    doc.setFontSize(10)
+
+    const entradaCalc = window.__lastEntradaCalc
+    if(!entradaCalc){
+      y = writeWrap("Fluxo não calculado no simulador. Gere o cálculo de entrada antes de gerar o PDF.", left, y, maxW, 5)
+    } else {
+      y = writeWrap(`Entrada total: ${moeda(entradaCalc.entradaTotal)}`, left, y, maxW, 5)
+      y = writeWrap(`Ato: ${moeda(entradaCalc.ato)}`, left, y, maxW, 5)
+
+      if(entradaCalc.interVals && entradaCalc.interVals.length){
+        const iguais = entradaCalc.interVals.every(v=>v===entradaCalc.interVals[0])
+        const interTxt = iguais
+          ? `${entradaCalc.interVals.length}x ${moeda(entradaCalc.interVals[0])}`
+          : entradaCalc.interVals.map(v=>moeda(v)).join(" | ")
+        y = writeWrap(`Intermediárias (${entradaCalc.interVals.length}): ${interTxt}`, left, y, maxW, 5)
+      } else {
+        y = writeWrap("Intermediárias: não consideradas", left, y, maxW, 5)
+      }
+
+      y = writeWrap(`Mensais (${entradaCalc.parcelas}x): ${moeda(entradaCalc.mensal)}`, left, y, maxW, 5)
+
+      if(entradaCalc.posAtivo && entradaCalc.posParcela && entradaCalc.parcelasPos){
+        y = writeWrap(`Pós-chaves (${entradaCalc.parcelasPos}x): ${moeda(entradaCalc.posParcela)}`, left, y, maxW, 5)
+      }
+
+      if(entradaCalc.alerta){
+        y += 2
+        doc.setTextColor(180,0,0)
+        y = writeWrap(`Atenção: ${entradaCalc.alerta}`, left, y, maxW, 5)
+        doc.setTextColor(0,0,0)
+      }
+    }
+
+    // INCC
+    if(incluirINCC){
+      if(y > 250){ doc.addPage(); y = 14 }
+      y += 2
+      doc.setDrawColor(220)
+      doc.line(left, y, right, y)
+      y += 6
+
+      doc.setFont("helvetica","bold")
+      doc.setFontSize(11)
+      doc.text("Estimativa de INCC", left, y)
+      y += 6
+
+      doc.setFont("helvetica","normal")
+      doc.setFontSize(10)
+
+      const taxa = 0.005 // 0,5% ao mês
+      if(entradaCalc){
+        y = writeWrap("Base utilizada: média mensal estimada de 0,5% (para simulação).", left, y, maxW, 5)
+
+        const mesesMensais = Math.max(0, (entradaCalc.parcelas || 0) - 1)
+        const projMensal = entradaCalc.mensal * Math.pow(1+taxa, mesesMensais)
+        y = writeWrap(`Última parcela mensal estimada (com INCC): ${moeda(projMensal)}`, left, y, maxW, 5)
+
+        if(entradaCalc.interMeta && entradaCalc.interMeta.length){
+          y = writeWrap("Intermediárias estimadas (com INCC):", left, y, maxW, 5)
+          entradaCalc.interMeta.forEach((it, i) => {
+            const proj = it.valorBase * Math.pow(1+taxa, it.mesesAte)
+            y = writeWrap(`- ${i+1}ª intermediária (${it.data}): ${moeda(proj)}`, left, y, maxW, 5)
+          })
+        } else {
+          y = writeWrap("Intermediárias estimadas (com INCC): não aplicável", left, y, maxW, 5)
+        }
+
+        if(entradaCalc.posAtivo && entradaCalc.posParcela){
+          const mesesPos = entradaCalc.mesesAteEntrega ?? 0
+          const projPos = entradaCalc.posParcela * Math.pow(1+taxa, mesesPos)
+          y = writeWrap(`1ª parcela pós-chaves estimada (com INCC): ${moeda(projPos)}`, left, y, maxW, 5)
+        }
+      } else {
+        y = writeWrap("Gere o cálculo de entrada antes para aplicar a estimativa de INCC no PDF.", left, y, maxW, 5)
+      }
+    }
+
+    // Tabela Juros de Obra
+    if(incluirTabelaJuros){
+      if(y > 240){ doc.addPage(); y = 14 }
+      y += 2
+      doc.setDrawColor(220)
+      doc.line(left, y, right, y)
+      y += 6
+
+      doc.setFont("helvetica","bold")
+      doc.setFontSize(11)
+      doc.text("Juros de Obra – Tabela (10% em 10%)", left, y)
+      y += 6
+
+      doc.setFont("helvetica","normal")
+      doc.setFontSize(10)
+
+      const fin = limparMoeda(document.getElementById("valorFinanciamento")?.value)
+      const jurosAnual = parseFloat(document.getElementById("jurosAnual")?.value)||0
+      const tr = parseFloat(document.getElementById("tr")?.value)||0.17
+      const taxas = limparMoeda(document.getElementById("taxas")?.value) || 65
+
+      y = writeWrap(`Base: TR(%) ${tr} | Taxas/Seguros ${moeda(taxas)} | Juros anual(%) ${jurosAnual || "(não informado)"}`, left, y, maxW, 5)
+
+      if(!fin || !jurosAnual){
+        y = writeWrap("Para montar a tabela, preencha o Valor do Financiamento (no cabeçalho) e a Taxa de Juros Anual no módulo de Juros de Obra.", left, y, maxW, 5)
+      } else {
+        const jurosMensal = (jurosAnual/100)/12
+        const trMensal = (tr/100)
+
+        const colsX = [left, left+60]
+        doc.setFont("helvetica","bold")
+        doc.text("% da Obra", colsX[0], y)
+        doc.text("Parcela Estimada", colsX[1], y)
+        y += 6
+        doc.setFont("helvetica","normal")
+
+        for(let perc=10; perc<=100; perc+=10){
+          const liberado = fin * (perc/100)
+          const parcela = (liberado*jurosMensal) + (liberado*trMensal) + taxas
+          doc.text(`${perc}%`, colsX[0], y)
+          doc.text(`${moeda(parcela)}`, colsX[1], y)
+          y += 5
+          if(y > 280){
+            doc.addPage(); y = 14
+          }
+        }
+      }
+    }
+
+    // Observações (sempre)
+    if(y > 245){ doc.addPage(); y = 14 }
+    y += 2
+    doc.setDrawColor(220)
+    doc.line(left, y, right, y)
+    y += 6
+
+    doc.setFont("helvetica","bold")
+    doc.setFontSize(11)
+    doc.text("Observações", left, y)
+    y += 6
+
+    doc.setFont("helvetica","normal")
+    doc.setFontSize(10)
+    y = writeWrap(
+      "Os valores apresentados neste documento são estimativas para fins de simulação. Podem sofrer variações conforme evolução da obra, índices oficiais (INCC/TR), políticas do banco e condições contratuais da construtora. Este material não substitui propostas ou contratos oficiais.",
+      left, y, maxW, 5
+    )
+
+    doc.save("simulacao-imobiliaria.pdf")
   }
 </script>
 
