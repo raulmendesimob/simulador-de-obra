@@ -87,6 +87,8 @@
   }
   .header-entrada{background:#0b6e3b}
   .header-juros{background:#d97706}
+  .header-pdf{background:#2563eb} /* AZUL */
+
   .toggle-icon{
     background:rgba(255,255,255,.2);
     border-radius:6px;
@@ -131,6 +133,8 @@
   }
   .btn-entrada{background:#0b6e3b}
   .btn-juros{background:#d97706}
+  .btn-pdf{background:#2563eb} /* AZUL */
+
   .btn-limpar{
     background:#c62828;
     width:auto;
@@ -138,12 +142,14 @@
     font-size:13px;
     border-radius:8px;
   }
+
+  /* ✅ CORREÇÃO: NÃO deixar o box aparecer sempre
+     (antes tinha display:none + display:flex; o flex vencia sempre) */
   .box-limpar{
-  display:none;
-  margin-top:14px;
-  display:flex;
-  justify-content:center;
-}
+    display:none;           /* fica oculto até o cálculo */
+    margin-top:14px;
+    justify-content:center; /* centraliza quando virar flex via JS */
+  }
 
   /* ===== RESULTADOS ===== */
   .resultado{
@@ -169,6 +175,29 @@
   }
   @media(min-width:768px){
     .inter-row{grid-template-columns:1fr 1fr}
+  }
+
+  /* ===== CHECKBOX PADRÃO (PDF) ===== */
+  .check-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-weight:600;
+    cursor:pointer;
+    user-select:none;
+  }
+  .check-row input{
+    width:18px;
+    height:18px;
+    margin:0;
+    accent-color:#2563eb;
+  }
+  .check-hint{
+    display:block;
+    font-weight:normal;
+    opacity:.75;
+    font-size:12px;
+    margin-top:2px;
   }
 </style>
 </head>
@@ -337,14 +366,14 @@
     <button class="btn-limpar" onclick="limparJuros()">Limpar juros de obra</button>
   </div>
 
-  <!-- ===== GERAR PDF (NOVO) ===== -->
+  <!-- ===== GERAR PDF ===== -->
   <div class="bloco">
-    <div class="bloco-header header-entrada">
+    <div class="bloco-header header-pdf" onclick="toggleBloco(this)">
       <span>📄 Gerar PDF</span>
-      <span class="toggle-icon"> </span>
+      <span class="toggle-icon">+</span>
     </div>
 
-    <div class="bloco-conteudo" style="display:block;">
+    <div class="bloco-conteudo">
       <div class="subgrid">
         <div class="campo span2">
           <label>Empreendimento</label>
@@ -357,16 +386,22 @@
         </div>
 
         <div class="campo span2">
-          <label style="display:flex;gap:10px;align-items:center;font-weight:600;">
+          <label class="check-row" for="pdfChkINCC">
             <input type="checkbox" id="pdfChkINCC">
-            Incluir estimativa de INCC (0,5% ao mês)
+            <span>
+              Incluir estimativa de INCC
+              <span class="check-hint">(0,5% ao mês)</span>
+            </span>
           </label>
         </div>
 
         <div class="campo span2">
-          <label style="display:flex;gap:10px;align-items:center;font-weight:600;">
+          <label class="check-row" for="pdfChkJurosTabela">
             <input type="checkbox" id="pdfChkJurosTabela">
-            Exibir tabela de Juros de Obra (10% em 10%)
+            <span>
+              Exibir tabela de Juros de Obra
+              <span class="check-hint">(10% em 10%)</span>
+            </span>
           </label>
         </div>
 
@@ -375,7 +410,7 @@
         </div>
       </div>
 
-      <button class="btn-entrada" onclick="gerarPDF()">Gerar PDF da Simulação</button>
+      <button class="btn-pdf" onclick="gerarPDF()">Gerar PDF da Simulação</button>
     </div>
   </div>
 
@@ -435,7 +470,6 @@
       boxRows.style.display="block"
       renderInterRows()
     } else {
-      // se não tem intermediárias: esconder e zerar inputs
       boxQtd.style.display="none"
       boxRows.style.display="none"
       document.getElementById("interList").innerHTML=""
@@ -500,7 +534,7 @@
 
     // Intermediárias
     const interVals = []
-    const interMeta = [] // para PDF/INCC (data, mesesAte, valorBase)
+    const interMeta = []
     const temInter = document.getElementById("temInter").value === "sim"
     if(temInter){
       const rows = document.querySelectorAll("#interList .inter-row")
@@ -510,7 +544,7 @@
         const data = sel ? sel.value : "-"
         const mesesAte = sel ? sel.selectedIndex : 0
         const v = limparMoeda(inp ? inp.value : "")
-        const valorBase = (v>0 ? v : re) // se vazio, usa 100% da renda
+        const valorBase = (v>0 ? v : re)
         interVals.push(valorBase)
         interMeta.push({ data, mesesAte, valorBase })
       })
@@ -567,7 +601,6 @@
     const mesesAteEntrega = (document.getElementById("entregaSelect") ? document.getElementById("entregaSelect").selectedIndex : 0)
     const parcelasPosVal = parseInt(document.getElementById("parcelasPos").value)||0
 
-    // tenta capturar parcela pós-chaves caso tenha sido calculada
     let posParcelaVal = null
     if(posTexto && posTexto.includes("Pós-chaves") && parcelasPosVal>0){
       const mPos = posTexto.match(/<b>(R\$[^<]+)<\/b>/)
@@ -576,7 +609,6 @@
       }
     }
 
-    // alerta sem HTML
     let alertaTextoPlano = ""
     if(alertTexto){
       alertaTextoPlano = alertTexto.replace(/<[^>]*>/g,"").replace(/\s+/g," ").trim()
@@ -626,7 +658,6 @@
     const tr = parseFloat(document.getElementById("tr").value)||0
     const taxas = limparMoeda(document.getElementById("taxas").value)
 
-    // salvar parâmetros (para PDF)
     window.__lastJurosInputs = {
       financiamento: financiamento,
       jurosAnual: jurosAnual,
@@ -664,8 +695,7 @@
     document.getElementById("limparJurosBox").style.display="none"
   }
 
-  // ===== PDF (NOVO) =====
-  // preencher data automática do PDF (na UI)
+  // ===== PDF =====
   (function(){
     const el = document.getElementById("pdfDataDoc")
     if(el){
@@ -710,7 +740,6 @@
     const right = 196
     const maxW = right - left
 
-    // Título
     doc.setFont("helvetica","bold")
     doc.setFontSize(14)
     doc.text("SIMULAÇÃO FINANCEIRA – IMÓVEL NA PLANTA", 105, y, { align:"center" })
@@ -720,7 +749,6 @@
     doc.line(left, y, right, y)
     y += 6
 
-    // Cabeçalho
     doc.setFont("helvetica","bold")
     doc.setFontSize(11)
     doc.text("Cabeçalho", left, y)
@@ -738,7 +766,6 @@
     doc.line(left, y, right, y)
     y += 6
 
-    // Resumo financeiro
     doc.setFont("helvetica","bold")
     doc.setFontSize(11)
     doc.text("Resumo Financeiro", left, y)
@@ -759,7 +786,6 @@
     doc.line(left, y, right, y)
     y += 6
 
-    // Fluxo Entrada
     doc.setFont("helvetica","bold")
     doc.setFontSize(11)
     doc.text("Fluxo de Pagamento – Entrada", left, y)
@@ -799,7 +825,6 @@
       }
     }
 
-    // INCC
     if(incluirINCC){
       if(y > 250){ doc.addPage(); y = 14 }
       y += 2
@@ -815,7 +840,7 @@
       doc.setFont("helvetica","normal")
       doc.setFontSize(10)
 
-      const taxa = 0.005 // 0,5% ao mês
+      const taxa = 0.005
       if(entradaCalc){
         y = writeWrap("Base utilizada: média mensal estimada de 0,5% (para simulação).", left, y, maxW, 5)
 
@@ -843,7 +868,6 @@
       }
     }
 
-    // Tabela Juros de Obra
     if(incluirTabelaJuros){
       if(y > 240){ doc.addPage(); y = 14 }
       y += 2
@@ -892,7 +916,6 @@
       }
     }
 
-    // Observações (sempre)
     if(y > 245){ doc.addPage(); y = 14 }
     y += 2
     doc.setDrawColor(220)
@@ -913,6 +936,14 @@
 
     doc.save("simulacao-imobiliaria.pdf")
   }
+
+  // ✅ garantir que botões de limpar iniciem escondidos
+  (function(){
+    const a = document.getElementById("limparEntradaBox")
+    const j = document.getElementById("limparJurosBox")
+    if(a) a.style.display = "none"
+    if(j) j.style.display = "none"
+  })()
 </script>
 
 </body>
