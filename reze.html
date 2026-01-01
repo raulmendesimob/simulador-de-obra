@@ -127,9 +127,11 @@
       background: #f2f6fb;
       border-color: #dbe6f7;
     }
+
+    /* 🔥 AJUSTE: amarelo mais claro (inputs de Juros / blocos de PDF) */
     .box-claro.amarelo {
-      background: #fff7da;
-      border-color: #f0dc8a;
+      background: #fffbe8;    /* mais claro */
+      border-color: #f3e7b3;  /* mais suave */
     }
 
     /* ===== BOTÕES ===== */
@@ -152,6 +154,16 @@
       margin-top: 14px;
       text-transform: uppercase;
       letter-spacing: .4px;
+    }
+
+    /* 🔥 AJUSTE: botões menores no PC (50% e centralizado) */
+    @media (min-width: 768px) {
+      button {
+        width: 50%;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+      }
     }
 
     /* ===== RESULTADOS ===== */
@@ -266,12 +278,14 @@
       margin-left: 6px;
     }
 
+    /* 🔥 AJUSTE: observações do PDF mais “bonitas” */
     .helpbox {
       margin-top: 10px;
       font-style: italic;
-      font-size: 13px;
-      line-height: 1.35;
+      font-size: 12px;
+      line-height: 1.4;
       color: #222;
+      opacity: .9;
     }
     .helpbox a { color: #2563eb; text-decoration: none; }
     .helpbox a:hover { text-decoration: underline; }
@@ -449,6 +463,7 @@
 
         <div class="divider"></div>
 
+        <!-- 🔥 amarelo claro (inputs) -->
         <div class="box-claro amarelo">
           <div class="subgrid">
             <div class="campo">
@@ -513,43 +528,48 @@
             <input id="pdfCorretorFone" inputmode="tel" oninput="formatarTelefone(this)" />
           </div>
 
-          <!-- INCC inline -->
+          <!-- ✅ INCC dentro de bloco verde clarinho -->
           <div class="campo span2">
-            <div class="linha-flex">
-              <div class="campo">
-                <label>📈 Incluir estimativa de INCC?</label>
-                <select id="pdfINCC" onchange="toggleINCC()">
-                  <option value="nao">Não</option>
-                  <option value="sim">Sim</option>
-                </select>
+            <div class="box-claro">
+              <div class="linha-flex">
+                <div class="campo">
+                  <label>📈 Incluir estimativa de INCC?</label>
+                  <select id="pdfINCC" onchange="toggleINCC()">
+                    <option value="nao">Não</option>
+                    <option value="sim">Sim</option>
+                  </select>
+                </div>
+
+                <div class="campo" id="boxINCCValor" style="display:none;">
+                  <label>📌 INCC (média mensal) %</label>
+                  <input id="inccValor" value="0,5" inputmode="decimal" />
+                </div>
               </div>
 
-              <div class="campo" id="boxINCCValor" style="display:none;">
-                <label>📌 INCC (média mensal) %</label>
-                <input id="inccValor" value="0,5" inputmode="decimal" />
+              <div class="helpbox">
+                📌 INCC atualizado disponível em:
+                <a href="https://portal.fgv.br/noticias/incc-m-2025" target="_blank" rel="noopener noreferrer">
+                  https://portal.fgv.br/noticias/incc-m-2025
+                </a>
               </div>
-            </div>
-
-            <div class="helpbox">
-              📌 INCC atualizado disponível em:
-              <a href="https://portal.fgv.br/noticias/incc-m-2025" target="_blank" rel="noopener noreferrer">
-                portal.fgv.br/noticias/incc-m-2025
-              </a>
             </div>
           </div>
 
+          <!-- ✅ JUROS dentro de bloco amarelo claro -->
           <div class="campo span2">
-            <label>🏗️ Incluir Estimativa de Juros de Obra?</label>
-            <select id="pdfJuros">
-              <option value="nao">Não</option>
-              <option value="sim">Sim</option>
-            </select>
+            <div class="box-claro amarelo">
+              <label>🏗️ Incluir Estimativa de Juros de Obra?</label>
+              <select id="pdfJuros">
+                <option value="nao">Não</option>
+                <option value="sim">Sim</option>
+              </select>
 
-            <div class="helpbox">
-              📌 TR atualizada disponível em:
-              <a href="https://www.debit.com.br/tabelas/tr-bacen" target="_blank" rel="noopener noreferrer">
-                debit.com.br/tabelas/tr-bacen
-              </a>
+              <div class="helpbox">
+                📌 TR atualizada disponível em:
+                <a href="https://www.debit.com.br/tabelas/tr-bacen" target="_blank" rel="noopener noreferrer">
+                  https://www.debit.com.br/tabelas/tr-bacen
+                </a>
+              </div>
             </div>
           </div>
         </div>
@@ -862,7 +882,7 @@
           : ``;
 
         setResultadoEntrada("verde",
-          `<h3>✅ Entrada dentro dos limites</h3>
+          `<h3>✅ Fluxo de Entrada no Período de Obras</h3>
            <p>📅 Previsão de entrega: <b>${entregaTxt}</b></p>
            <p><b>Entrada Total:</b> ${moeda(entrada)}</p>
            <div class="divider"></div>
@@ -905,9 +925,8 @@
           interVals, interMeta, saldoRestante: 0, status: "verde"
         };
 
-        // Aqui você pediu: “deixar apenas informações” — mantém só infos.
         setResultadoEntrada("verde",
-          `<h3>✅ Entrada dentro dos limites</h3>
+          `<h3>✅ Fluxo de Entrada no Período de Obras</h3>
            ${baseHTML}
            <button class="btn-limpar" onclick="limparEntrada()">LIMPAR FLUXO DE ENTRADA</button>`
         );
@@ -1058,7 +1077,6 @@
         </div>
       `;
 
-      // Observações: itálico + links azuis clicáveis em bloco claro
       const obs = `
         <div class="box-claro amarelo obs">
           * Valores aproximados para fins de simulação e entendimento.<br>
@@ -1251,6 +1269,7 @@
         y = writeWrap(doc, "INCC atualizado disponível em: portal.fgv.br/noticias/incc-m-2025", left, y, maxW, 5);
       }
 
+      const incluirJuros = (document.getElementById("pdfJuros").value === "sim");
       if(incluirJuros){
         if(y > 240){ doc.addPage(); y = 14; }
         y += 2;
