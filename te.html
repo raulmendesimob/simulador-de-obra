@@ -1,1263 +1,145 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Simulador Imobiliário - SFH/SBPE</title>
-  
-  <!-- jsPDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    :root {
-      --primary: #1e40af;
-      --primary-dark: #1e3a8a;
-      --primary-light: #3b82f6;
-      --secondary: #10b981;
-      --danger: #ef4444;
-      --warning: #f59e0b;
-      --bg-main: #f8fafc;
-      --bg-card: #ffffff;
-      --text-primary: #1e293b;
-      --text-secondary: #64748b;
-      --border: #e2e8f0;
-      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-    }
-
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      color: var(--text-primary);
-      padding: 20px 0;
-    }
-
-    .hero-header {
-      background: linear-gradient(135deg, rgba(30, 64, 175, 0.95), rgba(99, 102, 241, 0.95));
-      padding: 40px 20px;
-      text-align: center;
-      box-shadow: var(--shadow-lg);
-      margin-bottom: 30px;
-    }
-
-    .hero-header h1 {
-      color: white;
-      font-size: clamp(24px, 5vw, 36px);
-      font-weight: 700;
-      margin-bottom: 12px;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-    }
-
-    .hero-header p {
-      color: rgba(255, 255, 255, 0.9);
-      font-size: clamp(14px, 3vw, 16px);
-      max-width: 700px;
-      margin: 0 auto;
-      line-height: 1.6;
-    }
-
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 0 20px;
-    }
-
-    .main-form {
-      background: var(--bg-card);
-      border-radius: 20px;
-      padding: 30px;
-      box-shadow: var(--shadow-lg);
-      margin-bottom: 24px;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 20px;
-    }
-
-    @media (min-width: 768px) {
-      .form-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .form-full {
-        grid-column: 1 / -1;
-      }
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .form-group label {
-      font-weight: 600;
-      margin-bottom: 8px;
-      color: var(--text-primary);
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .form-group input,
-    .form-group select {
-      width: 100%;
-      padding: 12px 16px;
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      font-size: 15px;
-      transition: all 0.3s ease;
-      background: white;
-    }
-
-    .form-group input:focus,
-    .form-group select:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
-    }
-
-    .card {
-      background: var(--bg-card);
-      border-radius: 16px;
-      overflow: hidden;
-      margin-bottom: 20px;
-      box-shadow: var(--shadow);
-      transition: all 0.3s ease;
-    }
-
-    .card:hover {
-      box-shadow: var(--shadow-lg);
-    }
-
-    .card-header {
-      padding: 20px 24px;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-      color: white;
-      transition: all 0.3s ease;
-    }
-
-    .card-header:hover {
-      background: linear-gradient(135deg, var(--primary), var(--primary-light));
-    }
-
-    .card-header h3 {
-      font-size: 18px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .toggle-icon {
-      background: rgba(255, 255, 255, 0.2);
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      font-weight: bold;
-      transition: all 0.3s ease;
-    }
-
-    .card-header:hover .toggle-icon {
-      background: rgba(255, 255, 255, 0.3);
-      transform: scale(1.1);
-    }
-
-    .card-body {
-      padding: 24px;
-      display: none;
-    }
-
-    .card-body.active {
-      display: block;
-      animation: slideDown 0.3s ease;
-    }
-
-    @keyframes slideDown {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .info-box {
-      padding: 16px;
-      border-radius: 12px;
-      margin: 16px 0;
-      border: 2px solid;
-    }
-
-    .info-box.blue {
-      background: #eff6ff;
-      border-color: #93c5fd;
-    }
-
-    .info-box.yellow {
-      background: #fefce8;
-      border-color: #fde047;
-    }
-
-    .info-box.green {
-      background: #f0fdf4;
-      border-color: #86efac;
-    }
-
-    .divider {
-      height: 1px;
-      background: var(--border);
-      margin: 24px 0;
-    }
-
-    .btn {
-      padding: 14px 28px;
-      border: none;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      box-shadow: var(--shadow);
-    }
-
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-lg);
-    }
-
-    .btn:active {
-      transform: translateY(0);
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-      color: white;
-    }
-
-    .btn-secondary {
-      background: linear-gradient(135deg, #2563eb, #3b82f6);
-      color: white;
-    }
-
-    .btn-danger {
-      background: linear-gradient(135deg, #dc2626, #ef4444);
-      color: white;
-      margin-top: 16px;
-    }
-
-    .btn-full {
-      width: 100%;
-    }
-
-    @media (min-width: 768px) {
-      .btn-center {
-        display: block;
-        margin: 20px auto 0;
-        width: auto;
-        min-width: 250px;
-      }
-    }
-
-    .result {
-      padding: 24px;
-      border-radius: 16px;
-      margin: 20px 0;
-      display: none;
-      border: 2px solid;
-      animation: fadeIn 0.5s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .result.show { display: block; }
-
-    .result.success {
-      background: linear-gradient(135deg, #f0fdf4, #dcfce7);
-      border-color: #22c55e;
-    }
-
-    .result.warning {
-      background: linear-gradient(135deg, #fefce8, #fef9c3);
-      border-color: #eab308;
-    }
-
-    .result.error {
-      background: linear-gradient(135deg, #fef2f2, #fee2e2);
-      border-color: #ef4444;
-    }
-
-    .result h3 {
-      font-size: 20px;
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .result p {
-      margin: 10px 0;
-      line-height: 1.6;
-    }
-
-    .result strong {
-      color: var(--primary-dark);
-    }
-
-    .alert-text {
-      color: #dc2626;
-      font-weight: 700;
-    }
-
-    .note {
-      font-size: 13px;
-      font-style: italic;
-      color: var(--text-secondary);
-      margin-top: 12px;
-      line-height: 1.5;
-    }
-
-    .inter-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-top: 16px;
-    }
-
-    .inter-item {
-      background: #f8fafc;
-      padding: 16px;
-      border-radius: 12px;
-      border: 2px solid var(--border);
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-    }
-
-    @media (min-width: 768px) {
-      .inter-item {
-        grid-template-columns: 1fr 1fr;
-      }
-    }
-
-    .link-small {
-      font-size: 12px;
-      color: var(--primary);
-      margin-top: 8px;
-      word-break: break-word;
-    }
-
-    .link-small a {
-      color: var(--primary);
-      text-decoration: underline;
-    }
-
-    .link-small a:hover {
-      color: var(--primary-light);
-    }
-
-    footer {
-      text-align: center;
-      padding: 30px 20px;
-      color: white;
-      font-size: 14px;
-      margin-top: 40px;
-    }
-
-    footer a {
-      color: white;
-      text-decoration: underline;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Simulador Imobiliário SFH/SBPE</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;color:#1e293b;padding:20px 0}
+.hero{background:linear-gradient(135deg,rgba(30,64,175,.95),rgba(99,102,241,.95));padding:40px 20px;text-align:center;box-shadow:0 10px 15px -3px rgba(0,0,0,.1);margin-bottom:30px}
+.hero h1{color:#fff;font-size:clamp(24px,5vw,36px);font-weight:700;margin-bottom:12px;text-shadow:2px 2px 4px rgba(0,0,0,.2)}
+.hero p{color:rgba(255,255,255,.9);font-size:clamp(14px,3vw,16px);max-width:700px;margin:0 auto;line-height:1.6}
+.container{max-width:1100px;margin:0 auto;padding:0 20px}
+.form{background:#fff;border-radius:20px;padding:30px;box-shadow:0 10px 15px -3px rgba(0,0,0,.1);margin-bottom:24px}
+.grid{display:grid;grid-template-columns:1fr;gap:20px}
+@media(min-width:768px){.grid{grid-template-columns:repeat(2,1fr)}.full{grid-column:1/-1}}
+.field{display:flex;flex-direction:column}
+.field label{font-weight:600;margin-bottom:8px;font-size:14px}
+.field input,.field select{width:100%;padding:12px 16px;border:2px solid #e2e8f0;border-radius:12px;font-size:15px;transition:.3s;background:#fff}
+.field input:focus,.field select:focus{outline:0;border-color:#1e40af;box-shadow:0 0 0 3px rgba(30,64,175,.1)}
+.card{background:#fff;border-radius:16px;overflow:hidden;margin-bottom:20px;box-shadow:0 4px 6px -1px rgba(0,0,0,.1)}
+.card-header{padding:20px 24px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,#1e3a8a,#1e40af);color:#fff;transition:.3s}
+.card-header:hover{background:linear-gradient(135deg,#1e40af,#3b82f6)}
+.card-header h3{font-size:18px;font-weight:700}
+.toggle{background:rgba(255,255,255,.2);width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700}
+.card-body{padding:24px;display:none}
+.card-body.active{display:block;animation:slide .3s}
+@keyframes slide{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.info{padding:16px;border-radius:12px;margin:16px 0;border:2px solid}
+.blue{background:#eff6ff;border-color:#93c5fd}
+.yellow{background:#fefce8;border-color:#fde047}
+.green{background:#f0fdf4;border-color:#86efac}
+.divider{height:1px;background:#e2e8f0;margin:24px 0}
+.btn{padding:14px 28px;border:0;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;transition:.3s;text-transform:uppercase;letter-spacing:.5px;box-shadow:0 4px 6px -1px rgba(0,0,0,.1);width:100%}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 15px -3px rgba(0,0,0,.1)}
+.btn-primary{background:linear-gradient(135deg,#1e3a8a,#1e40af);color:#fff}
+.btn-secondary{background:linear-gradient(135deg,#2563eb,#3b82f6);color:#fff}
+.btn-danger{background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff;margin-top:16px}
+@media(min-width:768px){.btn{width:auto;min-width:250px;display:block;margin:20px auto 0}}
+.result{padding:24px;border-radius:16px;margin:20px 0;display:none;border:2px solid;animation:fade .5s}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.result.show{display:block}
+.success{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-color:#22c55e}
+.warning{background:linear-gradient(135deg,#fefce8,#fef9c3);border-color:#eab308}
+.error{background:linear-gradient(135deg,#fef2f2,#fee2e2);border-color:#ef4444}
+.result h3{font-size:20px;margin-bottom:16px}
+.result p{margin:10px 0;line-height:1.6}
+.alert{color:#dc2626;font-weight:700}
+.note{font-size:13px;font-style:italic;color:#64748b;margin-top:12px;line-height:1.5}
+.inter-list{display:flex;flex-direction:column;gap:12px;margin-top:16px}
+.inter-item{background:#f8fafc;padding:16px;border-radius:12px;border:2px solid #e2e8f0;display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:768px){.inter-item{grid-template-columns:1fr 1fr}}
+.small-link{font-size:12px;color:#1e40af;margin-top:8px}
+.small-link a{color:#1e40af;text-decoration:underline}
+footer{text-align:center;padding:30px 20px;color:#fff;font-size:14px;margin-top:40px}
+</style>
 </head>
-
 <body>
-  <!-- Header -->
-  <div class="hero-header">
-    <h1>🏡 Simulador Imobiliário - SFH/SBPE</h1>
-    <p>
-      Financiamento contratado <strong>após a conclusão</strong> do empreendimento (Pós-Obra).<br>
-      Calcule sua entrada e gere um relatório completo em PDF.
-    </p>
-  </div>
-
-  <div class="container">
-    <!-- Formulário Principal -->
-    <div class="main-form">
-      <div class="form-grid">
-        <div class="form-group">
-          <label>🏢 Empreendimento</label>
-          <input type="text" id="empreendimento" placeholder="Nome do empreendimento">
-        </div>
-
-        <div class="form-group">
-          <label>🏠 Unidade / Bloco / Andar</label>
-          <input type="text" id="unidade" placeholder="Ex: Apto 101, Bloco A">
-        </div>
-
-        <div class="form-group">
-          <label>💰 Valor do Imóvel (R$)</label>
-          <input type="text" id="valorImovel" oninput="formatarMoeda(this)" placeholder="R$ 0,00">
-        </div>
-
-        <div class="form-group">
-          <label>🏦 Valor Previsto para Financiamento (R$)</label>
-          <input type="text" id="valorFinanciamento" oninput="formatarMoeda(this)" placeholder="R$ 0,00">
-        </div>
-
-        <div class="form-group">
-          <label>👨‍👩‍👧‍👦 Renda Familiar Mensal (R$)</label>
-          <input type="text" id="renda" oninput="formatarMoeda(this)" placeholder="R$ 0,00">
-        </div>
-
-        <div class="form-group form-full">
-          <label>📅 Previsão de Entrega (mês/ano)</label>
-          <select id="entregaSelect"></select>
-        </div>
-      </div>
-    </div>
-
-    <!-- Card: Entrada -->
-    <div class="card">
-      <div class="card-header" onclick="toggleCard(this)">
-        <h3>💰 Entrada / Fluxo Inicial</h3>
-        <span class="toggle-icon">+</span>
-      </div>
-      <div class="card-body">
-        <div class="form-grid">
-          <div class="form-group">
-            <label>💸 Valor do Ato (R$)</label>
-            <input type="text" id="ato" oninput="formatarMoeda(this)" placeholder="R$ 0,00">
-          </div>
-
-          <div class="form-group">
-            <label>🗓️ Meses / Parcelas</label>
-            <input type="number" id="parcelasEntrada" min="1" placeholder="Ex: 12">
-          </div>
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="info-box blue">
-          <div class="form-group form-full">
-            <label>📌 Tem Intermediárias / Anuais / Reforços / Chaves?</label>
-            <select id="temInter" onchange="toggleInter()">
-              <option value="nao">Não</option>
-              <option value="sim">Sim</option>
-            </select>
-          </div>
-
-          <div class="form-group form-full" id="boxInterQtd" style="display:none; margin-top: 16px;">
-            <label>Quantidade de pagamentos extras</label>
-            <input type="number" id="qtdInter" min="1" max="12" value="1" onchange="renderInterRows()">
-          </div>
-
-          <div id="boxInterRows" style="display:none;">
-            <div class="inter-list" id="interList"></div>
-          </div>
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="info-box yellow">
-          <div class="form-group">
-            <label>🏗️ Construtora aceita Saldo Pós-Chaves / Pró-Soluto?</label>
-            <select id="aceitaPos">
-              <option value="nao">Não</option>
-              <option value="sim">Sim</option>
-            </select>
-          </div>
-        </div>
-
-        <button class="btn btn-primary btn-full btn-center" onclick="calcularEntrada()">
-          Calcular Entrada
-        </button>
-      </div>
-    </div>
-
-    <!-- Resultado da Entrada -->
-    <div id="resultadoEntrada" class="result"></div>
-
-    <!-- Card: PDF -->
-    <div class="card">
-      <div class="card-header" onclick="toggleCard(this)">
-        <h3>📄 Gerar PDF da Simulação</h3>
-        <span class="toggle-icon">+</span>
-      </div>
-      <div class="card-body">
-        <div class="form-grid">
-          <div class="form-group">
-            <label>👤 Cliente</label>
-            <input type="text" id="pdfCliente" placeholder="Nome do cliente">
-          </div>
-
-          <div class="form-group">
-            <label>📞 Telefone do Cliente</label>
-            <input type="tel" id="pdfClienteFone" oninput="formatarTelefone(this)" placeholder="(00) 00000-0000">
-          </div>
-
-          <div class="form-group">
-            <label>🧑‍💼 Corretor(a)</label>
-            <input type="text" id="pdfCorretor" placeholder="Nome do corretor">
-          </div>
-
-          <div class="form-group">
-            <label>📞 Telefone do Corretor</label>
-            <input type="tel" id="pdfCorretorFone" oninput="formatarTelefone(this)" placeholder="(00) 00000-0000">
-          </div>
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="info-box green">
-          <div class="form-grid">
-            <div class="form-group">
-              <label>📈 Deseja incluir estimativa do INCC?</label>
-              <select id="pdfINCCIncluir" onchange="toggleINCC()">
-                <option value="nao" selected>Não</option>
-                <option value="sim">Sim</option>
-              </select>
-            </div>
-
-            <div class="form-group" id="boxINCCtaxa" style="display:none;">
-              <label>📌 INCC (média mensal) %</label>
-              <input type="text" id="pdfINCCtaxa" value="0,5" inputmode="decimal">
-              <div class="link-small">
-                📊 INCC atualizado disponível em:
-                <a href="https://portal.fgv.br/noticias/incc-m-2025" target="_blank" rel="noopener">portal.fgv.br</a>
-              </div>
-            </div>
-          </div>
-
-          <div class="divider" id="divINCCsub" style="display:none;"></div>
-
-          <div class="form-grid" id="boxINCCsub" style="display:none;">
-            <div class="form-group">
-              <label>Incluir INCC na Entrada?</label>
-              <select id="pdfINCCEntrada">
-                <option value="nao" selected>Não</option>
-                <option value="sim">Sim</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label>Incluir INCC no Saldo Devedor?</label>
-              <select id="pdfINCCSaldo">
-                <option value="nao" selected>Não</option>
-                <option value="sim">Sim</option>
-              </select>
-            </div>
-
-            <div class="form-group form-full">
-              <div class="note">
-                * O INCC é uma <strong>estimativa média</strong> e pode variar mensalmente. Os valores são educativos.
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <button class="btn btn-secondary btn-full btn-center" onclick="gerarPDF()">
-          📥 Gerar PDF da Simulação
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <footer>
-    <p>Simulador Imobiliário • Uso educativo • Valores estimados • Não substitui análise bancária</p>
-    <p>Desenvolvido com ❤️ para facilitar simulações imobiliárias</p>
-  </footer>
-
-  <script>
-    // ============================================
-    // FUNÇÕES UTILITÁRIAS
-    // ============================================
-    
-    function formatarMoeda(input) {
-      let valor = (input.value || "").replace(/\D/g, "");
-      if (!valor) {
-        input.value = "";
-        return;
-      }
-      valor = (parseInt(valor, 10) / 100).toFixed(2).replace(".", ",");
-      valor = valor.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-      input.value = "R$ " + valor;
-    }
-
-    function limparMoeda(valor) {
-      return parseFloat((valor || "").replace(/[R$\.\s]/g, "").replace(",", ".")) || 0;
-    }
-
-    function moeda(numero) {
-      return numero.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-    }
-
-    function formatarTelefone(input) {
-      let valor = (input.value || "").replace(/\D/g, "").slice(0, 11);
-      if (valor.length <= 2) {
-        input.value = valor;
-        return;
-      }
-      const ddd = valor.slice(0, 2);
-      const resto = valor.slice(2);
-      if (resto.length <= 4) {
-        input.value = `(${ddd}) ${resto}`;
-        return;
-      }
-      if (resto.length <= 8) {
-        input.value = `(${ddd}) ${resto.slice(0, 4)}-${resto.slice(4)}`;
-        return;
-      }
-      input.value = `(${ddd}) ${resto.slice(0, 5)}-${resto.slice(5)}`;
-    }
-
-    function parsePercentToMonthlyRate() {
-      const raw = (document.getElementById("pdfINCCtaxa").value || "0")
-        .trim()
-        .replace("%", "")
-        .replace(/\s+/g, "")
-        .replace(",", ".");
-      const p = parseFloat(raw);
-      if (!isFinite(p) || p < 0) return 0;
-      return p / 100;
-    }
-
-    // ============================================
-    // GERAÇÃO DE MESES/ANO
-    // ============================================
-    
-    function gerarMesAno() {
-      const hoje = new Date();
-      const meses = [];
-      const nomesMeses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-      
-      for (let i = 0; i < 48; i++) {
-        const data = new Date(hoje.getFullYear(), hoje.getMonth() + i, 1);
-        meses.push(`${nomesMeses[data.getMonth()]}/${String(data.getFullYear()).slice(-2)}`);
-      }
-      return meses;
-    }
-
-    // Popular select de entrega
-    (function inicializarEntrega() {
-      const select = document.getElementById("entregaSelect");
-      gerarMesAno().forEach(mes => {
-        const option = document.createElement("option");
-        option.textContent = mes;
-        select.appendChild(option);
-      });
-    })();
-
-    // ============================================
-    // CONTROLE DE INTERFACE
-    // ============================================
-    
-    function toggleCard(header) {
-      const body = header.nextElementSibling;
-      const icon = header.querySelector(".toggle-icon");
-      const isActive = body.classList.contains("active");
-      
-      body.classList.toggle("active");
-      icon.textContent = isActive ? "+" : "−";
-    }
-
-    function toggleINCC() {
-      const incluir = document.getElementById("pdfINCCIncluir").value === "sim";
-      document.getElementById("boxINCCtaxa").style.display = incluir ? "block" : "none";
-      document.getElementById("divINCCsub").style.display = incluir ? "block" : "none";
-      document.getElementById("boxINCCsub").style.display = incluir ? "grid" : "none";
-
-      if (!incluir) {
-        document.getElementById("pdfINCCtaxa").value = "0,5";
-        document.getElementById("pdfINCCEntrada").value = "nao";
-        document.getElementById("pdfINCCSaldo").value = "nao";
-      }
-    }
-
-    function toggleInter() {
-      const tem = document.getElementById("temInter").value;
-      const mostrar = tem === "sim";
-      
-      document.getElementById("boxInterQtd").style.display = mostrar ? "block" : "none";
-      document.getElementById("boxInterRows").style.display = mostrar ? "block" : "none";
-      
-      if (mostrar) {
-        renderInterRows();
-      } else {
-        document.getElementById("interList").innerHTML = "";
-        document.getElementById("qtdInter").value = 1;
-      }
-    }
-
-    function renderInterRows() {
-      const quantidade = parseInt(document.getElementById("qtdInter").value, 10) || 0;
-      const lista = document.getElementById("interList");
-      lista.innerHTML = "";
-      
-      if (quantidade <= 0) return;
-
-      const meses = gerarMesAno();
-      
-      for (let i = 1; i <= quantidade; i++) {
-        const item = document.createElement("div");
-        item.className = "inter-item";
-        item.innerHTML = `
-          <div class="form-group">
-            <label>${i}º pagamento</label>
-            <select>${meses.map(m => `<option>${m}</option>`).join("")}</select>
-          </div>
-          <div class="form-group">
-            <label>Valor (R$) <span style="color: #ef4444;">*</span></label>
-            <input type="text" oninput="formatarMoeda(this)" placeholder="R$ 0,00">
-          </div>
-        `;
-        lista.appendChild(item);
-      }
-    }
-
-    // ============================================
-    // CÁLCULO DE ENTRADA
-    // ============================================
-    
-    function setResultadoEntrada(tipo, html) {
-      const resultado = document.getElementById("resultadoEntrada");
-      resultado.className = `result ${tipo} show`;
-      resultado.innerHTML = html;
-    }
-
-    function calcularEntrada() {
-      const valorImovel = limparMoeda(document.getElementById("valorImovel").value);
-      const valorFinanciamento = limparMoeda(document.getElementById("valorFinanciamento").value);
-      const valorAto = limparMoeda(document.getElementById("ato").value);
-      const renda = limparMoeda(document.getElementById("renda").value);
-      const parcelas = parseInt(document.getElementById("parcelasEntrada").value, 10) || 0;
-
-      // Validação
-      if (!valorImovel || !valorFinanciamento || !renda || !parcelas) {
-        setResultadoEntrada("error", `
-          <h3>⚠️ Dados Incompletos</h3>
-          <p class="alert-text">Preencha todos os campos obrigatórios: Valor do Imóvel, Financiamento, Renda e Parcelas.</p>
-          <button class="btn btn-danger btn-full" onclick="limparEntrada()">Limpar Resultado</button>
-        `);
-        return;
-      }
-
-      const valorEntrada = valorImovel - valorFinanciamento;
-      const temInter = document.getElementById("temInter").value === "sim";
-      const interVals = [];
-      const interMeta = [];
-
-      // Processar intermediárias
-      if (temInter) {
-        const rows = document.querySelectorAll("#interList .inter-item");
-        if (!rows.length) {
-          setResultadoEntrada("error", `
-            <h3>⚠️ Pagamentos Extras</h3>
-            <p class="alert-text">Você marcou pagamentos extras, mas não informou a quantidade.</p>
-            <button class="btn btn-danger btn-full" onclick="limparEntrada()">Limpar Resultado</button>
-          `);
-          return;
-        }
-
-        let faltando = false;
-        rows.forEach(row => {
-          const select = row.querySelector("select");
-          const input = row.querySelector("input");
-          const data = select ? select.value : "-";
-          const mesesAte = select ? select.selectedIndex : 0;
-          const valor = limparMoeda(input ? input.value : "");
-          
-          if (!valor || valor <= 0) faltando = true;
-          
-          interVals.push(valor);
-          interMeta.push({ data, mesesAte, valorBase: valor });
-        });
-
-        if (faltando) {
-          setResultadoEntrada("error", `
-            <h3>⚠️ Valores Obrigatórios</h3>
-            <p class="alert-text">Preencha o valor de todos os pagamentos extras.</p>
-            <button class="btn btn-danger btn-full" onclick="limparEntrada()">Limpar Resultado</button>
-          `);
-          return;
-        }
-      }
-
-      const somaInter = interVals.reduce((a, b) => a + b, 0);
-      let saldo = valorEntrada - valorAto - somaInter;
-      const entregaTxt = document.getElementById("entregaSelect").value;
-
-      // Caso: Ato + extras cobrem tudo
-      if (saldo <= 0) {
-        window.__lastEntradaCalc = {
-          entradaTotal: valorEntrada,
-          ato: valorAto,
-          parcelas,
-          mensal: 0,
-          interVals,
-          interMeta,
-          saldoRestante: 0,
-          status: "success"
-        };
-
-        const interHtml = temInter && somaInter > 0
-          ? `<p>💵 Pagamentos extras: <strong>${moeda(somaInter)}</strong></p>`
-          : "";
-
-        setResultadoEntrada("success", `
-          <h3>✅ Fluxo de Entrada Calculado</h3>
-          <p>📅 Previsão de entrega: <strong>${entregaTxt}</strong></p>
-          <p>💰 <strong>Entrada Total:</strong> ${moeda(valorEntrada)}</p>
-          const limiteMensal = renda * 0.30;
-  let mensal = saldo / parcelas;
-  let resto = 0;
-
-  if (mensal > limiteMensal) {
-    mensal = limiteMensal;
-    resto = saldo - (mensal * parcelas);
-  }
-
-  const interHtml = temInter && somaInter > 0
-    ? `<p>💵 Pagamentos extras: <strong>${moeda(somaInter)}</strong></p>`
-    : "";
-
-  const baseHTML = `
-    <p>📅 Previsão de entrega: <strong>${entregaTxt}</strong></p>
-    <p>💰 <strong>Entrada Total:</strong> ${moeda(valorEntrada)}</p>
-    <div class="divider"></div>
-    <p>💸 Ato: <strong>${moeda(valorAto)}</strong></p>
-    ${interHtml}
-    <p>📊 Mensais (${parcelas}x): <strong>${moeda(mensal)}</strong></p>
-    <div class="note">* Considerado limite de 30% da renda familiar para parcelas mensais.</div>
-    <div class="note">* Estrutura para financiamento <strong>pós-obra</strong> (SBPE).</div>
-  `;
-
-  if (resto <= 0) {
-    window.__lastEntradaCalc = {
-      entradaTotal: valorEntrada,
-      ato: valorAto,
-      parcelas,
-      mensal,
-      interVals,
-      interMeta,
-      saldoRestante: 0,
-      status: "success"
-    };
-
-    setResultadoEntrada("success", `
-      <h3>✅ Fluxo de Entrada Calculado</h3>
-      ${baseHTML}
-      <button class="btn btn-danger btn-full" onclick="limparEntrada()">Limpar Resultado</button>
-    `);
-    return;
-  }
-
-  const aceitaPos = document.getElementById("aceitaPos").value === "sim";
-
-  if (aceitaPos) {
-    window.__lastEntradaCalc = {
-      entradaTotal: valorEntrada,
-      ato: valorAto,
-      parcelas,
-      mensal,
-      interVals,
-      interMeta,
-      saldoRestante: resto,
-      status: "warning"
-    };
-
-    setResultadoEntrada("warning", `
-      <h3>⚠️ Entrada com Saldo Restante</h3>
-      ${baseHTML}
-      <div class="divider"></div>
-      <p>💰 <strong>Saldo restante:</strong> ${moeda(resto)}</p>
-      <p><strong>Saldo restante a ser financiado no pós-obra (SBPE).</strong></p>
-      <button class="btn btn-danger btn-full" onclick="limparEntrada()">Limpar Resultado</button>
-    `);
-    return;
-  }
-
-  window.__lastEntradaCalc = {
-    entradaTotal: valorEntrada,
-    ato: valorAto,
-    parcelas,
-    mensal,
-    interVals,
-    interMeta,
-    saldoRestante: resto,
-    status: "error"
-  };
-
-  setResultadoEntrada("error", `
-    <h3>❌ Verificar Saldo Restante</h3>
-    ${baseHTML}
-    <div class="divider"></div>
-    <p>💰 <strong>Saldo restante:</strong> ${moeda(resto)}</p>
-    <p class="alert-text"><strong>Valor de entrada ultrapassa os limites de parcelamento dentro do período informado.</strong></p>
-    <button class="btn btn-danger btn-full" onclick="limparEntrada()">Limpar Resultado</button>
-  `);
-}
-
-function limparEntrada() {
-  const resultado = document.getElementById("resultadoEntrada");
-  resultado.className = "result";
-  resultado.innerHTML = "";
-  window.__lastEntradaCalc = null;
-}
-
-// ============================================
-// CÁLCULOS INCC
-// ============================================
-
-function monthsToEntrega() {
-  const idx = document.getElementById("entregaSelect").selectedIndex;
-  return Math.max(0, idx);
-}
-
-function calcGeometricSum(base, rate, n) {
-  if (n <= 0) return 0;
-  if (rate === 0) return base * n;
-  return base * ((Math.pow(1 + rate, n) - 1) / rate);
-}
-
-function calcINCCEntradaEstimado(entradaObj, rate) {
-  const p = entradaObj.parcelas || 0;
-  const mensal = entradaObj.mensal || 0;
-  const totalMensaisCorrig = calcGeometricSum(mensal, rate, p);
-
-  let totalInterBase = 0;
-  let totalInterCorrig = 0;
-
-  if (entradaObj.interMeta && entradaObj.interMeta.length) {
-    entradaObj.interMeta.forEach(it => {
-      const v = it.valorBase || 0;
-      const m = Math.max(0, it.mesesAte || 0);
-      totalInterBase += v;
-      totalInterCorrig += v * Math.pow(1 + rate, m);
-    });
-  }
-
-  return {
-    mensalBaseTotal: mensal * p,
-    mensalCorrigTotal: totalMensaisCorrig,
-    interBaseTotal: totalInterBase,
-    interCorrigTotal: totalInterCorrig,
-    entradaCorrigTotal: (entradaObj.ato || 0) + totalMensaisCorrig + totalInterCorrig
-  };
-}
-
-function calcINCCSaldoDevedor(financiamentoValor, rate, meses) {
-  const pv = financiamentoValor || 0;
-  const m = Math.max(0, meses || 0);
-  return pv * Math.pow(1 + rate, m);
-}
-
-// ============================================
-// GERAÇÃO DE PDF
-// ============================================
-
-async function gerarPDF() {
-  if (!window.jspdf || !window.jspdf.jsPDF) {
-    alert("Biblioteca jsPDF não carregou. Recarregue a página.");
-    return;
-  }
-
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit: "mm", format: "a4" });
-
-  const left = 14;
-  const right = 196;
-  const pageW = right - left;
-  const colA = left + 6;
-  const colB = left + 98;
-  const line = 6;
-
-  let y = 10;
-
-  const azul = [30, 58, 138];
-  const cinza = [240, 242, 245];
-  const amarelo = [255, 249, 196];
-
-  const hoje = new Date().toLocaleDateString("pt-BR");
-  const entrada = window.__lastEntradaCalc || null;
-
-  // Dados do formulário
-  const empreendimento = (document.getElementById("empreendimento").value || "-").trim() || "-";
-  const unidade = (document.getElementById("unidade").value || "-").trim() || "-";
-  const valorImovel = document.getElementById("valorImovel").value || "-";
-  const valorFin = document.getElementById("valorFinanciamento").value || "-";
-  const renda = document.getElementById("renda").value || "-";
-  const entrega = document.getElementById("entregaSelect").value || "-";
-  const cliente = (document.getElementById("pdfCliente").value || "-").trim() || "-";
-  const clienteFone = (document.getElementById("pdfClienteFone").value || "-").trim() || "-";
-  const corretor = (document.getElementById("pdfCorretor").value || "-").trim() || "-";
-  const corretorFone = (document.getElementById("pdfCorretorFone").value || "-").trim() || "-";
-  const ato = document.getElementById("ato").value || "R$ 0,00";
-
-  // INCC
-  const incluirINCC = document.getElementById("pdfINCCIncluir").value === "sim";
-  const inccRate = incluirINCC ? parsePercentToMonthlyRate() : 0;
-  const inccEntrada = incluirINCC && document.getElementById("pdfINCCEntrada").value === "sim";
-  const inccSaldo = incluirINCC && document.getElementById("pdfINCCSaldo").value === "sim";
-  const financiamentoNum = limparMoeda(document.getElementById("valorFinanciamento").value);
-
-  // Cabeçalho
-  doc.setFillColor(...azul);
-  doc.rect(0, 0, 210, 26, "F");
-  doc.setTextColor(255, 255, 255);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(16);
-  doc.text("SIMULAÇÃO FINANCEIRA - SBPE", 105, 14, { align: "center" });
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "normal");
-  doc.text("Financiamento Pós-Obra", 105, 20, { align: "center" });
-
-  y = 34;
-  doc.setTextColor(0, 0, 0);
-
-  function card(titulo, altura) {
-    doc.setFillColor(...cinza);
-    doc.setDrawColor(220);
-    doc.roundedRect(left, y, pageW, altura, 4, 4, "F");
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
-    doc.text(titulo, left + 4, y + 7);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
-  }
-
-  // Identificação
-  card("Identificacao", 36);
-  let ty = y + 14;
-  doc.setFont("helvetica", "bold");
-  doc.text("Cliente:", colA, ty);
-  doc.setFont("helvetica", "normal");
-  doc.text(cliente, colA + 26, ty);
-  doc.setFont("helvetica", "bold");
-  doc.text("Telefone:", colB, ty);
-  doc.setFont("helvetica", "normal");
-  doc.text(clienteFone, colB + 28, ty);
-
-  ty += line;
-  doc.setFont("helvetica", "bold");
-  doc.text("Corretor(a):", colA, ty);
-  doc.setFont("helvetica", "normal");
-  doc.text(corretor, colA + 26, ty);
-  doc.setFont("helvetica", "bold");
-  doc.text("Telefone:", colB, ty);
-  doc.setFont("helvetica", "normal");
-  doc.text(corretorFone, colB + 28, ty);
-
-  ty += line;
-  doc.setFont("helvetica", "bold");
-  doc.text("Empreendimento:", colA, ty);
-  doc.setFont("helvetica", "normal");
-  doc.text(empreendimento, colA + 36, ty);
-
-  ty += line;
-  doc.setFont("helvetica", "bold");
-  doc.text("Unidade:", colA, ty);
-  doc.setFont("helvetica", "normal");
-  doc.text(unidade, colA + 26, ty);
-  doc.setFont("helvetica", "bold");
-  doc.text("Data:", colB, ty);
-  doc.setFont("helvetica", "normal");
-  doc.text(hoje, colB + 18, ty);
-
-  y += 44;
-
-  // Resumo Financeiro
-  card("Resumo Financeiro", 36);
-  ty = y + 14;
-  doc.setFont("helvetica", "bold");
-  doc.text("Valor do imovel:", colA, ty);
-  doc.text(valorImovel, colB, ty);
-
-  ty += line;
-  doc.text("Entrada total:", colA, ty);
-  doc.text(entrada ? moeda(entrada.entradaTotal) : "-", colB, ty);
-
-  ty += line;
-  doc.text("Valor previsto p/ financiamento:", colA, ty);
-  doc.text(valorFin, colB, ty);
-
-  ty += line;
-  doc.text("Renda familiar:", colA, ty);
-  doc.text(renda, colB, ty);
-
-  ty += line;
-  doc.text("Previsao de entrega:", colA, ty);
-  doc.text(entrega, colB, ty);
-
-  y += 44;
-
-  // Fluxo de Pagamento
-  card("Fluxo de Pagamento - Entrada", 40);
-  ty = y + 14;
-  doc.setFont("helvetica", "bold");
-  doc.text("Ato:", colA, ty);
-  doc.setFont("helvetica", "normal");
-  doc.text(ato, colB, ty);
-
-  if (entrada) {
-    ty += line;
-    doc.setFont("helvetica", "bold");
-    doc.text(`Mensais (${entrada.parcelas}x):`, colA, ty);
-    doc.setFont("helvetica", "normal");
-    doc.text(moeda(entrada.mensal), colB, ty);
-
-    if (entrada.interVals && entrada.interVals.length) {
-      const totalInter = entrada.interVals.reduce((a, b) => a + b, 0);
-      ty += line;
-      doc.setFont("helvetica", "bold");
-      doc.text("Pagamentos extras:", colA, ty);
-      doc.setFont("helvetica", "normal");
-      doc.text(moeda(totalInter), colB, ty);
-    }
-
-    if (entrada.saldoRestante > 0) {
-      ty += line;
-      doc.setFont("helvetica", "bold");
-      doc.text("Saldo restante:", colA, ty);
-      doc.setFont("helvetica", "normal");
-      doc.text(moeda(entrada.saldoRestante), colB, ty);
-    }
-  }
-
-  ty += line;
-  doc.setFontSize(9);
-  doc.setFont("helvetica", "normal");
-  doc.text("* Considerado limite de 30% da renda familiar.", colA, ty);
-
-  y += 50;
-
-  // INCC
-  if (incluirINCC && (inccEntrada || inccSaldo)) {
-    card("Estimativa de INCC (opcional)", inccSaldo && inccEntrada ? 44 : 36);
-    ty = y + 14;
-
-    const taxaPct = (document.getElementById("pdfINCCtaxa").value || "0").trim() + "%";
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(10);
-    doc.text("Taxa considerada:", colA, ty);
-    doc.setFont("helvetica", "normal");
-    doc.text(taxaPct + " a.m", colB, ty);
-
-    ty += line;
-
-    if (inccEntrada && entrada) {
-      const est = calcINCCEntradaEstimado(entrada, inccRate);
-      doc.setFont("helvetica", "bold");
-      doc.text("INCC na Entrada:", colA, ty);
-      doc.setFont("helvetica", "normal");
-      doc.text("Sim", colB, ty);
-
-      ty += line;
-      doc.setFont("helvetica", "bold");
-      doc.text("Mensais (total):", colA, ty);
-      doc.setFont("helvetica", "normal");
-      doc.text(moeda(est.mensalCorrigTotal), colB, ty);
-
-      if (entrada.interMeta && entrada.interMeta.length) {
-        ty += line;
-        doc.setFont("helvetica", "bold");
-        doc.text("Extras (total):", colA, ty);
-        doc.setFont("helvetica", "normal");
-        doc.text(moeda(est.interCorrigTotal), colB, ty);
-      }
-
-      ty += line;
-      doc.setFont("helvetica", "bold");
-      doc.text("Entrada estimada corrigida:", colA, ty);
-      doc.setFont("helvetica", "normal");
-      doc.text(moeda(est.entradaCorrigTotal), colB, ty);
-
-      ty += line;
-      doc.setFontSize(9);
-      doc.text("* Estimativa aplicada sobre mensais e intermediarias.", colA, ty);
-      doc.setFontSize(10);
-      ty += line;
-    }
-
-    if (inccSaldo) {
-      const m = monthsToEntrega();
-      const fv = calcINCCSaldoDevedor(financiamentoNum, inccRate, m);
-
-      doc.setFont("helvetica", "bold");
-      doc.text("INCC no Saldo Devedor:", colA, ty);
-      doc.setFont("helvetica", "normal");
-      doc.text("Sim", colB, ty);
-
-      ty += line;
-      doc.setFont("helvetica", "bold");
-      doc.text("Meses ate entrega:", colA, ty);
-      doc.setFont("helvetica", "normal");
-      doc.text(String(m), colB, ty);
-
-      ty += line;
-      doc.setFont("helvetica", "bold");
-      doc.text("Financiamento corrigido:", colA, ty);
-      doc.setFont("helvetica", "normal");
-      doc.text(moeda(fv), colB, ty);
-
-      ty += line;
-      doc.setFontSize(9);
-      doc.text("* Correcao por juros compostos ate a entrega.", colA, ty);
-      doc.setFontSize(10);
-    }
-
-    y += (inccSaldo && inccEntrada) ? 52 : 44;
-  }
-
-  // Alerta
-  if (entrada && entrada.saldoRestante > 0) {
-    doc.setFillColor(...amarelo);
-    doc.roundedRect(left, y, pageW, 18, 4, 4, "F");
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
-    doc.text("Atencao", colA, y + 7);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
-    doc.text("Existe saldo restante previsto para financiamento.", colA, y + 13);
-    y += 26;
-  }
-
-  // Rodapé
-  doc.setFontSize(9);
-  doc.setTextColor(90);
-  doc.text("Simulador Imobiliario - Uso educativo - Valores estimados", 105, 288, { align: "center" });
-
-  doc.save("simulacao-sbpe-pos-obra.pdf");
-}
-
-// Inicialização
-(function init() {
-  toggleInter();
-  toggleINCC();
-})();</parameter>
-          <div class="divider"></div>
-          <p>💸 Ato: <strong>${moeda(valorAto)}</strong></p>
-          ${
+<div class="hero">
+<h1>🏡 Simulador Imobiliário - SFH/SBPE</h1>
+<p>Financiamento contratado <strong>após a conclusão</strong> do empreendimento (Pós-Obra).<br>Calcule sua entrada e gere um relatório completo em PDF.</p>
+</div>
+
+<div class="container">
+<div class="form">
+<div class="grid">
+<div class="field"><label>🏢 Empreendimento</label><input id="empreendimento" placeholder="Nome do empreendimento"></div>
+<div class="field"><label>🏠 Unidade / Bloco / Andar</label><input id="unidade" placeholder="Ex: Apto 101"></div>
+<div class="field"><label>💰 Valor do Imóvel (R$)</label><input id="valorImovel" oninput="fmtM(this)" placeholder="R$ 0,00"></div>
+<div class="field"><label>🏦 Financiamento (R$)</label><input id="valorFinanciamento" oninput="fmtM(this)" placeholder="R$ 0,00"></div>
+<div class="field"><label>👨‍👩‍👧‍👦 Renda Familiar (R$)</label><input id="renda" oninput="fmtM(this)" placeholder="R$ 0,00"></div>
+<div class="field full"><label>📅 Previsão de Entrega</label><select id="entregaSelect"></select></div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header" onclick="toggle(this)"><h3>💰 Entrada / Fluxo Inicial</h3><span class="toggle">+</span></div>
+<div class="card-body">
+<div class="grid">
+<div class="field"><label>💸 Valor do Ato (R$)</label><input id="ato" oninput="fmtM(this)" placeholder="R$ 0,00"></div>
+<div class="field"><label>🗓️ Meses / Parcelas</label><input id="parcelasEntrada" type="number" min="1" placeholder="12"></div>
+</div>
+<div class="divider"></div>
+<div class="info blue">
+<div class="field full"><label>📌 Tem Intermediárias/Anuais/Reforços?</label><select id="temInter" onchange="togInter()"><option value="nao">Não</option><option value="sim">Sim</option></select></div>
+<div class="field full" id="boxQ" style="display:none;margin-top:16px"><label>Quantidade</label><input id="qtdInter" type="number" min="1" max="12" value="1" onchange="renderI()"></div>
+<div id="boxR" style="display:none"><div class="inter-list" id="iList"></div></div>
+</div>
+<div class="divider"></div>
+<div class="info yellow">
+<div class="field"><label>🏗️ Aceita Saldo Pós-Chaves?</label><select id="aceitaPos"><option value="nao">Não</option><option value="sim">Sim</option></select></div>
+</div>
+<button class="btn btn-primary" onclick="calc()">Calcular Entrada</button>
+</div>
+</div>
+
+<div id="res" class="result"></div>
+
+<div class="card">
+<div class="card-header" onclick="toggle(this)"><h3>📄 Gerar PDF</h3><span class="toggle">+</span></div>
+<div class="card-body">
+<div class="grid">
+<div class="field"><label>👤 Cliente</label><input id="pdfCliente"></div>
+<div class="field"><label>📞 Tel Cliente</label><input id="pdfClienteFone" oninput="fmtT(this)"></div>
+<div class="field"><label>🧑‍💼 Corretor</label><input id="pdfCorretor"></div>
+<div class="field"><label>📞 Tel Corretor</label><input id="pdfCorretorFone" oninput="fmtT(this)"></div>
+</div>
+<div class="divider"></div>
+<div class="info green">
+<div class="grid">
+<div class="field"><label>📈 Incluir INCC?</label><select id="inccInc" onchange="togINCC()"><option value="nao">Não</option><option value="sim">Sim</option></select></div>
+<div class="field" id="boxT" style="display:none"><label>📌 INCC % mensal</label><input id="inccTaxa" value="0,5"><div class="small-link">📊 <a href="https://portal.fgv.br/noticias/incc-m-2025" target="_blank">portal.fgv.br</a></div></div>
+</div>
+<div class="divider" id="divS" style="display:none"></div>
+<div class="grid" id="boxS" style="display:none">
+<div class="field"><label>INCC na Entrada?</label><select id="inccE"><option value="nao">Não</option><option value="sim">Sim</option></select></div>
+<div class="field"><label>INCC no Saldo?</label><select id="inccS"><option value="nao">Não</option><option value="sim">Sim</option></select></div>
+<div class="field full"><div class="note">* O INCC é estimativa média e pode variar.</div></div>
+</div>
+</div>
+<button class="btn btn-secondary" onclick="pdf()">📥 Gerar PDF</button>
+</div>
+</div>
+</div>
+
+<footer>
+<p>Simulador Imobiliário • Uso educativo • Valores estimados</p>
+<p>Desenvolvido com ❤️ para simulações imobiliárias</p>
+</footer>
+
+<script>
+function fmtM(i){let v=(i.value||"").replace(/\D/g,"");if(!v){i.value="";return}v=(parseInt(v,10)/100).toFixed(2).replace(".",",");v=v.replace(/\B(?=(\d{3})+(?!\d))/g,".");i.value="R$ "+v}
+function limM(v){return parseFloat((v||"").replace(/[R$\.\s]/g,"").replace(",","."))||0}
+function m(n){return n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}
+function fmtT(i){let v=(i.value||"").replace(/\D/g,"").slice(0,11);if(v.length<=2){i.value=v;return}const d=v.slice(0,2),r=v.slice(2);if(r.length<=4){i.value=`(${d}) ${r}`;return}if(r.length<=8){i.value=`(${d}) ${r.slice(0,4)}-${r.slice(4)}`;return}i.value=`(${d}) ${r.slice(0,5)}-${r.slice(5)}`}
+function pRate(){const r=(document.getElementById("inccTaxa").value||"0").trim().replace("%","").replace(/\s+/g,"").replace(",",".");const p=parseFloat(r);if(!isFinite(p)||p<0)return 0;return p/100}
+function gMeses(){const h=new Date(),a=[],n=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];for(let i=0;i<48;i++){const d=new Date(h.getFullYear(),h.getMonth()+i,1);a.push(`${n[d.getMonth()]}/${String(d.getFullYear()).slice(-2)}`)}return a}
+(function(){const s=document.getElementById("entregaSelect");gMeses().forEach(t=>{const o=document.createElement("option");o.textContent=t;s.appendChild(o)})})();
+function toggle(h){const b=h.nextElementSibling,i=h.querySelector(".toggle"),a=b.classList.contains("active");b.classList.toggle("active");i.textContent=a?"+":"−"}
+function togINCC(){const inc=document.getElementById("inccInc").value==="sim";document.getElementById("boxT").style.display=inc?"block":"none";document.getElementById("divS").style.display=inc?"block":"none";document.getElementById("boxS").style.display=inc?"grid":"none";if(!inc){document.getElementById("inccTaxa").value="0,5";document.getElementById("inccE").value="nao";document.getElementById("inccS").value="nao"}}
+function togInter(){const t=document.getElementById("temInter").value,s=t==="sim";document.getElementById("boxQ").style.display=s?"block":"none";document.getElementById("boxR").style.display=s?"block":"none";if(s)renderI();else{document.getElementById("iList").innerHTML="";document.getElementById("qtdInter").value=1}}
+function renderI(){const q=parseInt(document.getElementById("qtdInter").value,10)||0,l=document.getElementById("iList");l.innerHTML="";if(q<=0)return;const ms=gMeses();for(let i=1;i<=q;i++){const d=document.createElement("div");d.className="inter-item";d.innerHTML=`<div class="field"><label>${i}º pagamento</label><select>${ms.map(mm=>`<option>${mm}</option>`).join("")}</select></div><div class="field"><label>Valor (R$) *</label><input oninput="fmtM(this)"></div>`;l.appendChild(d)}}
+function setRes(t,h){const r=document.getElementById("res");r.className=`result ${t} show`;r.innerHTML=h}
+function calc(){const vi=limM(document.getElementById("valorImovel").value),vf=limM(document.getElementById("valorFinanciamento").value),at=limM(document.getElementById("ato").value),re=limM(document.getElementById("renda").value),p=parseInt(document.getElementById("parcelasEntrada").value,10)||0;if(!vi||!vf||!re||!p){setRes("error",`<h3>⚠️ Dados Incompletos</h3><p class="alert">Preencha: Valor do Imóvel, Financiamento, Renda e Parcelas.</p><button class="btn btn-danger" onclick="limpar()">Limpar</button>`);return}const ve=vi-vf,tem=document.getElementById("temInter").value==="sim";const iV=[],iM=[];if(tem){const rs=document.querySelectorAll("#iList .inter-item");if(!rs.length){setRes("error",`<h3>⚠️ Pagamentos Extras</h3><p class="alert">Marcou extras mas não informou quantidade.</p><button class="btn btn-danger" onclick="limpar()">Limpar</button>`);return}let f=false;rs.forEach(r=>{const s=r.querySelector("select"),inp=r.querySelector("input"),d=s?s.value:"-",mA=s?s.selectedIndex:0,v=limM(inp?inp.value:"");if(!v||v<=0)f=true;iV.push(v);iM.push({data:d,mesesAte:mA,valorBase:v})});if(f){setRes("error",`<h3>⚠️ Valores Obrigatórios</h3><p class="alert">Preencha valor de todos pagamentos extras.</p><button class="btn btn-danger" onclick="limpar()">Limpar</button>`);return}}const sI=iV.reduce((a,b)=>a+b,0);let sl=ve-at-sI;const eT=document.getElementById("entregaSelect").value;if(sl<=0){window.__calc={entradaTotal:ve,ato:at,parcelas:p,mensal:0,interVals:iV,interMeta:iM,saldoRestante:0,status:"success"};const iH=tem&&sI>0?`<p>💵 Extras: <strong>${m(sI)}</strong></p>`:"";setRes("success",`<h3>✅ Fluxo Calculado</h3><p>📅 Entrega: <strong>${eT}</strong></p><p>💰 Entrada: ${m(ve)}</p><div class="divider"></div><p>💸 Ato: <stron
