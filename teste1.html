@@ -122,7 +122,7 @@
       margin: 16px 0;
     }
 
-    /* ===== CAIXAS CLARAS (igual MCMV) ===== */
+    /* ===== CAIXAS CLARAS ===== */
     .box-claro {
       background: #f6f9f7;
       padding: 12px;
@@ -204,31 +204,33 @@
       .inter-row { grid-template-columns: 1fr 1fr; }
     }
 
-    /* ===== PDF layout (igual MCMV) ===== */
-    .linha-flex {
-      display: flex;
+    /* ===== INCC UI ===== */
+    .incc-row {
+      display: grid;
+      grid-template-columns: 1fr;
       gap: 12px;
-      align-items: flex-end;
-      flex-wrap: wrap;
+      align-items: end;
     }
-    .linha-flex .campo {
-      flex: 1 1 280px;
-      margin: 0;
+    @media (min-width: 768px) {
+      .incc-row { grid-template-columns: 1fr 1fr; }
     }
-    .helpbox {
-      margin-top: 10px;
-      font-style: italic;
-      font-size: 13px;
-      line-height: 1.35;
-      color: #222;
+    .incc-inline {
+      display: none;
     }
+    .link-peq {
+      font-size: 12px;
+      color: #1e40af;
+      margin-top: 8px;
+      word-break: break-word;
+    }
+    .link-peq a { color: #1e40af; text-decoration: underline; }
   </style>
 </head>
 
 <body>
 
   <!-- =========================
-       CABEÇALHO (mesmo padrão)
+       CABEÇALHO
   ========================== -->
   <div class="painel-topo">
     <h1>Simulador Imobiliário — SFH / SBPE</h1>
@@ -273,7 +275,7 @@
   <div class="container">
 
     <!-- =========================
-         ENTRADA (IGUAL AO MCMV)
+         ENTRADA
     ========================== -->
     <div class="bloco">
       <div class="bloco-header header-entrada" onclick="toggleBloco(this)">
@@ -335,11 +337,11 @@
       </div>
     </div>
 
-    <!-- RESULTADO ENTRADA (persistente) -->
+    <!-- RESULTADO ENTRADA -->
     <div id="resultadoEntrada" class="resultado"></div>
 
     <!-- =========================
-         PDF (IGUAL AO MCMV, SEM JUROS)
+         PDF (com escolhas de INCC)
     ========================== -->
     <div class="bloco">
       <div class="bloco-header header-pdf" onclick="toggleBloco(this)">
@@ -348,6 +350,7 @@
       </div>
 
       <div class="bloco-conteudo">
+
         <div class="subgrid">
           <div class="campo">
             <label>👤 Cliente</label>
@@ -368,21 +371,56 @@
             <label>📞 Telefone</label>
             <input id="pdfCorretorFone" inputmode="tel" oninput="formatarTelefone(this)" />
           </div>
+        </div>
 
-          <!-- FUTURO: INCC SOBRE SALDO DEVEDOR (desativado propositalmente)
-          <div class="campo span2">
-            <div class="box-claro">
-              <label>📈 Incluir estimativa de INCC sobre saldo devedor?</label>
-              <select id="pdfINCCSaldo">
-                <option value="nao">Não</option>
+        <div class="divider"></div>
+
+        <!-- INCC: escolha principal + taxa na mesma linha -->
+        <div class="box-claro">
+          <div class="incc-row">
+            <div class="campo">
+              <label>📈 Deseja incluir estimativa do INCC?</label>
+              <select id="pdfINCCIncluir" onchange="toggleINCC()">
+                <option value="nao" selected>Não</option>
                 <option value="sim">Sim</option>
               </select>
-              <div class="helpbox">
-                * Correção estimada (ex.: 0,5% a.m) aplicada sobre o saldo a financiar até a assinatura.
+            </div>
+
+            <div class="campo incc-inline" id="boxINCCtaxa">
+              <label>📌 INCC (média mensal) %</label>
+              <input id="pdfINCCtaxa" value="0,5" inputmode="decimal" />
+              <div class="link-peq">
+                📌 INCC atualizado disponível em:
+                <a href="https://portal.fgv.br/noticias/incc-m-2025" target="_blank" rel="noopener">portal.fgv.br/noticias/incc-m-2025</a>
               </div>
             </div>
           </div>
-          -->
+
+          <div class="divider" id="divINCCsub" style="display:none;"></div>
+
+          <div class="subgrid" id="boxINCCsub" style="display:none;">
+            <div class="campo">
+              <label>Incluir na Entrada?</label>
+              <select id="pdfINCCEntrada">
+                <option value="nao" selected>Não</option>
+                <option value="sim">Sim</option>
+              </select>
+            </div>
+
+            <div class="campo">
+              <label>Incluir no Saldo Devedor (Financiamento)?</label>
+              <select id="pdfINCCSaldo">
+                <option value="nao" selected>Não</option>
+                <option value="sim">Sim</option>
+              </select>
+            </div>
+
+            <div class="campo span2">
+              <div class="obs">
+                * O INCC é uma <b>estimativa média</b> e pode variar mensalmente. Os valores são educativos.
+              </div>
+            </div>
+          </div>
         </div>
 
         <button class="btn-pdf" onclick="gerarPDF()">Gerar PDF da Simulação</button>
@@ -417,9 +455,16 @@
       if(rest.length<=8){ input.value=`(${ddd}) ${rest.slice(0,4)}-${rest.slice(4)}`; return; }
       input.value=`(${ddd}) ${rest.slice(0,5)}-${rest.slice(5)}`;
     }
+    function parsePercentToMonthlyRate(){
+      const raw = (document.getElementById("pdfINCCtaxa").value || "0").trim()
+        .replace("%","").replace(/\s+/g,"").replace(",", ".");
+      const p = parseFloat(raw);
+      if(!isFinite(p) || p < 0) return 0;
+      return p / 100; // 0,5 -> 0.005
+    }
 
     /* =========================
-       MESES/ANO (igual ao MCMV)
+       MESES/ANO
     ========================== */
     function gerarMesAno(){
       const h = new Date();
@@ -452,7 +497,23 @@
     }
 
     /* =========================
-       INTERMEDIÁRIAS (igual ao MCMV)
+       INCC UI (antes do PDF)
+    ========================== */
+    function toggleINCC(){
+      const incluir = document.getElementById("pdfINCCIncluir").value === "sim";
+      document.getElementById("boxINCCtaxa").style.display = incluir ? "block" : "none";
+      document.getElementById("divINCCsub").style.display = incluir ? "block" : "none";
+      document.getElementById("boxINCCsub").style.display = incluir ? "grid" : "none";
+
+      if(!incluir){
+        document.getElementById("pdfINCCtaxa").value = "0,5";
+        document.getElementById("pdfINCCEntrada").value = "nao";
+        document.getElementById("pdfINCCSaldo").value = "nao";
+      }
+    }
+
+    /* =========================
+       INTERMEDIÁRIAS
     ========================== */
     function toggleInter(){
       const tem = document.getElementById("temInter").value;
@@ -490,7 +551,7 @@
     }
 
     /* =========================
-       ENTRADA (copiado do MCMV)
+       ENTRADA
     ========================== */
     function setResultadoEntrada(tipo, html){
       const out = document.getElementById("resultadoEntrada");
@@ -502,7 +563,6 @@
     function calcularEntrada(){
       const im = limparMoeda(document.getElementById("valorImovel").value);
       const fi = limparMoeda(document.getElementById("valorFinanciamento").value);
-
       const at = limparMoeda(document.getElementById("ato").value);
       const re = limparMoeda(document.getElementById("renda").value);
       const p  = parseInt(document.getElementById("parcelasEntrada").value,10) || 0;
@@ -537,7 +597,7 @@
           const sel=row.querySelector("select");
           const inp=row.querySelector("input");
           const data=sel ? sel.value : "-";
-          const mesesAte=sel ? sel.selectedIndex : 0;
+          const mesesAte=sel ? sel.selectedIndex : 0; // 0 = mês atual da lista
           const v=limparMoeda(inp ? inp.value : "");
           if(!v || v<=0) faltando=true;
           interVals.push(v);
@@ -556,10 +616,9 @@
 
       const somaInter = interVals.reduce((a,b)=>a+b,0);
       let saldo = entrada - at - somaInter;
-
       const entregaTxt = document.getElementById("entregaSelect").value;
 
-      // Se ato + extras cobrem tudo
+      // Ato + extras cobrem tudo
       if(saldo <= 0){
         window.__lastEntradaCalc = {
           entradaTotal: entrada, ato: at, parcelas: p, mensal: 0,
@@ -584,7 +643,6 @@
         return;
       }
 
-      // Mensais limitadas a 30%
       const limiteMensal = re * 0.30;
       let mensal = saldo / p;
       let resto = 0;
@@ -609,7 +667,6 @@
         <div class="obs"><i>* Estrutura para financiamento <b>pós-obra</b> (SBPE).</i></div>
       `;
 
-      // Verde: dentro do limite e sem resto
       if(resto <= 0){
         window.__lastEntradaCalc = {
           entradaTotal: entrada, ato: at, parcelas: p, mensal,
@@ -626,7 +683,6 @@
 
       const aceitaPos = document.getElementById("aceitaPos").value === "sim";
 
-      // Amarelo: com saldo restante e construtora aceita
       if(aceitaPos){
         window.__lastEntradaCalc = {
           entradaTotal: entrada, ato: at, parcelas: p, mensal,
@@ -644,7 +700,6 @@
         return;
       }
 
-      // Vermelho: saldo restante e construtora não aceita
       window.__lastEntradaCalc = {
         entradaTotal: entrada, ato: at, parcelas: p, mensal,
         interVals, interMeta, saldoRestante: resto, status: "vermelho"
@@ -669,254 +724,397 @@
     }
 
     /* =========================
-       PDF (mesma estrutura do MCMV, sem juros)
+       INCC: CÁLCULOS ESTIMADOS
     ========================== */
-    function writeWrap(doc, text, x, y, maxW, lineH){
-      const lines = doc.splitTextToSize(text, maxW);
-      doc.text(lines, x, y);
-      return y + (lines.length * lineH);
+    function monthsToEntrega(){
+      // entregaSelect lista a partir do mês atual
+      const idx = document.getElementById("entregaSelect").selectedIndex;
+      return Math.max(0, idx);
     }
 
+    function calcGeometricSum(base, rate, n){
+      // base * (1 + (1+r) + ... + (1+r)^(n-1))
+      if(n <= 0) return 0;
+      if(rate === 0) return base * n;
+      return base * ((Math.pow(1+rate, n) - 1) / rate);
+    }
+
+    function calcINCCEntradaEstimado(entradaObj, rate){
+      // Mensais: série geométrica sobre "mensal"
+      const p = entradaObj.parcelas || 0;
+      const mensal = entradaObj.mensal || 0;
+
+      const totalMensaisCorrig = calcGeometricSum(mensal, rate, p);
+
+      // Intermediárias: cada uma corrigida por (1+rate)^(mesesAte)
+      let totalInterBase = 0;
+      let totalInterCorrig = 0;
+
+      if(entradaObj.interMeta && entradaObj.interMeta.length){
+        entradaObj.interMeta.forEach(it=>{
+          const v = it.valorBase || 0;
+          const m = Math.max(0, it.mesesAte || 0);
+          totalInterBase += v;
+          totalInterCorrig += v * Math.pow(1+rate, m);
+        });
+      }
+
+      return {
+        mensalBaseTotal: (mensal * p),
+        mensalCorrigTotal: totalMensaisCorrig,
+        interBaseTotal: totalInterBase,
+        interCorrigTotal: totalInterCorrig,
+        entradaCorrigTotal: (entradaObj.ato || 0) + totalMensaisCorrig + totalInterCorrig
+      };
+    }
+
+    function calcINCCSaldoDevedor(financiamentoValor, rate, meses){
+      // juros compostos: FV = PV*(1+rate)^meses
+      const pv = financiamentoValor || 0;
+      const m = Math.max(0, meses || 0);
+      return pv * Math.pow(1+rate, m);
+    }
+
+    /* =========================
+       PDF (layout alinhado + INCC opcional)
+    ========================== */
     async function gerarPDF(){
-  if(!window.jspdf || !window.jspdf.jsPDF){
-    alert("Biblioteca do PDF não carregou.");
-    return;
-  }
+      if(!window.jspdf || !window.jspdf.jsPDF){
+        alert("Biblioteca do PDF não carregou.");
+        return;
+      }
 
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit: "mm", format: "a4" });
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit: "mm", format: "a4" });
 
-  /* =========================
-     CONSTANTES DE LAYOUT
-  ========================== */
-  const left = 14;
-  const right = 196;
-  const pageW = right - left;
+      // Layout fixo (anti-torto)
+      const left = 14;
+      const right = 196;
+      const pageW = right - left;
+      const colA = left + 6;
+      const colB = left + 98;
+      const line = 6;
 
-  const colA = left + 6;   // coluna de rótulos
-  const colB = left + 98;  // coluna de valores
-  const line = 6;
+      let y = 10;
 
-  let y = 10;
+      const azul = [30, 58, 138];
+      const cinza = [240, 242, 245];
+      const amarelo = [255, 249, 196];
 
-  const azul = [30, 58, 138];
-  const cinza = [240, 242, 245];
-  const amarelo = [255, 249, 196];
+      const hoje = new Date().toLocaleDateString("pt-BR");
 
-  const hoje = new Date().toLocaleDateString("pt-BR");
+      const entrada = window.__lastEntradaCalc || null;
 
-  const entrada = window.__lastEntradaCalc || null;
+      // DADOS
+      const empreendimentoTxt = (document.getElementById("empreendimento").value || "-").trim() || "-";
+      const unidadeTxt = (document.getElementById("unidade").value || "-").trim() || "-";
+      const valorImovelTxt = document.getElementById("valorImovel").value || "-";
+      const valorFinTxt = document.getElementById("valorFinanciamento").value || "-";
+      const rendaTxt = document.getElementById("renda").value || "-";
+      const entregaTxt = document.getElementById("entregaSelect").value || "-";
 
-  /* =========================
-     DADOS
-  ========================== */
-  const empreendimento = empreendimentoInput = document.getElementById("empreendimento").value || "-";
-  const unidade = document.getElementById("unidade").value || "-";
-  const valorImovelTxt = document.getElementById("valorImovel").value || "-";
-  const valorFinTxt = document.getElementById("valorFinanciamento").value || "-";
-  const rendaTxt = document.getElementById("renda").value || "-";
-  const entregaTxt = document.getElementById("entregaSelect").value || "-";
+      const pdfCliente = (document.getElementById("pdfCliente").value || "-").trim() || "-";
+      const pdfClienteFone = (document.getElementById("pdfClienteFone").value || "-").trim() || "-";
+      const pdfCorretor = (document.getElementById("pdfCorretor").value || "-").trim() || "-";
+      const pdfCorretorFone = (document.getElementById("pdfCorretorFone").value || "-").trim() || "-";
 
-  const pdfCliente = document.getElementById("pdfCliente").value || "-";
-  const pdfClienteFone = document.getElementById("pdfClienteFone").value || "-";
-  const pdfCorretor = document.getElementById("pdfCorretor").value || "-";
-  const pdfCorretorFone = document.getElementById("pdfCorretorFone").value || "-";
+      const atoTxt = document.getElementById("ato").value || "R$ 0,00";
+      const parcelasTxt = document.getElementById("parcelasEntrada").value || "-";
 
-  const atoTxt = document.getElementById("ato").value || "R$ 0,00";
+      // INCC escolhas
+      const incluirINCC = document.getElementById("pdfINCCIncluir").value === "sim";
+      const inccRate = incluirINCC ? parsePercentToMonthlyRate() : 0;
+      const inccEntrada = incluirINCC && (document.getElementById("pdfINCCEntrada").value === "sim");
+      const inccSaldo = incluirINCC && (document.getElementById("pdfINCCSaldo").value === "sim");
 
-  /* =========================
-     CABEÇALHO
-  ========================== */
-  doc.setFillColor(...azul);
-  doc.rect(0, 0, 210, 26, "F");
+      // Valores numéricos
+      const financiamentoNum = limparMoeda(document.getElementById("valorFinanciamento").value);
 
-  doc.setTextColor(255,255,255);
-  doc.setFont("helvetica","bold");
-  doc.setFontSize(16);
-  doc.text("SIMULAÇÃO FINANCEIRA – SBPE", 105, 14, { align: "center" });
+      /* =========================
+         CABEÇALHO
+      ========================== */
+      doc.setFillColor(...azul);
+      doc.rect(0, 0, 210, 26, "F");
 
-  doc.setFontSize(10);
-  doc.setFont("helvetica","normal");
-  doc.text("Financiamento Próprio Pós-Obra", 105, 20, { align: "center" });
+      doc.setTextColor(255,255,255);
+      doc.setFont("helvetica","bold");
+      doc.setFontSize(16);
+      doc.text("SIMULAÇÃO FINANCEIRA – SBPE", 105, 14, { align: "center" });
 
-  y = 34;
-  doc.setTextColor(0,0,0);
+      doc.setFontSize(10);
+      doc.setFont("helvetica","normal");
+      doc.text("Financiamento Próprio Pós-Obra", 105, 20, { align: "center" });
 
-  /* =========================
-     FUNÇÃO CARD
-  ========================== */
-  function card(titulo, altura){
-    doc.setFillColor(...cinza);
-    doc.setDrawColor(220);
-    doc.roundedRect(left, y, pageW, altura, 4, 4, "F");
+      y = 34;
+      doc.setTextColor(0,0,0);
 
-    doc.setFont("helvetica","bold");
-    doc.setFontSize(11);
-    doc.text(titulo, left + 4, y + 7);
+      function card(titulo, altura){
+        doc.setFillColor(...cinza);
+        doc.setDrawColor(220);
+        doc.roundedRect(left, y, pageW, altura, 4, 4, "F");
 
-    doc.setFont("helvetica","normal");
-    doc.setFontSize(10);
-  }
+        doc.setFont("helvetica","bold");
+        doc.setFontSize(11);
+        doc.text(titulo, left + 4, y + 7);
 
-  /* =========================
-     IDENTIFICAÇÃO
-  ========================== */
-  card("Identificação", 36);
-  let ty = y + 14;
+        doc.setFont("helvetica","normal");
+        doc.setFontSize(10);
+      }
 
-  doc.setFont("helvetica","bold");
-  doc.text("Cliente:", colA, ty);
-  doc.setFont("helvetica","normal");
-  doc.text(pdfCliente, colA + 26, ty);
+      /* =========================
+         IDENTIFICAÇÃO
+      ========================== */
+      card("Identificação", 36);
+      let ty = y + 14;
 
-  doc.setFont("helvetica","bold");
-  doc.text("Telefone:", colB, ty);
-  doc.setFont("helvetica","normal");
-  doc.text(pdfClienteFone, colB + 28, ty);
+      doc.setFont("helvetica","bold");
+      doc.text("Cliente:", colA, ty);
+      doc.setFont("helvetica","normal");
+      doc.text(pdfCliente, colA + 26, ty);
 
-  ty += line;
-  doc.setFont("helvetica","bold");
-  doc.text("Corretor(a):", colA, ty);
-  doc.setFont("helvetica","normal");
-  doc.text(pdfCorretor, colA + 26, ty);
+      doc.setFont("helvetica","bold");
+      doc.text("Telefone:", colB, ty);
+      doc.setFont("helvetica","normal");
+      doc.text(pdfClienteFone, colB + 28, ty);
 
-  doc.setFont("helvetica","bold");
-  doc.text("Telefone:", colB, ty);
-  doc.setFont("helvetica","normal");
-  doc.text(pdfCorretorFone, colB + 28, ty);
-
-  ty += line;
-  doc.setFont("helvetica","bold");
-  doc.text("Empreendimento:", colA, ty);
-  doc.setFont("helvetica","normal");
-  doc.text(empreendimento, colA + 36, ty);
-
-  ty += line;
-  doc.setFont("helvetica","bold");
-  doc.text("Unidade:", colA, ty);
-  doc.setFont("helvetica","normal");
-  doc.text(unidade, colA + 26, ty);
-
-  doc.setFont("helvetica","bold");
-  doc.text("Data:", colB, ty);
-  doc.setFont("helvetica","normal");
-  doc.text(hoje, colB + 18, ty);
-
-  y += 44;
-
-  /* =========================
-     RESUMO FINANCEIRO
-  ========================== */
-  card("Resumo Financeiro", 36);
-  ty = y + 14;
-
-  doc.setFont("helvetica","bold");
-  doc.text("Valor do imóvel:", colA, ty);
-  doc.text(valorImovelTxt, colB, ty);
-
-  ty += line;
-  doc.text("Entrada total:", colA, ty);
-  doc.text(entrada ? moeda(entrada.entradaTotal) : "-", colB, ty);
-
-  ty += line;
-  doc.text("Valor previsto p/ financiamento:", colA, ty);
-  doc.text(valorFinTxt, colB, ty);
-
-  ty += line;
-  doc.text("Renda familiar:", colA, ty);
-  doc.text(rendaTxt, colB, ty);
-
-  ty += line;
-  doc.text("Previsão de entrega:", colA, ty);
-  doc.text(entregaTxt, colB, ty);
-
-  y += 44;
-
-  /* =========================
-     FLUXO DE PAGAMENTO
-  ========================== */
-  card("Fluxo de Pagamento – Entrada", 38);
-  ty = y + 14;
-
-  doc.setFont("helvetica","bold");
-  doc.text("Ato:", colA, ty);
-  doc.setFont("helvetica","normal");
-  doc.text(atoTxt, colB, ty);
-
-  if(entrada){
-    ty += line;
-    doc.setFont("helvetica","bold");
-    doc.text(`Mensais (${entrada.parcelas}x):`, colA, ty);
-    doc.setFont("helvetica","normal");
-    doc.text(moeda(entrada.mensal), colB, ty);
-
-    if(entrada.interVals && entrada.interVals.length){
-      const totalInter = entrada.interVals.reduce((a,b)=>a+b,0);
       ty += line;
       doc.setFont("helvetica","bold");
-      doc.text("Pagamentos extras:", colA, ty);
+      doc.text("Corretor(a):", colA, ty);
       doc.setFont("helvetica","normal");
-      doc.text(moeda(totalInter), colB, ty);
-    }
+      doc.text(pdfCorretor, colA + 26, ty);
 
-    if(entrada.saldoRestante > 0){
+      doc.setFont("helvetica","bold");
+      doc.text("Telefone:", colB, ty);
+      doc.setFont("helvetica","normal");
+      doc.text(pdfCorretorFone, colB + 28, ty);
+
       ty += line;
       doc.setFont("helvetica","bold");
-      doc.text("Saldo restante:", colA, ty);
+      doc.text("Empreendimento:", colA, ty);
       doc.setFont("helvetica","normal");
-      doc.text(moeda(entrada.saldoRestante), colB, ty);
+      doc.text(empreendimentoTxt, colA + 36, ty);
+
+      ty += line;
+      doc.setFont("helvetica","bold");
+      doc.text("Unidade:", colA, ty);
+      doc.setFont("helvetica","normal");
+      doc.text(unidadeTxt, colA + 26, ty);
+
+      doc.setFont("helvetica","bold");
+      doc.text("Data:", colB, ty);
+      doc.setFont("helvetica","normal");
+      doc.text(hoje, colB + 18, ty);
+
+      y += 44;
+
+      /* =========================
+         RESUMO FINANCEIRO
+      ========================== */
+      card("Resumo Financeiro", 36);
+      ty = y + 14;
+
+      doc.setFont("helvetica","bold");
+      doc.text("Valor do imóvel:", colA, ty);
+      doc.text(valorImovelTxt, colB, ty);
+
+      ty += line;
+      doc.text("Entrada total:", colA, ty);
+      doc.text(entrada ? moeda(entrada.entradaTotal) : "-", colB, ty);
+
+      ty += line;
+      doc.text("Valor previsto p/ financiamento:", colA, ty);
+      doc.text(valorFinTxt, colB, ty);
+
+      ty += line;
+      doc.text("Renda familiar:", colA, ty);
+      doc.text(rendaTxt, colB, ty);
+
+      ty += line;
+      doc.text("Previsão de entrega:", colA, ty);
+      doc.text(entregaTxt, colB, ty);
+
+      y += 44;
+
+      /* =========================
+         FLUXO DE PAGAMENTO
+      ========================== */
+      card("Fluxo de Pagamento – Entrada", 40);
+      ty = y + 14;
+
+      doc.setFont("helvetica","bold");
+      doc.text("Ato:", colA, ty);
+      doc.setFont("helvetica","normal");
+      doc.text(atoTxt, colB, ty);
+
+      if(entrada){
+        ty += line;
+        doc.setFont("helvetica","bold");
+        doc.text(`Mensais (${entrada.parcelas}x):`, colA, ty);
+        doc.setFont("helvetica","normal");
+        doc.text(moeda(entrada.mensal), colB, ty);
+
+        if(entrada.interVals && entrada.interVals.length){
+          const totalInter = entrada.interVals.reduce((a,b)=>a+b,0);
+          ty += line;
+          doc.setFont("helvetica","bold");
+          doc.text("Pagamentos extras:", colA, ty);
+          doc.setFont("helvetica","normal");
+          doc.text(moeda(totalInter), colB, ty);
+        }
+
+        if(entrada.saldoRestante > 0){
+          ty += line;
+          doc.setFont("helvetica","bold");
+          doc.text("Saldo restante:", colA, ty);
+          doc.setFont("helvetica","normal");
+          doc.text(moeda(entrada.saldoRestante), colB, ty);
+        }
+      }
+
+      ty += line;
+      doc.setFontSize(9);
+      doc.setFont("helvetica","normal");
+      doc.text("* Considerado limite de 30% da renda familiar para parcelas mensais.", colA, ty);
+
+      y += 50;
+
+      /* =========================
+         INCC (SELEÇÕES)
+      ========================== */
+      if(incluirINCC && (inccEntrada || inccSaldo)){
+        // altura dinâmica simples (1 página)
+        card("Estimativa de INCC (opcional)", inccSaldo && inccEntrada ? 44 : 36);
+        ty = y + 14;
+
+        const taxaPctTxt = (document.getElementById("pdfINCCtaxa").value || "0").trim() + "%";
+        doc.setFont("helvetica","bold");
+        doc.setFontSize(10);
+        doc.text("Taxa considerada:", colA, ty);
+        doc.setFont("helvetica","normal");
+        doc.text(taxaPctTxt + " a.m", colB, ty);
+
+        ty += line;
+
+        doc.setFontSize(10);
+        if(inccEntrada && entrada){
+          const est = calcINCCEntradaEstimado(entrada, inccRate);
+
+          doc.setFont("helvetica","bold");
+          doc.text("INCC na Entrada:", colA, ty);
+          doc.setFont("helvetica","normal");
+          doc.text("Sim", colB, ty);
+
+          ty += line;
+          doc.setFont("helvetica","bold");
+          doc.text("Mensais (total):", colA, ty);
+          doc.setFont("helvetica","normal");
+          doc.text(moeda(est.mensalCorrigTotal), colB, ty);
+
+          if(entrada.interMeta && entrada.interMeta.length){
+            ty += line;
+            doc.setFont("helvetica","bold");
+            doc.text("Extras (total):", colA, ty);
+            doc.setFont("helvetica","normal");
+            doc.text(moeda(est.interCorrigTotal), colB, ty);
+          }
+
+          ty += line;
+          doc.setFont("helvetica","bold");
+          doc.text("Entrada estimada corrigida:", colA, ty);
+          doc.setFont("helvetica","normal");
+          doc.text(moeda(est.entradaCorrigTotal), colB, ty);
+
+          ty += line;
+          doc.setFontSize(9);
+          doc.setFont("helvetica","normal");
+          doc.text("* Estimativa aplicada sobre mensais e intermediárias.", colA, ty);
+          doc.setFontSize(10);
+
+          ty += line;
+        } else {
+          // Se escolheu INCC entrada mas não calculou entrada
+          if(inccEntrada && !entrada){
+            doc.setFont("helvetica","bold");
+            doc.text("INCC na Entrada:", colA, ty);
+            doc.setFont("helvetica","normal");
+            doc.text("Sim (fluxo não calculado)", colB, ty);
+            ty += line;
+          }
+        }
+
+        if(inccSaldo){
+          const m = monthsToEntrega();
+          const fv = calcINCCSaldoDevedor(financiamentoNum, inccRate, m);
+
+          doc.setFont("helvetica","bold");
+          doc.text("INCC no Saldo Devedor:", colA, ty);
+          doc.setFont("helvetica","normal");
+          doc.text("Sim", colB, ty);
+
+          ty += line;
+          doc.setFont("helvetica","bold");
+          doc.text("Meses até entrega:", colA, ty);
+          doc.setFont("helvetica","normal");
+          doc.text(String(m), colB, ty);
+
+          ty += line;
+          doc.setFont("helvetica","bold");
+          doc.text("Financiamento corrigido (estimado):", colA, ty);
+          doc.setFont("helvetica","normal");
+          doc.text(moeda(fv), colB, ty);
+
+          ty += line;
+          doc.setFontSize(9);
+          doc.text("* Correção por juros compostos até a entrega.", colA, ty);
+          doc.setFontSize(10);
+        }
+
+        y += (inccSaldo && inccEntrada) ? 52 : 44;
+      }
+
+      /* =========================
+         ALERTA SALDO RESTANTE
+      ========================== */
+      if(entrada && entrada.saldoRestante > 0){
+        doc.setFillColor(...amarelo);
+        doc.roundedRect(left, y, pageW, 18, 4, 4, "F");
+
+        doc.setFont("helvetica","bold");
+        doc.setFontSize(11);
+        doc.text("⚠ Atenção", colA, y + 7);
+
+        doc.setFont("helvetica","normal");
+        doc.setFontSize(10);
+        doc.text(
+          "Existe saldo restante previsto para financiamento no pós-obra (SBPE).",
+          colA,
+          y + 13
+        );
+
+        y += 26;
+      }
+
+      /* =========================
+         RODAPÉ
+      ========================== */
+      doc.setFontSize(9);
+      doc.setTextColor(90);
+      doc.text(
+        "Simulador Imobiliário • Uso educativo • Valores estimados • Não substitui análise bancária",
+        105,
+        288,
+        { align: "center" }
+      );
+
+      doc.save("simulacao-sbpe-pos-obra.pdf");
     }
-  }
-
-  ty += line;
-  doc.setFontSize(9);
-  doc.setFont("helvetica","normal");
-  doc.text("* Considerado limite de 30% da renda familiar para parcelas mensais.", colA, ty);
-
-  y += 46;
-
-  /* =========================
-     ALERTA VISUAL
-  ========================== */
-  if(entrada && entrada.saldoRestante > 0){
-    doc.setFillColor(...amarelo);
-    doc.roundedRect(left, y, pageW, 18, 4, 4, "F");
-
-    doc.setFont("helvetica","bold");
-    doc.setFontSize(11);
-    doc.text("⚠ Atenção", colA, y + 7);
-
-    doc.setFont("helvetica","normal");
-    doc.setFontSize(10);
-    doc.text(
-      "Existe saldo restante previsto para financiamento no pós-obra (SBPE).",
-      colA,
-      y + 13
-    );
-
-    y += 26;
-  }
-
-  /* =========================
-     RODAPÉ
-  ========================== */
-  doc.setFontSize(9);
-  doc.setTextColor(90);
-  doc.text(
-    "Simulador Imobiliário • Uso educativo • Valores estimados • Não substitui análise bancária",
-    105,
-    288,
-    { align: "center" }
-  );
-
-  doc.save("simulacao-sbpe-pos-obra.pdf");
-}
 
     /* =========================
        INIT
     ========================== */
     (function(){
-      toggleInter(); // garante estado inicial correto
+      toggleInter();
+      toggleINCC();
     })();
   </script>
 </body>
