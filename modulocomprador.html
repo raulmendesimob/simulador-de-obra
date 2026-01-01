@@ -1,0 +1,332 @@
+<!-- =========================
+     CABEÇALHO (COMPRADOR) — progressivo
+     Mantém o padrão do simulador atual (painel-topo / grid-topo / campo)
+========================== -->
+<div class="painel-topo">
+  <h1>Simulador Imobiliário</h1>
+
+  <div class="grid-topo">
+
+    <!-- 1) Composição -->
+    <div class="campo campo-full">
+      <label>👥 Vai adquirir sozinho(a) ou com alguém?</label>
+      <select id="compraCom" onchange="onChangeComposicao()">
+        <option value="">Selecione...</option>
+        <option value="sozinho">Sozinho(a)</option>
+        <option value="namorado">Com namorado(a)</option>
+        <option value="noivo">Com noivo(a)</option>
+        <option value="conjuge">Com cônjuge</option>
+        <option value="familiar">Com familiar</option>
+      </select>
+    </div>
+
+    <!-- 2) Renda familiar -->
+    <div class="campo" id="boxRenda" style="display:none;">
+      <label>👨‍👩‍👧‍👦 Renda familiar mensal (R$) <span style="opacity:.7;font-weight:500;">(soma)</span></label>
+      <input id="rendaFamiliar" oninput="formatarMoeda(this); onRendaOuEstadoChange();" />
+    </div>
+
+    <!-- 3) Estado -->
+    <div class="campo" id="boxEstado" style="display:none;">
+      <label>📍 Em qual estado você mora?</label>
+      <select id="estadoUF" onchange="onRendaOuEstadoChange()">
+        <option value="">Selecione...</option>
+        <option value="AC">Acre (AC)</option>
+        <option value="AL">Alagoas (AL)</option>
+        <option value="AP">Amapá (AP)</option>
+        <option value="AM">Amazonas (AM)</option>
+        <option value="BA">Bahia (BA)</option>
+        <option value="CE">Ceará (CE)</option>
+        <option value="DF">Distrito Federal (DF)</option>
+        <option value="ES">Espírito Santo (ES)</option>
+        <option value="GO">Goiás (GO)</option>
+        <option value="MA">Maranhão (MA)</option>
+        <option value="MT">Mato Grosso (MT)</option>
+        <option value="MS">Mato Grosso do Sul (MS)</option>
+        <option value="MG">Minas Gerais (MG)</option>
+        <option value="PA">Pará (PA)</option>
+        <option value="PB">Paraíba (PB)</option>
+        <option value="PR">Paraná (PR)</option>
+        <option value="PE">Pernambuco (PE)</option>
+        <option value="PI">Piauí (PI)</option>
+        <option value="RJ">Rio de Janeiro (RJ)</option>
+        <option value="RN">Rio Grande do Norte (RN)</option>
+        <option value="RS">Rio Grande do Sul (RS)</option>
+        <option value="RO">Rondônia (RO)</option>
+        <option value="RR">Roraima (RR)</option>
+        <option value="SC">Santa Catarina (SC)</option>
+        <option value="SP">São Paulo (SP)</option>
+        <option value="SE">Sergipe (SE)</option>
+        <option value="TO">Tocantins (TO)</option>
+      </select>
+    </div>
+
+    <!-- 4A) Tipo profissional (singular) -->
+    <div class="campo campo-full" id="boxTipoProfSing" style="display:none;">
+      <label>💼 Você trabalha de CLT ou PJ?</label>
+      <select id="tipoProfSing" onchange="onTipoProfChange()">
+        <option value="">Selecione...</option>
+        <option value="clt_mais_3">CLT (há mais de 3 anos)</option>
+        <option value="clt_menos_3">CLT (há menos de 3 anos)</option>
+        <option value="pj">PJ / Autônomo</option>
+      </select>
+
+      <div class="obs" style="margin-top:10px;">
+        * Isso influencia a classificação de <b>cotista</b> (FGTS) e a taxa estimada no MCMV.
+      </div>
+    </div>
+
+    <!-- 4B) Tipo profissional (composição - plural) -->
+    <div class="campo campo-full" id="boxTipoProfPlur" style="display:none;">
+      <label>💼 Na composição de renda, pelo menos uma pessoa é CLT há mais de 3 anos?</label>
+      <select id="tipoProfPlur" onchange="onTipoProfChange()">
+        <option value="">Selecione...</option>
+        <option value="sim">Sim</option>
+        <option value="nao">Não</option>
+      </select>
+
+      <div class="obs" style="margin-top:10px;">
+        * Se a resposta for <b>Não</b>, o simulador considera <b>não cotista</b> (FGTS não entra nos cálculos).
+      </div>
+    </div>
+
+    <!-- 5) FGTS (só se aplicável) -->
+    <div class="campo" id="boxUsaFgts" style="display:none;">
+      <label>💰 Vai utilizar FGTS?</label>
+      <select id="usaFgts" onchange="toggleFGTSComprador()">
+        <option value="nao">Não</option>
+        <option value="sim">Sim</option>
+      </select>
+    </div>
+
+    <div class="campo" id="boxFGTSValor" style="display:none;">
+      <label>💰 Valor estimado de FGTS (R$)</label>
+      <input id="fgtsValor" oninput="formatarMoeda(this)" />
+    </div>
+
+    <!-- 6) Dinheiro guardado -->
+    <div class="campo campo-full" id="boxGuardado" style="display:none;">
+      <label>🏦 Tem dinheiro guardado para usar na entrada?</label>
+      <select id="temGuardado" onchange="toggleGuardado()">
+        <option value="">Selecione...</option>
+        <option value="nao">Não</option>
+        <option value="sim">Sim</option>
+      </select>
+    </div>
+
+    <div class="campo" id="boxGuardadoValor" style="display:none;">
+      <label>💸 Quanto você tem guardado? (R$)</label>
+      <input id="valorGuardado" oninput="formatarMoeda(this)" />
+      <div class="obs">
+        * Este valor pode ser usado depois como sugestão de <b>ATO</b>.
+      </div>
+    </div>
+
+    <!-- Campos “escondidos” para cálculos futuros -->
+    <input type="hidden" id="regiaoCalc" value="" />       <!-- "no_ne" ou "sul_se_co" -->
+    <input type="hidden" id="cotistaCalc" value="" />      <!-- "cotista" ou "nao_cotista" -->
+    <input type="hidden" id="podeFgtsCalc" value="0" />    <!-- 1 ou 0 -->
+
+  </div>
+</div>
+
+<script>
+  /* =========================
+     UTIL (mesmo padrão do simulador atual)
+  ========================== */
+  function formatarMoeda(c){
+    let v = (c.value || "").replace(/\D/g, "");
+    if(!v){ c.value = ""; return; }
+    v = (parseInt(v,10) / 100).toFixed(2).replace(".", ",");
+    v = v.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    c.value = "R$ " + v;
+  }
+  function limparMoeda(v){
+    return parseFloat((v||"").replace(/[R$\.\s]/g,"").replace(",", ".")) || 0;
+  }
+
+  /* =========================
+     MAPA UF -> Região (para cálculo)
+     Norte/Nordeste = no_ne
+     Sul/Sudeste/Centro-Oeste = sul_se_co
+  ========================== */
+  const UF_NO_NE = new Set([
+    "AC","AP","AM","PA","RO","RR","TO",  // Norte
+    "AL","BA","CE","MA","PB","PE","PI","RN","SE" // Nordeste
+  ]);
+  function getRegiaoByUF(uf){
+    if(!uf) return "";
+    return UF_NO_NE.has(uf) ? "no_ne" : "sul_se_co";
+  }
+
+  /* =========================
+     UI helpers
+  ========================== */
+  function show(id){ const el=document.getElementById(id); if(el) el.style.display="block"; }
+  function hide(id){ const el=document.getElementById(id); if(el) el.style.display="none"; }
+  function setVal(id, val){ const el=document.getElementById(id); if(el) el.value = val; }
+
+  function resetDownstreamFromTipoProf(){
+    // zera FGTS
+    setVal("usaFgts","nao");
+    setVal("fgtsValor","");
+    hide("boxUsaFgts");
+    hide("boxFGTSValor");
+
+    // zera guardado
+    setVal("temGuardado","");
+    setVal("valorGuardado","");
+    hide("boxGuardado");
+    hide("boxGuardadoValor");
+  }
+
+  /* =========================
+     ETAPA 1: composição
+  ========================== */
+  function onChangeComposicao(){
+    const comp = document.getElementById("compraCom").value;
+
+    // reset geral “para baixo”
+    setVal("rendaFamiliar","");
+    setVal("estadoUF","");
+    setVal("tipoProfSing","");
+    setVal("tipoProfPlur","");
+    setVal("regiaoCalc","");
+    setVal("cotistaCalc","");
+    setVal("podeFgtsCalc","0");
+    resetDownstreamFromTipoProf();
+
+    // esconder blocos seguintes
+    hide("boxRenda");
+    hide("boxEstado");
+    hide("boxTipoProfSing");
+    hide("boxTipoProfPlur");
+
+    if(!comp) return;
+
+    show("boxRenda");
+    // estado aparece depois que começar renda (onRendaOuEstadoChange)
+  }
+
+  /* =========================
+     ETAPA 2 + 3: renda + estado
+  ========================== */
+  function onRendaOuEstadoChange(){
+    const comp = document.getElementById("compraCom").value;
+    const renda = limparMoeda(document.getElementById("rendaFamiliar").value);
+    const uf = document.getElementById("estadoUF").value;
+
+    // Estado aparece quando tiver começado renda
+    if(renda > 0){
+      show("boxEstado");
+    } else {
+      hide("boxEstado");
+      hide("boxTipoProfSing");
+      hide("boxTipoProfPlur");
+      setVal("estadoUF","");
+      setVal("regiaoCalc","");
+      setVal("tipoProfSing","");
+      setVal("tipoProfPlur","");
+      setVal("cotistaCalc","");
+      setVal("podeFgtsCalc","0");
+      resetDownstreamFromTipoProf();
+      return;
+    }
+
+    // Só libera próximo passo quando tiver UF
+    if(!uf){
+      hide("boxTipoProfSing");
+      hide("boxTipoProfPlur");
+      setVal("regiaoCalc","");
+      setVal("tipoProfSing","");
+      setVal("tipoProfPlur","");
+      setVal("cotistaCalc","");
+      setVal("podeFgtsCalc","0");
+      resetDownstreamFromTipoProf();
+      return;
+    }
+
+    // Define região (escondido)
+    setVal("regiaoCalc", getRegiaoByUF(uf));
+
+    // Decide qual pergunta de “tipo profissional” aparece
+    const isSolo = (comp === "sozinho");
+    if(isSolo){
+      show("boxTipoProfSing");
+      hide("boxTipoProfPlur");
+      setVal("tipoProfPlur","");
+    } else {
+      show("boxTipoProfPlur");
+      hide("boxTipoProfSing");
+      setVal("tipoProfSing","");
+    }
+  }
+
+  /* =========================
+     ETAPA 4: tipo profissional -> cotista/FGTS -> guardado
+  ========================== */
+  function onTipoProfChange(){
+    const comp = document.getElementById("compraCom").value;
+    const isSolo = (comp === "sozinho");
+
+    // reset downstream
+    setVal("cotistaCalc","");
+    setVal("podeFgtsCalc","0");
+    resetDownstreamFromTipoProf();
+
+    let isCotista = false;
+
+    if(isSolo){
+      const t = document.getElementById("tipoProfSing").value;
+      if(!t) return; // ainda não respondeu
+      isCotista = (t === "clt_mais_3");
+    } else {
+      const t = document.getElementById("tipoProfPlur").value;
+      if(!t) return; // ainda não respondeu
+      isCotista = (t === "sim");
+    }
+
+    // grava hidden
+    setVal("cotistaCalc", isCotista ? "cotista" : "nao_cotista");
+    setVal("podeFgtsCalc", isCotista ? "1" : "0");
+
+    // se for cotista: aparece FGTS (sim/nao)
+    if(isCotista){
+      show("boxUsaFgts");
+      setVal("usaFgts","nao");
+      hide("boxFGTSValor");
+      setVal("fgtsValor","");
+    } else {
+      // não cotista: FGTS some e zera
+      hide("boxUsaFgts");
+      hide("boxFGTSValor");
+      setVal("usaFgts","nao");
+      setVal("fgtsValor","");
+    }
+
+    // guardado entra depois do tipo profissional (sempre)
+    show("boxGuardado");
+  }
+
+  function toggleFGTSComprador(){
+    const pode = document.getElementById("podeFgtsCalc").value === "1";
+    const usa = document.getElementById("usaFgts").value === "sim";
+
+    if(pode && usa){
+      show("boxFGTSValor");
+    } else {
+      hide("boxFGTSValor");
+      setVal("fgtsValor","");
+    }
+  }
+
+  function toggleGuardado(){
+    const val = document.getElementById("temGuardado").value;
+    if(val === "sim"){
+      show("boxGuardadoValor");
+    } else {
+      hide("boxGuardadoValor");
+      setVal("valorGuardado","");
+    }
+  }
+</script>
