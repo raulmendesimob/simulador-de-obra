@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulador Imobiliário - SFH/SBPE</title>
+  
+  <!-- jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #1e40af;
+      --primary-dark: #1e3a8a;
+      --primary-light: #3b82f6;
+      --secondary: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --bg-main: #f8fafc;
+      --bg-card: #ffffff;
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+      --border: #e2e8f0;
+      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: var(--text-primary);
+      padding: 20px 0;
+    }
+
+    .hero-header {
+      background: linear-gradient(135deg, rgba(30, 64, 175, 0.95), rgba(99, 102, 241, 0.95));
+      padding: 40px 20px;
+      text-align: center;
+      box-shadow: var(--shadow-lg);
+      margin-bottom: 30px;
+    }
+
+    .hero-header h1 {
+      color: white;
+      font-size: clamp(24px, 5vw, 36px);
+      font-weight: 700;
+      margin-bottom: 12px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .hero-header p {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: clamp(14px, 3vw, 16px);
+      max-width: 700px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .main-form {
+      background: var(--bg-card);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: var(--shadow-lg);
+      margin-bottom: 24px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    @media (min-width: 768px) {
+      .form-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .form-full {
+        grid-column: 1 / -1;
+      }
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group label {
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      background: white;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+    }
+
+    .card {
+      background: var(--bg-card);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      box-shadow: var(--shadow-lg);
+    }
+
+    .card-header {
+      padding: 20px 24px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      color: white;
+      transition: all 0.3s ease;
+    }
+
+    .card-header:hover {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    }
+
+    .card-header h3 {
+      font-size: 18px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toggle-icon {
+      background: rgba(255, 255, 255, 0.2);
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    .card-header:hover .toggle-icon {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.1);
+    }
+
+    .card-body {
+      padding: 24px;
+      display: none;
+    }
+
+    .card-body.active {
+      display: block;
+      animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .info-box {
+      padding: 16px;
+      border-radius: 12px;
+      margin: 16px 0;
+      border: 2px solid;
+    }
+
+    .info-box.blue {
+      background: #eff6ff;
+      border-color: #93c5fd;
+    }
+
+    .info-box.yellow {
+      background: #fefce8;
+      border-color: #fde047;
+    }
+
+    .info-box.green {
+      background: #f0fdf4;
+      border-color: #86efac;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 24px 0;
+    }
+
+    .btn {
+      padding: 14px 28px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: var(--shadow);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      color: white;
+    }
+
+    .btn-secondary {
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      color: white;
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #dc2626, #ef4444);
+      color: white;
+      margin-top: 16px;
+    }
+
+    .btn-full {
+      width: 100%;
+    }
+
+    @media (min-width: 768px) {
+      .btn-center {
+        display: block;
+        margin: 20px auto 0;
+        width: auto;
+        min-width: 250px;
+      }
+    }
+
+    .result {
+      padding: 24px;
+      border-radius: 16px;
+      margin: 20px 0;
+      display: none;
+      border: 2px solid;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .result.show { display: block; }
+
+    .result.success {
+      background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+      border-color: #22c55e;
+    }
+
+    .result.warning {
+      background: linear-gradient(135deg, #fefce8, #fef9c3);
+      border-color: #eab308;
+    }
+
+    .result.error {
+      background: linear-gradient(135deg, #fef2f2, #fee2e2);
+      border-color: #ef4444;
+    }
+
+    .result h3 {
+      font-size: 20px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .result p {
+      margin: 10px 0;
+      line-height: 1.6;
+    }
+
+    .result strong {
+      color: var(--primary-dark);
+    }
+
+    .alert-text {
+      color: #dc2626;
+      font-weight: 700;
+    }
+
+    .note {
+      font-size: 13px;
+      font-style: italic;
+      color: var(--text-secondary);
+      margin-top: 12px;
+      line-height: 1.5;
+    }
+
+    .inter-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .inter-item {
+      background: #f8fafc;
+      padding: 16px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 768px) {
+      .inter-item {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .link-small {
+      font-size: 12px;
+      color: var(--primary);
+      margin-top: 8px;
+      word-break: break-word;
+    }
+
+    .link-small a {
+      color: var(--primary);
+      text-decoration: underline;
+    }
+
+    .link-small a:hover {
+      color: var(--primary-light);
+    }
+
+    footer {
+      text-align: center;
+      padding: 30px 20px;
+      color: white;
+      font-size: 14px;
+      margin-top: 40px;
+    }
+
+    footer a {
+      color: white;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Header -->
+  <div class="hero-header">
+    <h1>🏡 Simulador Imobiliário - SFH/SBPE</h1>
+    <p>
+      Financiamento contratado <strong>após a conclusão</strong> do empreendimento (Pós-Obra).<br>
+      Calcule sua entrada e gere um relatório completo em PDF.
+    </p>
+  </div>
+
+  <div class="container">
+    <!-- Formulário Principal -->
+    <div class="main-form">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>🏢 Empreendimento</label>
+          <input type="text" id="empreendimento" placeholder="Nome do empreendimento">
+        </div>
+
+        <div class="form-group">
+          <label>🏠 Unidade / Bloco / Andar</label>
+          <input type="text" id="unidade" placeholder="Ex: Apto 101, Bloco A">
+        </div>
+
+        <div class="form-group">
+          <label>💰 Valor do Imóvel (R$)</label>
+          <input type="text" id="valorImovel" oninput="formatarMoeda(this)" placeholder="R$ 0,00">
+        </div>
+
+        <div class="form-group">
+          <label>🏦 Valor Previsto para Financiamento (R$)</label>
+          <input type="text" id="valorFinanciamento" oninput="formatarMoeda(this)" placeholder="R$ 0,00">
+        </div>
+
+        <div class="form-group">
+          <label>👨‍👩‍👧‍👦 Renda Familiar Mensal (R$)</label>
+          <input type="text" id="renda" oninput="formatarMoeda(this)" placeholder="R$ 0,00">
+        </div>
+
+        <div class="form-group form-full">
+          <label>📅 Previsão de Entrega (mês/ano)</label>
+          <select id="entregaSelect"></select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card: Entrada -->
+    <div class="card">
+      <div class="card-header" onclick="toggleCard(this)">
+        <h3>💰 Entrada / Fluxo Inicial</h3>
+        <span class="toggle-icon">+</span>
+      </div>
+      <div class="card-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>💸 Valor do Ato (R$)</label>
+            <input type="text" id="ato" oninput="formatarMoeda(this)" placeholder="R$ 0,00">
+          </div>
+
+          <div class="form-group">
+            <label>🗓️ Meses / Parcelas</label>
+            <input type="number" id="parcelasEntrada" min="1" placeholder="Ex: 12">
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="info-box blue">
+          <div class="form-group form-full">
+            <label>📌 Tem Intermediárias / Anuais / Reforços / Chaves?</label>
+            <select id="temInter" onchange="toggleInter()">
+              <option value="nao">Não</option>
+              <option value="sim">Sim</option>
+            </select>
+          </div>
+
+          <div class="form-group form-full" id="boxInterQtd" style="display:none; margin-top: 16px;">
+            <label>Quantidade de pagamentos extras</label>
+            <input type="number" id="qtdInter" min="1" max="12" value="1" onchange="renderInterRows()">
+          </div>
+
+          <div id="boxInterRows" style="display:none;">
+            <div class="inter-list" id="interList"></div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="info-box yellow">
+          <div class="form-group">
+            <label>🏗️ Construtora aceita Saldo Pós-Chaves / Pró-Soluto?</label>
+            <select id="aceitaPos">
+              <option value="nao">Não</option>
+              <option value="sim">Sim</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="btn btn-primary btn-full btn-center" onclick="calcularEntrada()">
+          Calcular Entrada
+        </button>
+      </div>
+    </div>
+
+    <!-- Resultado da Entrada -->
+    <div id="resultadoEntrada" class="result"></div>
+
+    <!-- Card: PDF -->
+    <div class="card">
+      <div class="card-header" onclick="toggleCard(this)">
+        <h3>📄 Gerar PDF da Simulação</h3>
+        <span class="toggle-icon">+</span>
+      </div>
+      <div class="card-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>👤 Cliente</label>
+            <input type="text" id="pdfCliente" placeholder="Nome do cliente">
+          </div>
+
+          <div class="form-group">
+            <label>📞 Telefone do Cliente</label>
+            <input type="tel" id="pdfClienteFone" oninput="formatarTelefone(this)" placeholder="(00) 00000-0000">
+          </div>
+
+          <div class="form-group">
+            <label>🧑‍💼 Corretor(a)</label>
+            <input type="text" id="pdfCorretor" placeholder="Nome do corretor">
+          </div>
+
+          <div class="form-group">
+            <label>📞 Telefone do Corretor</label>
+            <input type="tel" id="pdfCorretorFone" oninput="formatarTelefone(this)" placeholder="(00) 00000-0000">
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="info-box green">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>📈 Deseja incluir estimativa do INCC?</label>
+              <select id="pdfINCCIncluir" onchange="toggleINCC()">
+                <option value="nao" selected>Não</option>
+                <option value="sim">Sim</option>
+              </select>
+            </div>
+
+            <div class="form-group" id="boxINCCtaxa" style="display:none;">
+              <label>📌 INCC (média mensal) %</label>
+              <input type="text" id="pdfINCCtaxa" value="0,5" inputmode="decimal">
+              <div class="link-small">
+                📊 INCC atualizado disponível em:
+                <a href="https://portal.fgv.br/noticias/incc-m-2025" target="_blank" rel="noopener">portal.fgv.br</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="divider" id="divINCCsub" style="display:none;"></div>
+
+          <div class="form-grid" id="boxINCCsub" style="display:none;">
+            <div class="form-group">
+              <label>Incluir INCC na Entrada?</label>
+              <select id="pdfINCCEntrada">
+                <option value="nao" selected>Não</option>
+                <option value="sim">Sim</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Incluir INCC no Saldo Devedor?</label>
+              <select id="pdfINCCSaldo">
+                <option value="nao" selected>Não</option>
+                <option value="sim">Sim</option>
+              </select>
+            </div>
+
+            <div class="form-group form-full">
+              <div class="note">
+                * O INCC é uma <strong>estimativa média</strong> e pode variar mensalmente. Os valores são educativos.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-secondary btn-full btn-center" onclick="gerarPDF()">
+          📥 Gerar PDF da Simulação
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>Simulador Imobiliário • Uso educativo • Valores estimados • Não substitui análise bancária</p>
+    <p>Desenvolvido com ❤️ para facilitar simulações imobiliárias</p>
+  </footer>
+
+  <script>
+    // ============================================
+    // FUNÇÕES UTILITÁRIAS
+    // ============================================
+    
+    function formatarMoeda(input) {
+      let valor = (input.value || "").replace(/\D/g, "");
+      if (!valor) {
+        input.value = "";
+        return;
+      }
+      valor = (parseInt(valor, 10) / 100).toFixed(2).replace(".", ",");
+      valor = valor.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+      input.value = "R$ " + valor;
+    }
+
+    function limparMoeda(valor) {
+      return parseFloat((valor || "").replace(/[R$\.\s]/g, "").replace(",", ".")) || 0;
+    }
+
+    function moeda(numero) {
+      return numero.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    }
+
+    function formatarTelefone(input) {
+      let valor = (input.value || "").replace(/\D/g, "").slice(0, 11);
+      if (valor.length <= 2) {
+        input.value = valor;
+        return;
+      }
+      const ddd = valor.slice(0, 2);
+      const resto = valor.slice(2);
+      if (resto.length <= 4) {
+        input.value = `(${ddd}) ${resto}`;
+        return;
+      }
+      if (resto.length <= 8) {
+        input.value = `(${ddd}) ${resto.slice(0, 4)}-${resto.slice(4)}`;
+        return;
+      }
+      input.value = `(${ddd}) ${resto.slice(0, 5)}-${resto.slice(5)}`;
+    }
+
+    function parsePercentToMonthlyRate() {
+      const raw = (document.getElementById("pdfINCCtaxa").value || "0")
+        .trim()
+        .replace("%", "")
+        .replace(/\s+/g, "")
+        .replace(",", ".");
+      const p = parseFloat(raw);
+      if (!isFinite(p) || p < 0) return 0;
+      return p / 100;
+    }
+
+    // ============================================
+    // GERAÇÃO DE MESES/ANO
+    // ============================================
+    
+    function gerarMesAno() {
+      const hoje = new Date();
+      const meses = [];
+      const nomesMeses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+      
+      for (let i = 0; i < 48; i++) {
+        const data = new Date(hoje.getFullYear(), hoje.getMonth() + i, 1);
+        meses.push(`${nomesMeses[data.getMonth()]}/${String(data.getFullYear()).slice(-2)}`);
+      }
+      return meses;
+    }
+
+    // Popular select de entrega
+    (function inicializarEntrega() {
+      const select = document.getElementById("entregaSelect");
+      gerarMesAno().forEach(mes => {
+        const option = document.createElement("option");
+        option.textContent = mes;
+        select.appendChild(option);
+      });
+    })();
+
+    // ============================================
+    // CONTROLE DE INTERFACE
+    // ============================================
+    
+    function toggleCard(header) {
+      const body = header.nextElementSibling;
+      const icon = header.querySelector(".toggle-icon");
+      const isActive = body.classList.contains("active");
+      
+      body.classList.toggle("active");
+      icon.textContent = isActive ? "+" : "−";
+    }
+
+    function toggleINCC() {
+      const incluir = document.getElementById("pdfINCCIncluir").value === "sim";
+      document.getElementById("boxINCCtaxa").style.display = incluir ? "block" : "none";
+      document.getElementById("divINCCsub").style.display = incluir ? "block" : "none";
+      document.getElementById("boxINCCsub").style.display = incluir ? "grid" : "none";
+
+      if (!incluir) {
+        document.getElementById("pdfINCCtaxa").value = "0,5";
+        document.getElementById("pdfINCCEntrada").value = "nao";
+        document.getElementById("pdfINCCSaldo").value = "nao";
+      }
+    }
+
+    function toggleInter() {
+      const tem = document.getElementById("temInter").value;
+      const mostrar = tem === "sim";
+      
+      document.getElementById("boxInterQtd").style.display = mostrar ? "block" : "none";
+      document.getElementById("boxInterRows").style.display = mostrar ? "block" : "none";
+      
+      if (mostrar) {
+        renderInterRows();
+      } else {
+        document.getElementById("interList").innerHTML = "";
+        document.getElementById("qtdInter").value = 1;
+      }
+    }
+
+    function renderInterRows() {
+      const quantidade = parseInt(document.getElementById("qtdInter").value, 10) || 0;
+      const lista = document.getElementById("interList");
+      lista.innerHTML = "";
+      
+      if (quantidade <= 0) return;
+
+      const meses = gerarMesAno();
+      
+      for (let i = 1; i <= quantidade; i++) {
+        const item = document.createElement("div");
+        item.className = "inter-item";
+        item.innerHTML = `
+          <div class="form-group">
+            <label>${i}º pagamento</label>
+            <select>${meses.map(m => `<option>${m}</option>`).join("")}</select>
+          </div>
+          <div class="form-group">
+            <label>Valor (R$) <span style="color: #ef4444;">*</span></label>
+            <input type="text" oninput="formatarMoeda(this)" placeholder="R$ 0,00">
+          </div>
+        `;
+        lista.appendChild(item);
+      }
+    }
+
+    // ============================================
+    // CÁLCULO DE ENTRADA
+    // ============================================
+    
+    function setResultadoEntrada(tipo, html) {
+      const resultado = document.getElementById("resultadoEntrada");
+      resultado.className = `result ${tipo} show`;
+      resultado.innerHTML = html;
+    }
+
+    function calcularEntrada() {
+      const valorImovel = limparMoeda(document.getElementById("valorImovel").value);
+      const valorFinanciamento = limparMoeda(document.getElementById("valorFinanciamento").value);
+      const valorAto = limparMoeda(document.getElementById("ato").value);
+      const renda = limparMoeda(document.getElementById("renda").value);
+      const parcelas = parseInt(document.getElementById("parcelasEntrada").value, 10) || 0;
+
+      // Validação
+      if (!valorImovel || !valorFinanciamento || !renda || !parcelas) {
+        setResultadoEntrada("error", `
+          <h3>⚠️ Dados Incompletos</h3>
+          <p class="alert-text">Preencha todos os campos obrigatórios: Valor do Imóvel, Financiamento, Renda e Parcelas.</p>
+          <button class="btn btn-danger btn-full" onclick="limparEntrada()">Limpar Resultado</button>
+        `);
+        return;
+      }
+
+      const valorEntrada = valorImovel - valorFinanciamento;
+      const temInter = document.getElementById("temInter").value === "sim";
+      const interVals = [];
+      const interMeta = [];
+
+      // Processar intermediárias
+      if (temInter) {
+        const rows = document.querySelectorAll("#interList .inter-item");
+        if (!rows.length) {
+          setResultadoEntrada("error", `
+            <h3>⚠️ Pagamentos Extras</h3>
+            <p class="alert-text">Você marcou pagamentos extras, mas não informou a quantidade.</p>
+            <button class="btn btn-danger btn-full" onclick="limparEntrada()">Limpar Resultado</button>
+          `);
+          return;
+        }
+
+        let faltando = false;
+        rows.forEach(row => {
+          const select = row.querySelector("select");
+          const input = row.querySelector("input");
+          const data = select ? select.value : "-";
+          const mesesAte = select ? select.selectedIndex : 0;
+          const valor = limparMoeda(input ? input.value : "");
+          
+          if (!valor || valor <= 0) faltando = true;
+          
+          interVals.push(valor);
+          interMeta.push({ data, mesesAte, valorBase: valor });
+        });
+
+        if (faltando) {
+          setResultadoEntrada("error", `
+            <h3>⚠️ Valores Obrigatórios</h3>
+            <p class="alert-text">Preencha o valor de todos os pagamentos extras.</p>
+            <button class="btn btn-danger btn-full" onclick="limparEntrada()">Limpar Resultado</button>
+          `);
+          return;
+        }
+      }
+
+      const somaInter = interVals.reduce((a, b) => a + b, 0);
+      let saldo = valorEntrada - valorAto - somaInter;
+      const entregaTxt = document.getElementById("entregaSelect").value;
+
+      // Caso: Ato + extras cobrem tudo
+      if (saldo <= 0) {
+        window.__lastEntradaCalc = {
+          entradaTotal: valorEntrada,
+          ato: valorAto,
+          parcelas,
+          mensal: 0,
+          interVals,
+          interMeta,
+          saldoRestante: 0,
+          status: "success"
+        };
+
+        const interHtml = temInter && somaInter > 0
+          ? `<p>💵 Pagamentos extras: <strong>${moeda(somaInter)}</strong></p>`
+          : "";
+
+        setResultadoEntrada("success", `
+          <h3>✅ Fluxo de Entrada Calculado</h3>
+          <p>📅 Previsão de entrega: <strong>${entregaTxt}</strong></p>
+          <p>💰 <strong>Entrada Total:</strong> ${moeda(valorEntrada)}</p>
+          <div class="divider"></div>
+          <p>💸 Ato: <strong>${moeda(valorAto)}</strong></p>
+          ${
