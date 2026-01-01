@@ -678,115 +678,173 @@
     }
 
     async function gerarPDF(){
-      if(!window.jspdf || !window.jspdf.jsPDF){
-        alert("Biblioteca do PDF não carregou.");
-        return;
-      }
+  if(!window.jspdf || !window.jspdf.jsPDF){
+    alert("Biblioteca do PDF não carregou.");
+    return;
+  }
 
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF({ unit:"mm", format:"a4" });
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:"mm", format:"a4" });
 
-      const dataDoc = new Date().toLocaleDateString("pt-BR");
+  const left = 14;
+  const right = 196;
+  const pageW = right - left;
+  let y = 10;
 
-      const empreendimento = (document.getElementById("empreendimento").value || "").trim() || "-";
-      const unidade = (document.getElementById("unidade").value || "").trim() || "-";
-      const valorImovelTxt = document.getElementById("valorImovel").value || "-";
-      const valorFinTxt = document.getElementById("valorFinanciamento").value || "-";
-      const rendaTxt = document.getElementById("renda").value || "R$ 0,00";
-      const entregaTxt = document.getElementById("entregaSelect").value || "-";
+  const azul = [30, 58, 138];
+  const cinza = [240, 242, 245];
 
-      const pdfCliente = (document.getElementById("pdfCliente").value || "").trim() || "-";
-      const pdfClienteFone = (document.getElementById("pdfClienteFone").value || "").trim() || "-";
-      const pdfCorretor = (document.getElementById("pdfCorretor").value || "").trim() || "-";
-      const pdfCorretorFone = (document.getElementById("pdfCorretorFone").value || "").trim() || "-";
+  const hoje = new Date().toLocaleDateString("pt-BR");
 
-      const atoTxt = document.getElementById("ato").value || "R$ 0,00";
-      const parcelasTxt = document.getElementById("parcelasEntrada").value || "-";
-      const aceitaPosTxt = (document.getElementById("aceitaPos").value === "sim") ? "Sim" : "Não";
+  const entrada = window.__lastEntradaCalc;
 
-      let y = 14;
-      const left = 14;
-      const right = 196;
-      const maxW = right - left;
+  /* =========================
+     CABEÇALHO
+  ========================== */
+  doc.setFillColor(...azul);
+  doc.rect(0, 0, 210, 26, "F");
 
-      doc.setFont("helvetica","bold");
-      doc.setFontSize(14);
-      doc.text("SIMULAÇÃO FINANCEIRA – SBPE (PÓS-OBRA)", 105, y, { align:"center" });
-      y += 7;
+  doc.setTextColor(255,255,255);
+  doc.setFont("helvetica","bold");
+  doc.setFontSize(16);
+  doc.text("SIMULAÇÃO FINANCEIRA – SBPE", 105, 14, { align:"center" });
 
-      doc.setDrawColor(200);
-      doc.line(left, y, right, y);
-      y += 6;
+  doc.setFontSize(10);
+  doc.setFont("helvetica","normal");
+  doc.text("Financiamento Próprio Pós-Obra", 105, 20, { align:"center" });
 
-      doc.setFont("helvetica","bold");
-      doc.setFontSize(11);
-      doc.text("Identificação", left, y);
-      y += 6;
+  y = 34;
+  doc.setTextColor(0,0,0);
 
-      doc.setFont("helvetica","normal");
-      doc.setFontSize(10);
-      y = writeWrap(doc, `Cliente: ${pdfCliente} | Tel: ${pdfClienteFone}`, left, y, maxW, 5);
-      y = writeWrap(doc, `Corretor(a): ${pdfCorretor} | Tel: ${pdfCorretorFone}`, left, y, maxW, 5);
-      y = writeWrap(doc, `Empreendimento: ${empreendimento}`, left, y, maxW, 5);
-      y = writeWrap(doc, `Unidade/Bloco/Andar: ${unidade}`, left, y, maxW, 5);
-      y = writeWrap(doc, `Data do documento: ${dataDoc}`, left, y, maxW, 5);
+  /* =========================
+     FUNÇÃO CARD
+  ========================== */
+  function card(titulo, altura){
+    doc.setDrawColor(220);
+    doc.setFillColor(...cinza);
+    doc.roundedRect(left, y, pageW, altura, 4, 4, "F");
 
-      y += 2;
-      doc.setDrawColor(220);
-      doc.line(left, y, right, y);
-      y += 6;
+    doc.setFont("helvetica","bold");
+    doc.setFontSize(11);
+    doc.text(titulo, left+4, y+7);
 
-      doc.setFont("helvetica","bold");
-      doc.setFontSize(11);
-      doc.text("Resumo Financeiro", left, y);
-      y += 6;
+    doc.setFont("helvetica","normal");
+    doc.setFontSize(10);
+  }
 
-      doc.setFont("helvetica","normal");
-      doc.setFontSize(10);
-      y = writeWrap(doc, `Valor do imóvel: ${valorImovelTxt}`, left, y, maxW, 5);
-      y = writeWrap(doc, `Valor previsto para financiamento (pós-obra): ${valorFinTxt}`, left, y, maxW, 5);
-      y = writeWrap(doc, `Renda familiar: ${rendaTxt}`, left, y, maxW, 5);
-      y = writeWrap(doc, `Previsão de entrega: ${entregaTxt}`, left, y, maxW, 5);
+  /* =========================
+     IDENTIFICAÇÃO
+  ========================== */
+  card("Identificação", 36);
 
-      y += 2;
-      doc.setDrawColor(220);
-      doc.line(left, y, right, y);
-      y += 6;
+  let ty = y + 14;
+  doc.text(`Cliente: ${pdfCliente.value || "-"}`, left+4, ty);
+  doc.text(`Telefone: ${pdfClienteFone.value || "-"}`, left+100, ty);
 
-      doc.setFont("helvetica","bold");
-      doc.setFontSize(11);
-      doc.text("Fluxo de Pagamento – Entrada", left, y);
-      y += 6;
+  ty += 6;
+  doc.text(`Corretor(a): ${pdfCorretor.value || "-"}`, left+4, ty);
+  doc.text(`Telefone: ${pdfCorretorFone.value || "-"}`, left+100, ty);
 
-      doc.setFont("helvetica","normal");
-      doc.setFontSize(10);
+  ty += 6;
+  doc.text(`Empreendimento: ${empreendimento.value || "-"}`, left+4, ty);
 
-      const entradaCalc = window.__lastEntradaCalc;
-      if(!entradaCalc){
-        y = writeWrap(doc, "Fluxo não calculado no simulador. Gere o cálculo de entrada antes de gerar o PDF.", left, y, maxW, 5);
-      } else {
-        y = writeWrap(doc, `Entrada Total: ${moeda(entradaCalc.entradaTotal)}`, left, y, maxW, 5);
-        y = writeWrap(doc, `Ato: ${atoTxt}`, left, y, maxW, 5);
-        y = writeWrap(doc, `Meses/Parcelas (entrada): ${parcelasTxt}`, left, y, maxW, 5);
+  ty += 6;
+  doc.text(`Unidade: ${unidade.value || "-"}`, left+4, ty);
+  doc.text(`Data do documento: ${hoje}`, left+100, ty);
 
-        if(entradaCalc.interVals && entradaCalc.interVals.length){
-          const totalInter = entradaCalc.interVals.reduce((a,b)=>a+b,0);
-          y = writeWrap(doc, `Pagamentos extras: ${moeda(totalInter)}`, left, y, maxW, 5);
-        }
+  y += 44;
 
-        y = writeWrap(doc, `Mensais (${entradaCalc.parcelas}x): ${moeda(entradaCalc.mensal)}`, left, y, maxW, 5);
+  /* =========================
+     RESUMO FINANCEIRO
+  ========================== */
+  card("Resumo Financeiro", 36);
+  ty = y + 14;
 
-        if(entradaCalc.saldoRestante && entradaCalc.saldoRestante > 0){
-          y = writeWrap(doc, `Saldo restante: ${moeda(entradaCalc.saldoRestante)} (Pós-Chaves/Pró-Soluto: ${aceitaPosTxt})`, left, y, maxW, 5);
-          y = writeWrap(doc, `Saldo restante previsto para financiamento pós-obra (SBPE).`, left, y, maxW, 5);
-        }
+  doc.setFont("helvetica","bold");
+  doc.text("Valor do imóvel:", left+4, ty);
+  doc.text(valorImovel.value || "-", left+70, ty);
 
-        y = writeWrap(doc, "Observação: Considerado limite de 30% da renda familiar para parcelas mensais.", left, y, maxW, 5);
-        y = writeWrap(doc, "Observação: Simulação voltada para financiamento contratado após a conclusão do empreendimento (SBPE pós-obra).", left, y, maxW, 5);
-      }
+  ty += 6;
+  doc.text("Entrada total:", left+4, ty);
+  doc.text(entrada ? moeda(entrada.entradaTotal) : "-", left+70, ty);
 
-      doc.save("simulacao-sbpe-pos-obra.pdf");
+  ty += 6;
+  doc.text("Valor previsto p/ financiamento:", left+4, ty);
+  doc.text(valorFinanciamento.value || "-", left+70, ty);
+
+  ty += 6;
+  doc.text("Renda familiar:", left+4, ty);
+  doc.text(renda.value || "-", left+70, ty);
+
+  ty += 6;
+  doc.text("Previsão de entrega:", left+4, ty);
+  doc.text(entregaSelect.value || "-", left+70, ty);
+
+  doc.setFont("helvetica","normal");
+  y += 44;
+
+  /* =========================
+     FLUXO DE PAGAMENTO
+  ========================== */
+  card("Fluxo de Pagamento – Entrada", 42);
+  ty = y + 14;
+
+  doc.text(`Ato: ${ato.value || "R$ 0,00"}`, left+4, ty);
+  ty += 6;
+
+  if(entrada){
+    doc.text(`Mensais (${entrada.parcelas}x): ${moeda(entrada.mensal)}`, left+4, ty);
+    ty += 6;
+
+    if(entrada.interVals && entrada.interVals.length){
+      const totalInter = entrada.interVals.reduce((a,b)=>a+b,0);
+      doc.text(`Pagamentos extras: ${moeda(totalInter)}`, left+4, ty);
+      ty += 6;
     }
+
+    if(entrada.saldoRestante > 0){
+      doc.text(`Saldo restante: ${moeda(entrada.saldoRestante)}`, left+4, ty);
+      ty += 6;
+    }
+  }
+
+  doc.text("* Considerado limite de 30% da renda familiar para parcelas mensais.", left+4, ty);
+  y += 50;
+
+  /* =========================
+     ALERTA VISUAL
+  ========================== */
+  if(entrada && entrada.saldoRestante > 0){
+    doc.setFillColor(255, 249, 196);
+    doc.roundedRect(left, y, pageW, 18, 4, 4, "F");
+
+    doc.setFont("helvetica","bold");
+    doc.text("⚠ Atenção", left+4, y+7);
+
+    doc.setFont("helvetica","normal");
+    doc.text(
+      "Existe saldo restante previsto para financiamento no pós-obra (SBPE).",
+      left+4,
+      y+13
+    );
+
+    y += 26;
+  }
+
+  /* =========================
+     RODAPÉ
+  ========================== */
+  doc.setFontSize(9);
+  doc.setTextColor(90);
+  doc.text(
+    "Simulador Imobiliário • Uso educativo • Valores estimados • Não substitui análise bancária",
+    105,
+    288,
+    { align:"center" }
+  );
+
+  doc.save("simulacao-sbpe-pos-obra.pdf");
+}
 
     /* =========================
        INIT
