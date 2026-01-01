@@ -53,12 +53,13 @@
       font-weight: 700;
       margin-bottom: 6px;
     }
-    .campo input {
+    .campo input, .campo select {
       width: 100%;
       padding: 10px 12px;
       border-radius: 10px;
       border: 1px solid #ccc;
       font-size: 15px;
+      background: #fff;
     }
     .campo-full { grid-column: 1 / -1; }
 
@@ -90,7 +91,7 @@
     .header-pdf { background: #2563eb; }
 
     .toggle-icon {
-      background: rgba(255,255,255,.2);
+      background: rgba(255,255,255,.18);
       border-radius: 6px;
       width: 22px;
       height: 22px;
@@ -121,6 +122,14 @@
       margin: 16px 0;
     }
 
+    /* ===== CAIXAS ===== */
+    .box-claro {
+      background: #f6f9f7;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #e6efe9;
+    }
+
     /* ===== BOTÕES ===== */
     button {
       width: 100%;
@@ -138,6 +147,8 @@
     .btn-limpar {
       background: #c62828;
       margin-top: 14px;
+      text-transform: uppercase;
+      letter-spacing: .4px;
     }
 
     @media (min-width: 768px) {
@@ -156,161 +167,228 @@
       border-radius: 12px;
       margin: 12px 0 14px;
       border: 1px solid rgba(0,0,0,.08);
-      background: #eef2ff;
     }
+    .resultado.verde { background: #eaf7ee; border-color: #bfe6c9; }
+    .resultado.amarelo { background: #fff7da; border-color: #f0dc8a; }
+    .resultado.vermelho { background: #ffe3e3; border-color: #ffb7b7; }
 
-    .obs {
-      font-size: 13px;
-      font-style: italic;
-      margin-top: 10px;
-    }
+    .alerta { color: #8b1e1e; font-weight: 900; }
+    .obs { font-size: 13px; font-style: italic; margin-top: 10px; }
   </style>
 </head>
 
 <body>
 
-  <!-- ===== CABEÇALHO ===== -->
-  <div class="painel-topo">
-    <h1>SFH – Financiamento Próprio Pós-Obra (SBPE)</h1>
-    <p>Simulação para imóveis com financiamento contratado após a conclusão da obra.</p>
+<!-- =========================
+     CABEÇALHO
+========================== -->
+<div class="painel-topo">
+  <h1>SFH – Financiamento Próprio Pós-Obra (SBPE)</h1>
+  <p>Simulação para imóveis com financiamento contratado após a conclusão do empreendimento.</p>
 
-    <div class="grid-topo">
-      <div class="campo">
-        <label>🏢 Empreendimento</label>
-        <input id="empreendimento" />
-      </div>
+  <div class="grid-topo">
+    <div class="campo">
+      <label>🏢 Empreendimento</label>
+      <input id="empreendimento" />
+    </div>
 
-      <div class="campo">
-        <label>🏠 Unidade / Bloco / Andar</label>
-        <input id="unidade" />
-      </div>
+    <div class="campo">
+      <label>🏠 Unidade / Bloco / Andar</label>
+      <input id="unidade" />
+    </div>
 
-      <div class="campo">
-        <label>💰 Valor do Imóvel (R$)</label>
-        <input id="valorImovel" oninput="formatarMoeda(this)" />
-      </div>
+    <div class="campo">
+      <label>🏠 Valor do Imóvel (R$)</label>
+      <input id="valorImovel" oninput="formatarMoeda(this)" />
+    </div>
 
-      <div class="campo">
-        <label>🏦 Valor Previsto para Financiamento (R$)</label>
-        <input id="valorFinanciamento" oninput="formatarMoeda(this)" />
-      </div>
+    <div class="campo">
+      <label>🏦 Valor Previsto para Financiamento (R$)</label>
+      <input id="valorFinanciamento" oninput="formatarMoeda(this)" />
+    </div>
 
-      <div class="campo campo-full">
-        <label>👨‍👩‍👧‍👦 Renda Familiar Mensal (R$)</label>
-        <input id="renda" oninput="formatarMoeda(this)" />
-      </div>
+    <div class="campo campo-full">
+      <label>👨‍👩‍👧‍👦 Renda Familiar Mensal (R$)</label>
+      <input id="renda" oninput="formatarMoeda(this)" />
     </div>
   </div>
+</div>
 
-  <div class="container">
+<div class="container">
 
-    <!-- ===== ENTRADA ===== -->
-    <div class="bloco">
-      <div class="bloco-header header-entrada" onclick="toggleBloco(this)">
-        <span>💰 Entrada / Fluxo Inicial</span>
-        <span class="toggle-icon">+</span>
-      </div>
-
-      <div class="bloco-conteudo">
-        <div class="subgrid">
-          <div class="campo">
-            <label>💸 Valor da Entrada / Ato (R$)</label>
-            <input id="ato" oninput="formatarMoeda(this)" />
-          </div>
-
-          <div class="campo">
-            <label>🗓️ Parcelas Diretas com a Construtora</label>
-            <input id="parcelas" type="number" min="1" />
-          </div>
-        </div>
-
-        <button class="btn-entrada" onclick="calcularEntrada()">Calcular Estrutura</button>
-      </div>
-    </div>
-
-    <div id="resultadoEntrada" class="resultado"></div>
-
-    <!-- ===== PDF ===== -->
-    <div class="bloco">
-      <div class="bloco-header header-pdf" onclick="toggleBloco(this)">
-        <span>📄 Gerar PDF</span>
-        <span class="toggle-icon">+</span>
-      </div>
-
-      <div class="bloco-conteudo">
-        <div class="subgrid">
-          <div class="campo">
-            <label>👤 Cliente</label>
-            <input id="pdfCliente" />
-          </div>
-
-          <div class="campo">
-            <label>🧑‍💼 Corretor</label>
-            <input id="pdfCorretor" />
-          </div>
-        </div>
-
-        <button class="btn-pdf" onclick="gerarPDF()">Gerar PDF</button>
-      </div>
-    </div>
-
+<!-- =========================
+     ENTRADA / FLUXO
+========================== -->
+<div class="bloco">
+  <div class="bloco-header header-entrada" onclick="toggleBloco(this)">
+    <span>💰 Entrada / Fluxo Inicial</span>
+    <span class="toggle-icon">+</span>
   </div>
 
-  <script>
-    function toggleBloco(el){
-      const c = el.nextElementSibling;
-      const i = el.querySelector(".toggle-icon");
-      const aberto = c.style.display === "block";
-      c.style.display = aberto ? "none" : "block";
-      i.textContent = aberto ? "+" : "–";
-    }
+  <div class="bloco-conteudo">
+    <div class="subgrid">
+      <div class="campo">
+        <label>💸 Valor do Ato (R$)</label>
+        <input id="ato" oninput="formatarMoeda(this)" />
+      </div>
 
-    function formatarMoeda(c){
-      let v = (c.value || "").replace(/\D/g, "");
-      if(!v){ c.value = ""; return; }
-      v = (parseInt(v,10) / 100).toFixed(2).replace(".", ",");
-      v = v.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-      c.value = "R$ " + v;
-    }
+      <div class="campo">
+        <label>🗓️ Meses / Parcelas</label>
+        <input id="parcelasEntrada" type="number" min="1" />
+      </div>
+    </div>
 
-    function limparMoeda(v){
-      return parseFloat((v||"").replace(/[R$\.\s]/g,"").replace(",", ".")) || 0;
-    }
+    <button class="btn-entrada" onclick="calcularEntrada()">Calcular Entrada</button>
+  </div>
+</div>
 
-    function calcularEntrada(){
-      const im = limparMoeda(valorImovel.value);
-      const fi = limparMoeda(valorFinanciamento.value);
-      const at = limparMoeda(ato.value);
-      const p = parseInt(parcelas.value || 0);
+<div id="resultadoEntrada" class="resultado"></div>
 
-      const saldo = im - at - (fi || 0);
+<!-- =========================
+     PDF
+========================== -->
+<div class="bloco">
+  <div class="bloco-header header-pdf" onclick="toggleBloco(this)">
+    <span>📄 Gerar PDF</span>
+    <span class="toggle-icon">+</span>
+  </div>
 
-      resultadoEntrada.innerHTML = `
-        <h3>📌 Estrutura Financeira</h3>
-        <p>Valor do imóvel: <b>R$ ${im.toLocaleString("pt-BR")}</b></p>
-        <p>Entrada paga: <b>R$ ${at.toLocaleString("pt-BR")}</b></p>
-        <p>Saldo estimado para financiamento: <b>R$ ${saldo.toLocaleString("pt-BR")}</b></p>
-        <div class="obs">
-          * Financiamento previsto para contratação após a conclusão do empreendimento.
-        </div>
-      `;
-      resultadoEntrada.style.display = "block";
-    }
+  <div class="bloco-conteudo">
+    <div class="subgrid">
+      <div class="campo">
+        <label>👤 Cliente</label>
+        <input id="pdfCliente" />
+      </div>
 
-    async function gerarPDF(){
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
+      <div class="campo">
+        <label>🧑‍💼 Corretor</label>
+        <input id="pdfCorretor" />
+      </div>
+    </div>
 
-      doc.text("SFH – Financiamento Próprio Pós-Obra (SBPE)", 10, 15);
-      doc.text(`Cliente: ${pdfCliente.value || "-"}`, 10, 30);
-      doc.text(`Corretor: ${pdfCorretor.value || "-"}`, 10, 38);
-      doc.text(`Empreendimento: ${empreendimento.value || "-"}`, 10, 46);
-      doc.text(`Valor do imóvel: ${valorImovel.value || "-"}`, 10, 54);
-      doc.text(`Valor previsto para financiamento: ${valorFinanciamento.value || "-"}`, 10, 62);
+    <button class="btn-pdf" onclick="gerarPDF()">Gerar PDF da Simulação</button>
+  </div>
+</div>
 
-      doc.save("simulacao-sbpe-pos-obra.pdf");
-    }
-  </script>
+</div>
+
+<script>
+/* =========================
+   UTIL
+========================= */
+function formatarMoeda(c){
+  let v = (c.value || "").replace(/\D/g, "");
+  if(!v){ c.value = ""; return; }
+  v = (parseInt(v,10) / 100).toFixed(2).replace(".", ",");
+  v = v.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  c.value = "R$ " + v;
+}
+function limparMoeda(v){
+  return parseFloat((v||"").replace(/[R$\.\s]/g,"").replace(",", ".")) || 0;
+}
+function moeda(n){
+  return n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+}
+
+/* =========================
+   UI
+========================= */
+function toggleBloco(el){
+  const c = el.nextElementSibling;
+  const i = el.querySelector(".toggle-icon");
+  const aberto = c.style.display === "block";
+  c.style.display = aberto ? "none" : "block";
+  i.textContent = aberto ? "+" : "–";
+}
+
+/* =========================
+   ENTRADA (IGUAL AO MCMV)
+========================= */
+function setResultadoEntrada(tipo, html){
+  const out = document.getElementById("resultadoEntrada");
+  out.className = "resultado " + tipo;
+  out.innerHTML = html;
+  out.style.display = "block";
+}
+
+function calcularEntrada(){
+  const im = limparMoeda(valorImovel.value);
+  const fi = limparMoeda(valorFinanciamento.value);
+  const at = limparMoeda(ato.value);
+  const re = limparMoeda(renda.value);
+  const p  = parseInt(parcelasEntrada.value,10) || 0;
+
+  if(!im || !fi || !re || !p){
+    setResultadoEntrada("vermelho",
+      `<h3>⚠️ Entrada / Fluxo Inicial</h3>
+       <p class="alerta">Preencha todos os campos obrigatórios.</p>
+       <button class="btn-limpar" onclick="limparEntrada()">LIMPAR</button>`
+    );
+    return;
+  }
+
+  const entrada = im - fi;
+  let saldo = entrada - at;
+  const limiteMensal = re * 0.30;
+  let mensal = saldo / p;
+  let resto = 0;
+
+  if(mensal > limiteMensal){
+    mensal = limiteMensal;
+    resto = saldo - (mensal * p);
+  }
+
+  if(resto <= 0){
+    setResultadoEntrada("verde",
+      `<h3>✅ Fluxo de Entrada</h3>
+       <p>Entrada total: <b>${moeda(entrada)}</b></p>
+       <p>Ato: <b>${moeda(at)}</b></p>
+       <p>Mensais (${p}x): <b>${moeda(mensal)}</b></p>
+       <button class="btn-limpar" onclick="limparEntrada()">LIMPAR</button>`
+    );
+    return;
+  }
+
+  setResultadoEntrada("amarelo",
+    `<h3>⚠️ Entrada com saldo restante</h3>
+     <p>Entrada total: <b>${moeda(entrada)}</b></p>
+     <p>Ato: <b>${moeda(at)}</b></p>
+     <p>Mensais (${p}x): <b>${moeda(mensal)}</b></p>
+     <p><b>Saldo restante:</b> ${moeda(resto)}</p>
+     <div class="obs">Saldo a ser financiado após a conclusão do empreendimento.</div>
+     <button class="btn-limpar" onclick="limparEntrada()">LIMPAR</button>`
+  );
+}
+
+function limparEntrada(){
+  resultadoEntrada.style.display="none";
+  resultadoEntrada.innerHTML="";
+  resultadoEntrada.className="resultado";
+}
+
+/* =========================
+   PDF
+========================= */
+async function gerarPDF(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  doc.text("SFH – Financiamento Próprio Pós-Obra (SBPE)", 14, 16);
+  doc.text(`Cliente: ${pdfCliente.value || "-"}`, 14, 28);
+  doc.text(`Corretor: ${pdfCorretor.value || "-"}`, 14, 36);
+  doc.text(`Empreendimento: ${empreendimento.value || "-"}`, 14, 44);
+  doc.text(`Valor do imóvel: ${valorImovel.value || "-"}`, 14, 52);
+  doc.text(`Valor previsto para financiamento: ${valorFinanciamento.value || "-"}`, 14, 60);
+
+  doc.text(
+    "Observação: Simulação baseada em financiamento pós-obra. Valores estimados.",
+    14,
+    72
+  );
+
+  doc.save("simulacao-sbpe-pos-obra.pdf");
+}
+</script>
 
 </body>
 </html>
