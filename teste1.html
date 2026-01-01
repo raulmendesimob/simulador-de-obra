@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SFH – Financiamento Próprio Pós-Obra (SBPE)</title>
+  <title>SFH — SBPE (Financiamento Pós-Obra)</title>
 
   <!-- jsPDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -17,7 +17,7 @@
       color: #222;
     }
 
-    /* ===== TOPO ===== */
+    /* ===== TOP FIXO ===== */
     .painel-topo {
       background: #fff;
       border-bottom: 1px solid #e0e0e0;
@@ -26,19 +26,20 @@
     .painel-topo h1 {
       text-align: center;
       color: #1e3a8a;
-      margin: 0 0 8px;
+      margin: 0 0 6px;
       font-size: 22px;
     }
-    .painel-topo p {
+    .painel-topo .sub {
       text-align: center;
-      margin: 0;
+      margin: 0 0 16px;
       font-size: 13px;
       color: #444;
+      line-height: 1.35;
     }
 
     .grid-topo {
       max-width: 980px;
-      margin: 16px auto 0;
+      margin: 0 auto;
       display: grid;
       grid-template-columns: 1fr;
       gap: 12px;
@@ -88,7 +89,7 @@
       align-items: center;
     }
     .header-entrada { background: #1e3a8a; }
-    .header-pdf { background: #2563eb; }
+    .header-pdf     { background: #2563eb; }
 
     .toggle-icon {
       background: rgba(255,255,255,.18);
@@ -100,7 +101,6 @@
       justify-content: center;
       font-weight: 900;
     }
-
     .bloco-conteudo {
       display: none;
       padding: 18px;
@@ -122,12 +122,20 @@
       margin: 16px 0;
     }
 
-    /* ===== CAIXAS ===== */
+    /* ===== CAIXAS CLARAS (igual MCMV) ===== */
     .box-claro {
       background: #f6f9f7;
       padding: 12px;
       border-radius: 10px;
       border: 1px solid #e6efe9;
+    }
+    .box-claro.azul {
+      background: #f2f6fb;
+      border-color: #dbe6f7;
+    }
+    .box-claro.amarelo {
+      background: #fffbe8;
+      border-color: #f3e7b3;
     }
 
     /* ===== BOTÕES ===== */
@@ -143,14 +151,13 @@
       margin-top: 12px;
     }
     .btn-entrada { background: #1e3a8a; }
-    .btn-pdf { background: #2563eb; }
-    .btn-limpar {
+    .btn-pdf     { background: #2563eb; }
+    .btn-limpar  {
       background: #c62828;
       margin-top: 14px;
       text-transform: uppercase;
       letter-spacing: .4px;
     }
-
     @media (min-width: 768px) {
       button {
         width: 50%;
@@ -160,7 +167,7 @@
       }
     }
 
-    /* ===== RESULTADO ===== */
+    /* ===== RESULTADOS ===== */
     .resultado {
       display: none;
       padding: 16px;
@@ -168,227 +175,625 @@
       margin: 12px 0 14px;
       border: 1px solid rgba(0,0,0,.08);
     }
-    .resultado.verde { background: #eaf7ee; border-color: #bfe6c9; }
+    .resultado.verde   { background: #eaf7ee; border-color: #bfe6c9; }
     .resultado.amarelo { background: #fff7da; border-color: #f0dc8a; }
-    .resultado.vermelho { background: #ffe3e3; border-color: #ffb7b7; }
+    .resultado.vermelho{ background: #ffe3e3; border-color: #ffb7b7; }
 
     .alerta { color: #8b1e1e; font-weight: 900; }
-    .obs { font-size: 13px; font-style: italic; margin-top: 10px; }
+
+    .obs {
+      margin-top: 10px;
+      font-style: italic;
+      font-size: 13px;
+      color: #222;
+      line-height: 1.35;
+    }
+
+    /* ===== INTERMEDIÁRIAS ===== */
+    .inter-list { display: flex; flex-direction: column; gap: 10px; }
+    .inter-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      background: #fff;
+      border: 1px solid #e6efe9;
+      padding: 10px;
+      border-radius: 10px;
+    }
+    @media (min-width: 768px) {
+      .inter-row { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* ===== PDF layout (igual MCMV) ===== */
+    .linha-flex {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+    .linha-flex .campo {
+      flex: 1 1 280px;
+      margin: 0;
+    }
+    .helpbox {
+      margin-top: 10px;
+      font-style: italic;
+      font-size: 13px;
+      line-height: 1.35;
+      color: #222;
+    }
   </style>
 </head>
 
 <body>
 
-<!-- =========================
-     CABEÇALHO
-========================== -->
-<div class="painel-topo">
-  <h1>SFH – Financiamento Próprio Pós-Obra (SBPE)</h1>
-  <p>Simulação para imóveis com financiamento contratado após a conclusão do empreendimento.</p>
+  <!-- =========================
+       CABEÇALHO (mesmo padrão)
+  ========================== -->
+  <div class="painel-topo">
+    <h1>Simulador Imobiliário — SFH / SBPE</h1>
+    <p class="sub">
+      Financiamento contratado <b>após a conclusão</b> do empreendimento (Pós-Obra).<br/>
+      A estrutura de entrada segue o mesmo padrão do simulador principal.
+    </p>
 
-  <div class="grid-topo">
-    <div class="campo">
-      <label>🏢 Empreendimento</label>
-      <input id="empreendimento" />
-    </div>
-
-    <div class="campo">
-      <label>🏠 Unidade / Bloco / Andar</label>
-      <input id="unidade" />
-    </div>
-
-    <div class="campo">
-      <label>🏠 Valor do Imóvel (R$)</label>
-      <input id="valorImovel" oninput="formatarMoeda(this)" />
-    </div>
-
-    <div class="campo">
-      <label>🏦 Valor Previsto para Financiamento (R$)</label>
-      <input id="valorFinanciamento" oninput="formatarMoeda(this)" />
-    </div>
-
-    <div class="campo campo-full">
-      <label>👨‍👩‍👧‍👦 Renda Familiar Mensal (R$)</label>
-      <input id="renda" oninput="formatarMoeda(this)" />
-    </div>
-  </div>
-</div>
-
-<div class="container">
-
-<!-- =========================
-     ENTRADA / FLUXO
-========================== -->
-<div class="bloco">
-  <div class="bloco-header header-entrada" onclick="toggleBloco(this)">
-    <span>💰 Entrada / Fluxo Inicial</span>
-    <span class="toggle-icon">+</span>
-  </div>
-
-  <div class="bloco-conteudo">
-    <div class="subgrid">
+    <div class="grid-topo">
       <div class="campo">
-        <label>💸 Valor do Ato (R$)</label>
-        <input id="ato" oninput="formatarMoeda(this)" />
+        <label>🏢 Empreendimento</label>
+        <input id="empreendimento" />
       </div>
 
       <div class="campo">
-        <label>🗓️ Meses / Parcelas</label>
-        <input id="parcelasEntrada" type="number" min="1" />
-      </div>
-    </div>
-
-    <button class="btn-entrada" onclick="calcularEntrada()">Calcular Entrada</button>
-  </div>
-</div>
-
-<div id="resultadoEntrada" class="resultado"></div>
-
-<!-- =========================
-     PDF
-========================== -->
-<div class="bloco">
-  <div class="bloco-header header-pdf" onclick="toggleBloco(this)">
-    <span>📄 Gerar PDF</span>
-    <span class="toggle-icon">+</span>
-  </div>
-
-  <div class="bloco-conteudo">
-    <div class="subgrid">
-      <div class="campo">
-        <label>👤 Cliente</label>
-        <input id="pdfCliente" />
+        <label>🏠 Unidade / Bloco / Andar</label>
+        <input id="unidade" />
       </div>
 
       <div class="campo">
-        <label>🧑‍💼 Corretor</label>
-        <input id="pdfCorretor" />
+        <label>🏠 Valor do Imóvel (R$)</label>
+        <input id="valorImovel" oninput="formatarMoeda(this)" />
+      </div>
+
+      <div class="campo">
+        <label>🏦 Valor Previsto para Financiamento (R$)</label>
+        <input id="valorFinanciamento" oninput="formatarMoeda(this)" />
+      </div>
+
+      <div class="campo">
+        <label>👨‍👩‍👧‍👦 Renda Familiar Mensal (R$)</label>
+        <input id="renda" oninput="formatarMoeda(this)" />
+      </div>
+
+      <div class="campo campo-full">
+        <label>📅 Previsão de Entrega (mês/ano)</label>
+        <select id="entregaSelect"></select>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- =========================
+         ENTRADA (IGUAL AO MCMV)
+    ========================== -->
+    <div class="bloco">
+      <div class="bloco-header header-entrada" onclick="toggleBloco(this)">
+        <span>💰 Entrada / Fluxo Inicial</span>
+        <span class="toggle-icon">+</span>
+      </div>
+
+      <div class="bloco-conteudo">
+        <div class="subgrid">
+          <div class="campo">
+            <label>💸 Valor do Ato (R$)</label>
+            <input id="ato" oninput="formatarMoeda(this)" />
+          </div>
+
+          <div class="campo">
+            <label>🗓️ Meses / Parcelas</label>
+            <input id="parcelasEntrada" type="number" min="1" />
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="box-claro">
+          <div class="subgrid">
+            <div class="campo span2">
+              <label>📌 Tem Intermediárias / Anuais / Reforços / Chaves?</label>
+              <select id="temInter" onchange="toggleInter()">
+                <option value="nao">Não</option>
+                <option value="sim">Sim</option>
+              </select>
+            </div>
+
+            <div class="campo span2" id="boxInterQtd" style="display:none;">
+              <label>Quantidade</label>
+              <input id="qtdInter" type="number" min="1" max="12" value="1" onchange="renderInterRows()" />
+            </div>
+
+            <div class="campo span2" id="boxInterRows" style="display:none;">
+              <div class="inter-list" id="interList"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="box-claro azul">
+          <div class="subgrid">
+            <div class="campo span2">
+              <label>🏗️ Construtora aceita Saldo Pós-Chaves / Pró-Soluto?</label>
+              <select id="aceitaPos">
+                <option value="nao">Não</option>
+                <option value="sim">Sim</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-entrada" onclick="calcularEntrada()">Calcular Entrada</button>
       </div>
     </div>
 
-    <button class="btn-pdf" onclick="gerarPDF()">Gerar PDF da Simulação</button>
+    <!-- RESULTADO ENTRADA (persistente) -->
+    <div id="resultadoEntrada" class="resultado"></div>
+
+    <!-- =========================
+         PDF (IGUAL AO MCMV, SEM JUROS)
+    ========================== -->
+    <div class="bloco">
+      <div class="bloco-header header-pdf" onclick="toggleBloco(this)">
+        <span>📄 Gerar PDF</span>
+        <span class="toggle-icon">+</span>
+      </div>
+
+      <div class="bloco-conteudo">
+        <div class="subgrid">
+          <div class="campo">
+            <label>👤 Cliente</label>
+            <input id="pdfCliente" />
+          </div>
+
+          <div class="campo">
+            <label>📞 Telefone</label>
+            <input id="pdfClienteFone" inputmode="tel" oninput="formatarTelefone(this)" />
+          </div>
+
+          <div class="campo">
+            <label>🧑‍💼 Corretor(a)</label>
+            <input id="pdfCorretor" />
+          </div>
+
+          <div class="campo">
+            <label>📞 Telefone</label>
+            <input id="pdfCorretorFone" inputmode="tel" oninput="formatarTelefone(this)" />
+          </div>
+
+          <!-- FUTURO: INCC SOBRE SALDO DEVEDOR (desativado propositalmente)
+          <div class="campo span2">
+            <div class="box-claro">
+              <label>📈 Incluir estimativa de INCC sobre saldo devedor?</label>
+              <select id="pdfINCCSaldo">
+                <option value="nao">Não</option>
+                <option value="sim">Sim</option>
+              </select>
+              <div class="helpbox">
+                * Correção estimada (ex.: 0,5% a.m) aplicada sobre o saldo a financiar até a assinatura.
+              </div>
+            </div>
+          </div>
+          -->
+        </div>
+
+        <button class="btn-pdf" onclick="gerarPDF()">Gerar PDF da Simulação</button>
+      </div>
+    </div>
+
   </div>
-</div>
 
-</div>
+  <script>
+    /* =========================
+       UTIL
+    ========================== */
+    function formatarMoeda(c){
+      let v = (c.value || "").replace(/\D/g, "");
+      if(!v){ c.value = ""; return; }
+      v = (parseInt(v,10) / 100).toFixed(2).replace(".", ",");
+      v = v.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+      c.value = "R$ " + v;
+    }
+    function limparMoeda(v){
+      return parseFloat((v||"").replace(/[R$\.\s]/g,"").replace(",", ".")) || 0;
+    }
+    function moeda(n){
+      return n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+    }
+    function formatarTelefone(input){
+      let v = (input.value||"").replace(/\D/g,"").slice(0,11);
+      if(v.length<=2){ input.value=v; return; }
+      const ddd=v.slice(0,2);
+      const rest=v.slice(2);
+      if(rest.length<=4){ input.value=`(${ddd}) ${rest}`; return; }
+      if(rest.length<=8){ input.value=`(${ddd}) ${rest.slice(0,4)}-${rest.slice(4)}`; return; }
+      input.value=`(${ddd}) ${rest.slice(0,5)}-${rest.slice(5)}`;
+    }
 
-<script>
-/* =========================
-   UTIL
-========================= */
-function formatarMoeda(c){
-  let v = (c.value || "").replace(/\D/g, "");
-  if(!v){ c.value = ""; return; }
-  v = (parseInt(v,10) / 100).toFixed(2).replace(".", ",");
-  v = v.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  c.value = "R$ " + v;
-}
-function limparMoeda(v){
-  return parseFloat((v||"").replace(/[R$\.\s]/g,"").replace(",", ".")) || 0;
-}
-function moeda(n){
-  return n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
-}
+    /* =========================
+       MESES/ANO (igual ao MCMV)
+    ========================== */
+    function gerarMesAno(){
+      const h = new Date();
+      const arr = [];
+      const m = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+      for(let i=0;i<48;i++){
+        const d = new Date(h.getFullYear(), h.getMonth()+i, 1);
+        arr.push(`${m[d.getMonth()]}/${String(d.getFullYear()).slice(-2)}`);
+      }
+      return arr;
+    }
+    (function(){
+      const s = document.getElementById("entregaSelect");
+      gerarMesAno().forEach(t=>{
+        const o=document.createElement("option");
+        o.textContent=t;
+        s.appendChild(o);
+      });
+    })();
 
-/* =========================
-   UI
-========================= */
-function toggleBloco(el){
-  const c = el.nextElementSibling;
-  const i = el.querySelector(".toggle-icon");
-  const aberto = c.style.display === "block";
-  c.style.display = aberto ? "none" : "block";
-  i.textContent = aberto ? "+" : "–";
-}
+    /* =========================
+       UI
+    ========================== */
+    function toggleBloco(el){
+      const c = el.nextElementSibling;
+      const i = el.querySelector(".toggle-icon");
+      const aberto = c.style.display === "block";
+      c.style.display = aberto ? "none" : "block";
+      i.textContent = aberto ? "+" : "–";
+    }
 
-/* =========================
-   ENTRADA (IGUAL AO MCMV)
-========================= */
-function setResultadoEntrada(tipo, html){
-  const out = document.getElementById("resultadoEntrada");
-  out.className = "resultado " + tipo;
-  out.innerHTML = html;
-  out.style.display = "block";
-}
+    /* =========================
+       INTERMEDIÁRIAS (igual ao MCMV)
+    ========================== */
+    function toggleInter(){
+      const tem = document.getElementById("temInter").value;
+      document.getElementById("boxInterQtd").style.display = (tem==="sim") ? "block" : "none";
+      document.getElementById("boxInterRows").style.display = (tem==="sim") ? "block" : "none";
+      if(tem==="sim"){ renderInterRows(); }
+      else {
+        document.getElementById("interList").innerHTML = "";
+        document.getElementById("qtdInter").value = 1;
+      }
+    }
 
-function calcularEntrada(){
-  const im = limparMoeda(valorImovel.value);
-  const fi = limparMoeda(valorFinanciamento.value);
-  const at = limparMoeda(ato.value);
-  const re = limparMoeda(renda.value);
-  const p  = parseInt(parcelasEntrada.value,10) || 0;
+    function renderInterRows(){
+      const q = parseInt(document.getElementById("qtdInter").value,10) || 0;
+      const interList = document.getElementById("interList");
+      interList.innerHTML = "";
+      if(q<=0) return;
 
-  if(!im || !fi || !re || !p){
-    setResultadoEntrada("vermelho",
-      `<h3>⚠️ Entrada / Fluxo Inicial</h3>
-       <p class="alerta">Preencha todos os campos obrigatórios.</p>
-       <button class="btn-limpar" onclick="limparEntrada()">LIMPAR</button>`
-    );
-    return;
-  }
+      const meses = gerarMesAno();
+      for(let i=1;i<=q;i++){
+        const r=document.createElement("div");
+        r.className="inter-row";
+        r.innerHTML=`
+          <div>
+            <label>${i}º pagamento</label>
+            <select>${meses.map(mm=>`<option>${mm}</option>`).join("")}</select>
+          </div>
+          <div>
+            <label>Valor (R$) <span style="opacity:.7;font-weight:600;">(obrigatório)</span></label>
+            <input oninput="formatarMoeda(this)">
+          </div>
+        `;
+        interList.appendChild(r);
+      }
+    }
 
-  const entrada = im - fi;
-  let saldo = entrada - at;
-  const limiteMensal = re * 0.30;
-  let mensal = saldo / p;
-  let resto = 0;
+    /* =========================
+       ENTRADA (copiado do MCMV)
+    ========================== */
+    function setResultadoEntrada(tipo, html){
+      const out = document.getElementById("resultadoEntrada");
+      out.className = "resultado " + tipo;
+      out.innerHTML = html;
+      out.style.display = "block";
+    }
 
-  if(mensal > limiteMensal){
-    mensal = limiteMensal;
-    resto = saldo - (mensal * p);
-  }
+    function calcularEntrada(){
+      const im = limparMoeda(document.getElementById("valorImovel").value);
+      const fi = limparMoeda(document.getElementById("valorFinanciamento").value);
 
-  if(resto <= 0){
-    setResultadoEntrada("verde",
-      `<h3>✅ Fluxo de Entrada</h3>
-       <p>Entrada total: <b>${moeda(entrada)}</b></p>
-       <p>Ato: <b>${moeda(at)}</b></p>
-       <p>Mensais (${p}x): <b>${moeda(mensal)}</b></p>
-       <button class="btn-limpar" onclick="limparEntrada()">LIMPAR</button>`
-    );
-    return;
-  }
+      const at = limparMoeda(document.getElementById("ato").value);
+      const re = limparMoeda(document.getElementById("renda").value);
+      const p  = parseInt(document.getElementById("parcelasEntrada").value,10) || 0;
 
-  setResultadoEntrada("amarelo",
-    `<h3>⚠️ Entrada com saldo restante</h3>
-     <p>Entrada total: <b>${moeda(entrada)}</b></p>
-     <p>Ato: <b>${moeda(at)}</b></p>
-     <p>Mensais (${p}x): <b>${moeda(mensal)}</b></p>
-     <p><b>Saldo restante:</b> ${moeda(resto)}</p>
-     <div class="obs">Saldo a ser financiado após a conclusão do empreendimento.</div>
-     <button class="btn-limpar" onclick="limparEntrada()">LIMPAR</button>`
-  );
-}
+      if(!im || !fi || !re || !p){
+        setResultadoEntrada("vermelho",
+          `<h3>⚠️ Entrada / Fluxo Inicial</h3>
+           <p class="alerta">Preencha: Valor do Imóvel, Valor Previsto para Financiamento, Renda e Meses/Parcelas.</p>
+           <button class="btn-limpar" onclick="limparEntrada()">LIMPAR FLUXO DE ENTRADA</button>`
+        );
+        return;
+      }
 
-function limparEntrada(){
-  resultadoEntrada.style.display="none";
-  resultadoEntrada.innerHTML="";
-  resultadoEntrada.className="resultado";
-}
+      const entrada = im - fi;
+      const temInter = document.getElementById("temInter").value === "sim";
+      const interVals = [];
+      const interMeta = [];
 
-/* =========================
-   PDF
-========================= */
-async function gerarPDF(){
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+      if(temInter){
+        const rows = document.querySelectorAll("#interList .inter-row");
+        if(!rows.length){
+          setResultadoEntrada("vermelho",
+            `<h3>⚠️ Entrada / Fluxo Inicial</h3>
+             <p class="alerta">Você marcou pagamentos extras, mas não informou a quantidade.</p>
+             <button class="btn-limpar" onclick="limparEntrada()">LIMPAR FLUXO DE ENTRADA</button>`
+          );
+          return;
+        }
 
-  doc.text("SFH – Financiamento Próprio Pós-Obra (SBPE)", 14, 16);
-  doc.text(`Cliente: ${pdfCliente.value || "-"}`, 14, 28);
-  doc.text(`Corretor: ${pdfCorretor.value || "-"}`, 14, 36);
-  doc.text(`Empreendimento: ${empreendimento.value || "-"}`, 14, 44);
-  doc.text(`Valor do imóvel: ${valorImovel.value || "-"}`, 14, 52);
-  doc.text(`Valor previsto para financiamento: ${valorFinanciamento.value || "-"}`, 14, 60);
+        let faltando=false;
+        rows.forEach((row)=>{
+          const sel=row.querySelector("select");
+          const inp=row.querySelector("input");
+          const data=sel ? sel.value : "-";
+          const mesesAte=sel ? sel.selectedIndex : 0;
+          const v=limparMoeda(inp ? inp.value : "");
+          if(!v || v<=0) faltando=true;
+          interVals.push(v);
+          interMeta.push({ data, mesesAte, valorBase:v });
+        });
 
-  doc.text(
-    "Observação: Simulação baseada em financiamento pós-obra. Valores estimados.",
-    14,
-    72
-  );
+        if(faltando){
+          setResultadoEntrada("vermelho",
+            `<h3>⚠️ Entrada / Fluxo Inicial</h3>
+             <p class="alerta">Preencha o valor de todos os pagamentos extras (campo obrigatório).</p>
+             <button class="btn-limpar" onclick="limparEntrada()">LIMPAR FLUXO DE ENTRADA</button>`
+          );
+          return;
+        }
+      }
 
-  doc.save("simulacao-sbpe-pos-obra.pdf");
-}
-</script>
+      const somaInter = interVals.reduce((a,b)=>a+b,0);
+      let saldo = entrada - at - somaInter;
 
+      const entregaTxt = document.getElementById("entregaSelect").value;
+
+      // Se ato + extras cobrem tudo
+      if(saldo <= 0){
+        window.__lastEntradaCalc = {
+          entradaTotal: entrada, ato: at, parcelas: p, mensal: 0,
+          interVals, interMeta, saldoRestante: 0, status: "verde"
+        };
+
+        const interHtml = (temInter && somaInter>0)
+          ? `<p>Pagamentos extras: <b>${moeda(somaInter)}</b></p>`
+          : ``;
+
+        setResultadoEntrada("verde",
+          `<h3>✅ Fluxo de Entrada</h3>
+           <p>📅 Previsão de entrega: <b>${entregaTxt}</b></p>
+           <p><b>Entrada Total:</b> ${moeda(entrada)}</p>
+           <div class="divider"></div>
+           <p>Ato: <b>${moeda(at)}</b></p>
+           ${interHtml}
+           <p>Mensais (${p}x): <b>${moeda(0)}</b></p>
+           <div class="obs">* Estrutura para financiamento <b>pós-obra</b> (SBPE).</div>
+           <button class="btn-limpar" onclick="limparEntrada()">LIMPAR FLUXO DE ENTRADA</button>`
+        );
+        return;
+      }
+
+      // Mensais limitadas a 30%
+      const limiteMensal = re * 0.30;
+      let mensal = saldo / p;
+      let resto = 0;
+
+      if(mensal > limiteMensal){
+        mensal = limiteMensal;
+        resto = saldo - (mensal * p);
+      }
+
+      const interHtml = (temInter && somaInter>0)
+        ? `<p>Pagamentos extras: <b>${moeda(somaInter)}</b></p>`
+        : ``;
+
+      const baseHTML = `
+        <p>📅 Previsão de entrega: <b>${entregaTxt}</b></p>
+        <p><b>Entrada Total:</b> ${moeda(entrada)}</p>
+        <div class="divider"></div>
+        <p>Ato: <b>${moeda(at)}</b></p>
+        ${interHtml}
+        <p>Mensais (${p}x): <b>${moeda(mensal)}</b></p>
+        <div class="obs"><i>* Considerado limite de 30% da renda familiar para parcelas mensais.</i></div>
+        <div class="obs"><i>* Estrutura para financiamento <b>pós-obra</b> (SBPE).</i></div>
+      `;
+
+      // Verde: dentro do limite e sem resto
+      if(resto <= 0){
+        window.__lastEntradaCalc = {
+          entradaTotal: entrada, ato: at, parcelas: p, mensal,
+          interVals, interMeta, saldoRestante: 0, status: "verde"
+        };
+
+        setResultadoEntrada("verde",
+          `<h3>✅ Fluxo de Entrada</h3>
+           ${baseHTML}
+           <button class="btn-limpar" onclick="limparEntrada()">LIMPAR FLUXO DE ENTRADA</button>`
+        );
+        return;
+      }
+
+      const aceitaPos = document.getElementById("aceitaPos").value === "sim";
+
+      // Amarelo: com saldo restante e construtora aceita
+      if(aceitaPos){
+        window.__lastEntradaCalc = {
+          entradaTotal: entrada, ato: at, parcelas: p, mensal,
+          interVals, interMeta, saldoRestante: resto, status: "amarelo"
+        };
+
+        setResultadoEntrada("amarelo",
+          `<h3>⚠️ Entrada com saldo restante</h3>
+           ${baseHTML}
+           <div class="divider"></div>
+           <p><b>Saldo restante:</b> ${moeda(resto)}</p>
+           <p><b>Saldo restante a ser financiado no pós-obra (SBPE).</b></p>
+           <button class="btn-limpar" onclick="limparEntrada()">LIMPAR FLUXO DE ENTRADA</button>`
+        );
+        return;
+      }
+
+      // Vermelho: saldo restante e construtora não aceita
+      window.__lastEntradaCalc = {
+        entradaTotal: entrada, ato: at, parcelas: p, mensal,
+        interVals, interMeta, saldoRestante: resto, status: "vermelho"
+      };
+
+      setResultadoEntrada("vermelho",
+        `<h3>Verificar saldo restante pós período</h3>
+         ${baseHTML}
+         <div class="divider"></div>
+         <p><b>Saldo restante:</b> ${moeda(resto)}</p>
+         <p class="alerta"><b>Valor de entrada ultrapassa os limites de parcelamento dentro do período informado.</b></p>
+         <button class="btn-limpar" onclick="limparEntrada()">LIMPAR FLUXO DE ENTRADA</button>`
+      );
+    }
+
+    function limparEntrada(){
+      const out=document.getElementById("resultadoEntrada");
+      out.style.display="none";
+      out.innerHTML="";
+      out.className="resultado";
+      window.__lastEntradaCalc=null;
+    }
+
+    /* =========================
+       PDF (mesma estrutura do MCMV, sem juros)
+    ========================== */
+    function writeWrap(doc, text, x, y, maxW, lineH){
+      const lines = doc.splitTextToSize(text, maxW);
+      doc.text(lines, x, y);
+      return y + (lines.length * lineH);
+    }
+
+    async function gerarPDF(){
+      if(!window.jspdf || !window.jspdf.jsPDF){
+        alert("Biblioteca do PDF não carregou.");
+        return;
+      }
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit:"mm", format:"a4" });
+
+      const dataDoc = new Date().toLocaleDateString("pt-BR");
+
+      const empreendimento = (document.getElementById("empreendimento").value || "").trim() || "-";
+      const unidade = (document.getElementById("unidade").value || "").trim() || "-";
+      const valorImovelTxt = document.getElementById("valorImovel").value || "-";
+      const valorFinTxt = document.getElementById("valorFinanciamento").value || "-";
+      const rendaTxt = document.getElementById("renda").value || "R$ 0,00";
+      const entregaTxt = document.getElementById("entregaSelect").value || "-";
+
+      const pdfCliente = (document.getElementById("pdfCliente").value || "").trim() || "-";
+      const pdfClienteFone = (document.getElementById("pdfClienteFone").value || "").trim() || "-";
+      const pdfCorretor = (document.getElementById("pdfCorretor").value || "").trim() || "-";
+      const pdfCorretorFone = (document.getElementById("pdfCorretorFone").value || "").trim() || "-";
+
+      const atoTxt = document.getElementById("ato").value || "R$ 0,00";
+      const parcelasTxt = document.getElementById("parcelasEntrada").value || "-";
+      const aceitaPosTxt = (document.getElementById("aceitaPos").value === "sim") ? "Sim" : "Não";
+
+      let y = 14;
+      const left = 14;
+      const right = 196;
+      const maxW = right - left;
+
+      doc.setFont("helvetica","bold");
+      doc.setFontSize(14);
+      doc.text("SIMULAÇÃO FINANCEIRA – SBPE (PÓS-OBRA)", 105, y, { align:"center" });
+      y += 7;
+
+      doc.setDrawColor(200);
+      doc.line(left, y, right, y);
+      y += 6;
+
+      doc.setFont("helvetica","bold");
+      doc.setFontSize(11);
+      doc.text("Identificação", left, y);
+      y += 6;
+
+      doc.setFont("helvetica","normal");
+      doc.setFontSize(10);
+      y = writeWrap(doc, `Cliente: ${pdfCliente} | Tel: ${pdfClienteFone}`, left, y, maxW, 5);
+      y = writeWrap(doc, `Corretor(a): ${pdfCorretor} | Tel: ${pdfCorretorFone}`, left, y, maxW, 5);
+      y = writeWrap(doc, `Empreendimento: ${empreendimento}`, left, y, maxW, 5);
+      y = writeWrap(doc, `Unidade/Bloco/Andar: ${unidade}`, left, y, maxW, 5);
+      y = writeWrap(doc, `Data do documento: ${dataDoc}`, left, y, maxW, 5);
+
+      y += 2;
+      doc.setDrawColor(220);
+      doc.line(left, y, right, y);
+      y += 6;
+
+      doc.setFont("helvetica","bold");
+      doc.setFontSize(11);
+      doc.text("Resumo Financeiro", left, y);
+      y += 6;
+
+      doc.setFont("helvetica","normal");
+      doc.setFontSize(10);
+      y = writeWrap(doc, `Valor do imóvel: ${valorImovelTxt}`, left, y, maxW, 5);
+      y = writeWrap(doc, `Valor previsto para financiamento (pós-obra): ${valorFinTxt}`, left, y, maxW, 5);
+      y = writeWrap(doc, `Renda familiar: ${rendaTxt}`, left, y, maxW, 5);
+      y = writeWrap(doc, `Previsão de entrega: ${entregaTxt}`, left, y, maxW, 5);
+
+      y += 2;
+      doc.setDrawColor(220);
+      doc.line(left, y, right, y);
+      y += 6;
+
+      doc.setFont("helvetica","bold");
+      doc.setFontSize(11);
+      doc.text("Fluxo de Pagamento – Entrada", left, y);
+      y += 6;
+
+      doc.setFont("helvetica","normal");
+      doc.setFontSize(10);
+
+      const entradaCalc = window.__lastEntradaCalc;
+      if(!entradaCalc){
+        y = writeWrap(doc, "Fluxo não calculado no simulador. Gere o cálculo de entrada antes de gerar o PDF.", left, y, maxW, 5);
+      } else {
+        y = writeWrap(doc, `Entrada Total: ${moeda(entradaCalc.entradaTotal)}`, left, y, maxW, 5);
+        y = writeWrap(doc, `Ato: ${atoTxt}`, left, y, maxW, 5);
+        y = writeWrap(doc, `Meses/Parcelas (entrada): ${parcelasTxt}`, left, y, maxW, 5);
+
+        if(entradaCalc.interVals && entradaCalc.interVals.length){
+          const totalInter = entradaCalc.interVals.reduce((a,b)=>a+b,0);
+          y = writeWrap(doc, `Pagamentos extras: ${moeda(totalInter)}`, left, y, maxW, 5);
+        }
+
+        y = writeWrap(doc, `Mensais (${entradaCalc.parcelas}x): ${moeda(entradaCalc.mensal)}`, left, y, maxW, 5);
+
+        if(entradaCalc.saldoRestante && entradaCalc.saldoRestante > 0){
+          y = writeWrap(doc, `Saldo restante: ${moeda(entradaCalc.saldoRestante)} (Pós-Chaves/Pró-Soluto: ${aceitaPosTxt})`, left, y, maxW, 5);
+          y = writeWrap(doc, `Saldo restante previsto para financiamento pós-obra (SBPE).`, left, y, maxW, 5);
+        }
+
+        y = writeWrap(doc, "Observação: Considerado limite de 30% da renda familiar para parcelas mensais.", left, y, maxW, 5);
+        y = writeWrap(doc, "Observação: Simulação voltada para financiamento contratado após a conclusão do empreendimento (SBPE pós-obra).", left, y, maxW, 5);
+      }
+
+      doc.save("simulacao-sbpe-pos-obra.pdf");
+    }
+
+    /* =========================
+       INIT
+    ========================== */
+    (function(){
+      toggleInter(); // garante estado inicial correto
+    })();
+  </script>
 </body>
 </html>
