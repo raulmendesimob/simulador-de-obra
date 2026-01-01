@@ -127,11 +127,9 @@
       background: #f2f6fb;
       border-color: #dbe6f7;
     }
-
-    /* amarelo mais claro */
     .box-claro.amarelo {
-      background: #fffbe8;
-      border-color: #f3e7b3;
+      background: #fff7da;
+      border-color: #f0dc8a;
     }
 
     /* ===== BOTÕES ===== */
@@ -156,16 +154,6 @@
       letter-spacing: .4px;
     }
 
-    /* botões 50% no PC */
-    @media (min-width: 768px) {
-      button {
-        width: 50%;
-        margin-left: auto;
-        margin-right: auto;
-        display: block;
-      }
-    }
-
     /* ===== RESULTADOS ===== */
     .resultado {
       display: none;
@@ -180,6 +168,7 @@
 
     .alerta { color: #8b1e1e; font-weight: 900; }
 
+    /* Observações/links (itálico + clicável azul) */
     .obs {
       margin-top: 10px;
       font-style: italic;
@@ -280,10 +269,9 @@
     .helpbox {
       margin-top: 10px;
       font-style: italic;
-      font-size: 12px;
-      line-height: 1.4;
+      font-size: 13px;
+      line-height: 1.35;
       color: #222;
-      opacity: .9;
     }
     .helpbox a { color: #2563eb; text-decoration: none; }
     .helpbox a:hover { text-decoration: underline; }
@@ -292,7 +280,9 @@
 
 <body>
 
-  <!-- CABEÇALHO -->
+  <!-- =========================
+       CABEÇALHO
+  ========================== -->
   <div class="painel-topo">
     <h1>Simulador Imobiliário</h1>
 
@@ -344,7 +334,9 @@
 
   <div class="container">
 
-    <!-- ENTRADA -->
+    <!-- =========================
+         ENTRADA
+    ========================== -->
     <div class="bloco">
       <div class="bloco-header header-entrada" onclick="toggleBloco(this)">
         <span>💰 Entrada / Fluxo Inicial</span>
@@ -405,10 +397,12 @@
       </div>
     </div>
 
-    <!-- RESULTADO ENTRADA -->
+    <!-- RESULTADO ENTRADA (persistente) -->
     <div id="resultadoEntrada" class="resultado"></div>
 
-    <!-- JUROS DE OBRA -->
+    <!-- =========================
+         JUROS DE OBRA
+    ========================== -->
     <div class="bloco">
       <div class="bloco-header header-juros" onclick="toggleBloco(this)">
         <span>🏗️ Juros de Obra</span>
@@ -417,6 +411,7 @@
 
       <div class="bloco-conteudo">
 
+        <!-- Fluxo progressivo: Região -> Cotista -->
         <div class="subgrid">
           <div class="campo span2">
             <label>🧭 Região do Brasil</label>
@@ -484,10 +479,12 @@
       </div>
     </div>
 
-    <!-- RESULTADO JUROS -->
+    <!-- RESULTADO JUROS (persistente) -->
     <div id="resultadoJuros" class="resultado"></div>
 
-    <!-- PDF -->
+    <!-- =========================
+         PDF
+    ========================== -->
     <div class="bloco">
       <div class="bloco-header header-pdf" onclick="toggleBloco(this)">
         <span>📄 Gerar PDF</span>
@@ -516,46 +513,43 @@
             <input id="pdfCorretorFone" inputmode="tel" oninput="formatarTelefone(this)" />
           </div>
 
+          <!-- INCC inline -->
           <div class="campo span2">
-            <div class="box-claro">
-              <div class="linha-flex">
-                <div class="campo">
-                  <label>📈 Incluir estimativa de INCC?</label>
-                  <select id="pdfINCC" onchange="toggleINCC()">
-                    <option value="nao">Não</option>
-                    <option value="sim">Sim</option>
-                  </select>
-                </div>
-
-                <div class="campo" id="boxINCCValor" style="display:none;">
-                  <label>📌 INCC (média mensal) %</label>
-                  <input id="inccValor" value="0,5" inputmode="decimal" />
-                </div>
+            <div class="linha-flex">
+              <div class="campo">
+                <label>📈 Incluir estimativa de INCC?</label>
+                <select id="pdfINCC" onchange="toggleINCC()">
+                  <option value="nao">Não</option>
+                  <option value="sim">Sim</option>
+                </select>
               </div>
 
-              <div class="helpbox">
-                📌 INCC atualizado disponível em:
-                <a href="https://portal.fgv.br/noticias/incc-m-2025" target="_blank" rel="noopener noreferrer">
-                  https://portal.fgv.br/noticias/incc-m-2025
-                </a>
+              <div class="campo" id="boxINCCValor" style="display:none;">
+                <label>📌 INCC (média mensal) %</label>
+                <input id="inccValor" value="0,5" inputmode="decimal" />
               </div>
+            </div>
+
+            <div class="helpbox">
+              📌 INCC atualizado disponível em:
+              <a href="https://portal.fgv.br/noticias/incc-m-2025" target="_blank" rel="noopener noreferrer">
+                portal.fgv.br/noticias/incc-m-2025
+              </a>
             </div>
           </div>
 
           <div class="campo span2">
-            <div class="box-claro amarelo">
-              <label>🏗️ Incluir Estimativa de Juros de Obra?</label>
-              <select id="pdfJuros">
-                <option value="nao">Não</option>
-                <option value="sim">Sim</option>
-              </select>
+            <label>🏗️ Incluir Estimativa de Juros de Obra?</label>
+            <select id="pdfJuros">
+              <option value="nao">Não</option>
+              <option value="sim">Sim</option>
+            </select>
 
-              <div class="helpbox">
-                📌 TR atualizada disponível em:
-                <a href="https://www.debit.com.br/tabelas/tr-bacen" target="_blank" rel="noopener noreferrer">
-                  https://www.debit.com.br/tabelas/tr-bacen
-                </a>
-              </div>
+            <div class="helpbox">
+              📌 TR atualizada disponível em:
+              <a href="https://www.debit.com.br/tabelas/tr-bacen" target="_blank" rel="noopener noreferrer">
+                debit.com.br/tabelas/tr-bacen
+              </a>
             </div>
           </div>
         </div>
@@ -612,14 +606,11 @@
       return arr;
     }
     (function(){
-      document.addEventListener("DOMContentLoaded", ()=>{
-        const s = document.getElementById("entregaSelect");
-        if(!s) return;
-        gerarMesAno().forEach(t=>{
-          const o=document.createElement("option");
-          o.textContent=t;
-          s.appendChild(o);
-        });
+      const s = document.getElementById("entregaSelect");
+      gerarMesAno().forEach(t=>{
+        const o=document.createElement("option");
+        o.textContent=t;
+        s.appendChild(o);
       });
     })();
 
@@ -643,15 +634,6 @@
       const val = document.getElementById("pdfINCC").value;
       document.getElementById("boxINCCValor").style.display = (val==="sim") ? "block" : "none";
     }
-
-    /* ===== FALLBACK: se host bloquear onclick inline, usa listeners ===== */
-    document.addEventListener("DOMContentLoaded", ()=>{
-      document.querySelectorAll(".bloco-header").forEach(h=>{
-        h.addEventListener("click", ()=>{
-          toggleBloco(h);
-        }, { passive:true });
-      });
-    });
 
     /* =========================
        INTERMEDIÁRIAS
@@ -868,6 +850,7 @@
 
       const entregaTxt = document.getElementById("entregaSelect").value;
 
+      // Se ato + extras cobrem tudo
       if(saldo <= 0){
         window.__lastEntradaCalc = {
           entradaTotal: entrada, ato: at, parcelas: p, mensal: 0,
@@ -879,7 +862,7 @@
           : ``;
 
         setResultadoEntrada("verde",
-          `<h3>✅ Fluxo de Entrada no Período de Obras</h3>
+          `<h3>✅ Entrada dentro dos limites</h3>
            <p>📅 Previsão de entrega: <b>${entregaTxt}</b></p>
            <p><b>Entrada Total:</b> ${moeda(entrada)}</p>
            <div class="divider"></div>
@@ -891,6 +874,7 @@
         return;
       }
 
+      // Mensais limitadas a 30%
       const limiteMensal = re * 0.30;
       let mensal = saldo / p;
       let resto = 0;
@@ -914,14 +898,16 @@
         <div class="obs"><i>* Considerado limite de 30% da renda familiar para parcelas mensais.</i></div>
       `;
 
+      // Verde: dentro do limite e sem resto
       if(resto <= 0){
         window.__lastEntradaCalc = {
           entradaTotal: entrada, ato: at, parcelas: p, mensal,
           interVals, interMeta, saldoRestante: 0, status: "verde"
         };
 
+        // Aqui você pediu: “deixar apenas informações” — mantém só infos.
         setResultadoEntrada("verde",
-          `<h3>✅ Fluxo de Entrada no Período de Obras</h3>
+          `<h3>✅ Entrada dentro dos limites</h3>
            ${baseHTML}
            <button class="btn-limpar" onclick="limparEntrada()">LIMPAR FLUXO DE ENTRADA</button>`
         );
@@ -930,6 +916,7 @@
 
       const aceitaPos = document.getElementById("aceitaPos").value === "sim";
 
+      // Amarelo: com saldo restante e construtora aceita
       if(aceitaPos){
         window.__lastEntradaCalc = {
           entradaTotal: entrada, ato: at, parcelas: p, mensal,
@@ -947,6 +934,7 @@
         return;
       }
 
+      // Vermelho: saldo restante e construtora não aceita
       window.__lastEntradaCalc = {
         entradaTotal: entrada, ato: at, parcelas: p, mensal,
         interVals, interMeta, saldoRestante: resto, status: "vermelho"
@@ -1016,6 +1004,7 @@
 
       window.__lastJurosTabela = { financiamento, taxaEfetiva, tr, taxas, passo, rows };
 
+      // Desktop (4 colunas)
       const half = Math.ceil(rows.length/2);
       const leftRows = rows.slice(0, half);
       const rightRows = rows.slice(half);
@@ -1054,6 +1043,7 @@
         </div>
       `;
 
+      // Mobile (2 colunas, mostrando tudo até 100%)
       let mobile = `
         <div class="juros-mobile">
           <h3 style="margin:0 0 10px;">🏗️ Tabela de Juros de Obra (Estimativa)</h3>
@@ -1068,6 +1058,7 @@
         </div>
       `;
 
+      // Observações: itálico + links azuis clicáveis em bloco claro
       const obs = `
         <div class="box-claro amarelo obs">
           * Valores aproximados para fins de simulação e entendimento.<br>
@@ -1094,27 +1085,229 @@
       window.__lastJurosTabela=null;
     }
 
-    /* PDF mantém como estava no seu arquivo base (não alterei a lógica aqui para não arriscar quebra) */
-    async function gerarPDF(){
-      alert("PDF: sua função está no arquivo base. Se você quiser, eu integro aqui 100% também.");
+    /* =========================
+       PDF
+    ========================== */
+    function writeWrap(doc, text, x, y, maxW, lineH){
+      const lines = doc.splitTextToSize(text, maxW);
+      doc.text(lines, x, y);
+      return y + (lines.length * lineH);
     }
 
-    // ===== GARANTIR FUNÇÕES NO ESCOPO GLOBAL =====
-    window.toggleBloco = toggleBloco;
-    window.toggleFGTS = toggleFGTS;
-    window.toggleINCC = toggleINCC;
-    window.toggleInter = toggleInter;
-    window.renderInterRows = renderInterRows;
-    window.calcularEntrada = calcularEntrada;
-    window.limparEntrada = limparEntrada;
-    window.onChangeRegiao = onChangeRegiao;
-    window.onChangeCotista = onChangeCotista;
-    window.updateMCMV = updateMCMV;
-    window.calcularJurosTabela = calcularJurosTabela;
-    window.limparJuros = limparJuros;
-    window.gerarPDF = gerarPDF;
+    async function gerarPDF(){
+      const incluirJuros = (document.getElementById("pdfJuros").value === "sim");
+      if(incluirJuros && (!window.__lastJurosTabela || !window.__lastJurosTabela.rows || !window.__lastJurosTabela.rows.length)){
+        alert("Para incluir a estimativa de Juros de Obra no PDF, é necessário calcular a tabela antes.");
+        return;
+      }
 
-    /* INIT */
+      if(!window.jspdf || !window.jspdf.jsPDF){
+        alert("Biblioteca do PDF não carregou.");
+        return;
+      }
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit:"mm", format:"a4" });
+
+      const dataDoc = new Date().toLocaleDateString("pt-BR");
+      const incluirINCC = (document.getElementById("pdfINCC").value === "sim");
+      const inccVal = normalizarPercentBR(document.getElementById("inccValor").value);
+
+      const empreendimento = (document.getElementById("empreendimento").value || "").trim() || "-";
+      const unidade = (document.getElementById("unidade").value || "").trim() || "-";
+      const valorImovelTxt = document.getElementById("valorImovel").value || "-";
+      const valorFinTxt = document.getElementById("valorFinanciamento").value || "-";
+      const rendaTxt = document.getElementById("renda").value || "R$ 0,00";
+      const entregaTxt = document.getElementById("entregaSelect").value || "-";
+
+      const usaFgts = document.getElementById("usaFgts").value === "sim";
+      const fgtsTxt = usaFgts ? (document.getElementById("fgts").value || "R$ 0,00") : "R$ 0,00";
+
+      const pdfCliente = (document.getElementById("pdfCliente").value || "").trim() || "-";
+      const pdfClienteFone = (document.getElementById("pdfClienteFone").value || "").trim() || "-";
+      const pdfCorretor = (document.getElementById("pdfCorretor").value || "").trim() || "-";
+      const pdfCorretorFone = (document.getElementById("pdfCorretorFone").value || "").trim() || "-";
+
+      const reg = document.getElementById("regiao").value || "";
+      const cot = document.getElementById("cotista").value || "";
+      const faixaTxt = (document.getElementById("faixaMCMVSelect").value || "").trim() || "-";
+      const taxaEfTxt = (document.getElementById("taxaEfetivaAnual").value || "").trim() || "-";
+
+      const vincTxt =
+        cot === "cotista" ? "Cotista (+3 anos CLT)" :
+        cot === "nao_cotista" ? "Não Cotista" : "-";
+
+      const regTxt =
+        reg === "no_ne" ? "Norte / Nordeste" :
+        reg === "sul_se_co" ? "Sudeste / Sul / Centro-Oeste" : "-";
+
+      const atoTxt = document.getElementById("ato").value || "R$ 0,00";
+      const parcelasTxt = document.getElementById("parcelasEntrada").value || "-";
+      const aceitaPosTxt = (document.getElementById("aceitaPos").value === "sim") ? "Sim" : "Não";
+
+      let y = 14;
+      const left = 14;
+      const right = 196;
+      const maxW = right - left;
+
+      doc.setFont("helvetica","bold");
+      doc.setFontSize(14);
+      doc.text("SIMULAÇÃO FINANCEIRA – IMÓVEL NA PLANTA", 105, y, { align:"center" });
+      y += 7;
+
+      doc.setDrawColor(200);
+      doc.line(left, y, right, y);
+      y += 6;
+
+      doc.setFont("helvetica","bold");
+      doc.setFontSize(11);
+      doc.text("Identificação", left, y);
+      y += 6;
+
+      doc.setFont("helvetica","normal");
+      doc.setFontSize(10);
+      y = writeWrap(doc, `Cliente: ${pdfCliente} | Tel: ${pdfClienteFone}`, left, y, maxW, 5);
+      y = writeWrap(doc, `Corretor(a): ${pdfCorretor} | Tel: ${pdfCorretorFone}`, left, y, maxW, 5);
+      y = writeWrap(doc, `Empreendimento: ${empreendimento}`, left, y, maxW, 5);
+      y = writeWrap(doc, `Unidade/Bloco/Andar: ${unidade}`, left, y, maxW, 5);
+      y = writeWrap(doc, `Data do documento: ${dataDoc}`, left, y, maxW, 5);
+
+      y += 2;
+      doc.setDrawColor(220);
+      doc.line(left, y, right, y);
+      y += 6;
+
+      doc.setFont("helvetica","bold");
+      doc.setFontSize(11);
+      doc.text("Resumo Financeiro", left, y);
+      y += 6;
+
+      doc.setFont("helvetica","normal");
+      doc.setFontSize(10);
+      y = writeWrap(doc, `Valor do imóvel: ${valorImovelTxt}`, left, y, maxW, 5);
+      y = writeWrap(doc, `Valor do financiamento: ${valorFinTxt}`, left, y, maxW, 5);
+      y = writeWrap(doc, `FGTS considerado: ${fgtsTxt}`, left, y, maxW, 5);
+      y = writeWrap(doc, `Renda familiar: ${rendaTxt}`, left, y, maxW, 5);
+      y = writeWrap(doc, `Previsão de entrega: ${entregaTxt}`, left, y, maxW, 5);
+
+      y += 2;
+      y = writeWrap(doc, `Enquadramento MCMV (estimado): ${faixaTxt} | Região: ${regTxt} | Vínculo: ${vincTxt}`, left, y, maxW, 5);
+      y = writeWrap(doc, `Taxa efetiva anual usada: ${taxaEfTxt}${taxaEfTxt ? "%" : ""}`, left, y, maxW, 5);
+
+      y += 2;
+      doc.setDrawColor(220);
+      doc.line(left, y, right, y);
+      y += 6;
+
+      doc.setFont("helvetica","bold");
+      doc.setFontSize(11);
+      doc.text("Fluxo de Pagamento – Entrada", left, y);
+      y += 6;
+
+      doc.setFont("helvetica","normal");
+      doc.setFontSize(10);
+
+      const entradaCalc = window.__lastEntradaCalc;
+      if(!entradaCalc){
+        y = writeWrap(doc, "Fluxo não calculado no simulador. Gere o cálculo de entrada antes de gerar o PDF.", left, y, maxW, 5);
+      } else {
+        y = writeWrap(doc, `Entrada Total: ${moeda(entradaCalc.entradaTotal)}`, left, y, maxW, 5);
+        y = writeWrap(doc, `Ato: ${atoTxt}`, left, y, maxW, 5);
+        y = writeWrap(doc, `Meses/Parcelas (entrada): ${parcelasTxt}`, left, y, maxW, 5);
+
+        if(entradaCalc.interVals && entradaCalc.interVals.length){
+          const totalInter = entradaCalc.interVals.reduce((a,b)=>a+b,0);
+          y = writeWrap(doc, `Pagamentos extras: ${moeda(totalInter)}`, left, y, maxW, 5);
+        }
+
+        y = writeWrap(doc, `Mensais (${entradaCalc.parcelas}x): ${moeda(entradaCalc.mensal)}`, left, y, maxW, 5);
+
+        if(entradaCalc.saldoRestante && entradaCalc.saldoRestante > 0){
+          y = writeWrap(doc, `Saldo restante: ${moeda(entradaCalc.saldoRestante)} (Pós-Chaves/Pró-Soluto: ${aceitaPosTxt})`, left, y, maxW, 5);
+          y = writeWrap(doc, `Saldo restante para verificar parcelamento com a construtora.`, left, y, maxW, 5);
+        }
+
+        y = writeWrap(doc, "Observação: Considerado limite de 30% da renda familiar para parcelas mensais.", left, y, maxW, 5);
+      }
+
+      if(incluirINCC){
+        if(y > 250){ doc.addPage(); y = 14; }
+        y += 2;
+        doc.setDrawColor(220);
+        doc.line(left, y, right, y);
+        y += 6;
+
+        doc.setFont("helvetica","bold");
+        doc.setFontSize(11);
+        doc.text("Estimativa de INCC", left, y);
+        y += 6;
+
+        doc.setFont("helvetica","normal");
+        doc.setFontSize(10);
+
+        const taxa = (inccVal !== null ? (inccVal/100) : 0.005);
+        y = writeWrap(doc, `INCC (média mensal): ${((taxa*100).toFixed(2)).replace(".",",")}%`, left, y, maxW, 5);
+        y = writeWrap(doc, "* Valores aproximados para fins de simulação e entendimento.", left, y, maxW, 5);
+        y = writeWrap(doc, "INCC atualizado disponível em: portal.fgv.br/noticias/incc-m-2025", left, y, maxW, 5);
+      }
+
+      if(incluirJuros){
+        if(y > 240){ doc.addPage(); y = 14; }
+        y += 2;
+        doc.setDrawColor(220);
+        doc.line(left, y, right, y);
+        y += 6;
+
+        doc.setFont("helvetica","bold");
+        doc.setFontSize(11);
+        doc.text("Juros de Obra – Tabela", left, y);
+        y += 6;
+
+        doc.setFont("helvetica","normal");
+        doc.setFontSize(10);
+
+        const jt = window.__lastJurosTabela;
+        y = writeWrap(doc, `Intervalo: ${jt.passo} em ${jt.passo}% | TR(%): ${jt.tr} | Taxa Adm + Seguros: ${moeda(jt.taxas)} | Taxa efetiva anual(%): ${jt.taxaEfetiva}`, left, y, maxW, 5);
+
+        const rows = jt.rows;
+        const half = Math.ceil(rows.length/2);
+        const leftRows = rows.slice(0, half);
+        const rightRows = rows.slice(half);
+        const colX = [left, left+35, left+95, left+130];
+
+        doc.setFont("helvetica","bold");
+        doc.text("%", colX[0], y);
+        doc.text("Parcela", colX[1], y);
+        doc.text("%", colX[2], y);
+        doc.text("Parcela", colX[3], y);
+        y += 6;
+
+        doc.setFont("helvetica","normal");
+        for(let i=0;i<half;i++){
+          const L=leftRows[i];
+          const R=rightRows[i];
+          if(L){
+            doc.text(`${L.perc}%`, colX[0], y);
+            doc.text(`${moeda(L.parcela)}`, colX[1], y);
+          }
+          if(R){
+            doc.text(`${R.perc}%`, colX[2], y);
+            doc.text(`${moeda(R.parcela)}`, colX[3], y);
+          }
+          y += 5;
+          if(y > 280){ doc.addPage(); y = 14; }
+        }
+
+        y = writeWrap(doc, "* Valores aproximados para fins de simulação e entendimento.", left, y, maxW, 5);
+        y = writeWrap(doc, "* A TR possui variação mensal. Consulta da TR atualizada: debit.com.br/tabelas/tr-bacen", left, y, maxW, 5);
+      }
+
+      doc.save("simulacao-imobiliaria.pdf");
+    }
+
+    /* =========================
+       INIT
+    ========================== */
     (function(){
       toggleFGTS();
       toggleINCC();
