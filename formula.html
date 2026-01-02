@@ -269,9 +269,14 @@
       const entrada=Math.max(0, valorImovel-financiamento);
 
       // 7) Parcela REAL do cenário aprovado
-      const pmtAJ_aprovada=pmtPrice(financiamento, i, prazo);
-      const segurosAprovados=estimateInsurance(pmtAJ_aprovada+TAXA_ADM, idade);
-      const parcelaReal=pmtAJ_aprovada+TAXA_ADM+segurosAprovados;
+const pmtAJ_aprovada = pmtPrice(financiamento, i, prazo);
+const segurosAprovados = estimateInsurance(pmtAJ_aprovada + TAXA_ADM, idade);
+let parcelaReal = pmtAJ_aprovada + TAXA_ADM + segurosAprovados;
+
+// Garantir que a parcela final nunca ultrapasse o limite da renda (comportamento Caixa)
+if (parcelaReal > parcelaMaxima) {
+  parcelaReal = parcelaMaxima;
+}
 
       // 8) Informar o limitante
       const limitante =
