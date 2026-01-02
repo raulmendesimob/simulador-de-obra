@@ -3,241 +3,265 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Simulador Imobiliário — Comprador</title>
+<title>Simulador Imobiliário — Módulo Comprador</title>
 
 <style>
 /* =========================
-   RESET / BASE
+   BASE VISUAL / RESET
 ========================= */
-* { box-sizing: border-box; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 body {
-  margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
-  background: #f4f6f5;
+  font-family: 'Inter', Arial, sans-serif;
+  background: #f5f7fa;
   color: #222;
+  line-height: 1.5;
 }
 
 /* =========================
-   TOPO
+   TÍTULO PRINCIPAL
 ========================= */
-.painel-topo {
-  background: #fff;
-  border-bottom: 1px solid #e0e0e0;
-  padding: 18px;
-}
-.painel-topo h1 {
+header {
+  background: linear-gradient(135deg, #0b6e3b, #0f9b50);
+  color: #fff;
   text-align: center;
-  color: #0b6e3b;
-  margin: 0 0 18px;
-  font-size: 22px;
+  padding: 28px 18px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+header h1 {
+  font-size: 24px;
+  font-weight: 700;
+}
+header p {
+  opacity: 0.9;
+  font-size: 15px;
+  margin-top: 6px;
 }
 
 /* =========================
-   GRID
+   FORM CONTAINER
 ========================= */
-.grid-topo {
+main {
   max-width: 980px;
-  margin: 0 auto;
+  margin: 28px auto;
+  background: #fff;
+  padding: 26px;
+  border-radius: 18px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+h3.section-title {
+  color: #0b6e3b;
+  margin-bottom: 14px;
+}
+.grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 14px;
 }
-@media (min-width: 768px) {
-  .grid-topo { grid-template-columns: repeat(2,1fr); }
+.campo label {
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 6px;
+  display: block;
 }
-.campo-full { grid-column: 1 / -1; }
+.campo input, .campo select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 15px;
+}
+.box {
+  border: 1px solid #e6efe9;
+  border-radius: 14px;
+  padding: 18px;
+  background: #f9fafb;
+  margin-bottom: 18px;
+}
 
 /* =========================
-   CAMPOS
+   BOTÕES
 ========================= */
-.campo label {
+.btn {
+  background: #0b6e3b;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 24px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+.btn:hover { background: #0f9b50; }
+
+/* =========================
+   DASHBOARD
+========================= */
+#boxDiagnostico {
+  margin-top: 30px;
+  padding: 28px;
+  border-radius: 16px;
+  background: linear-gradient(180deg,#fdfdfd,#f7fafc);
+  border: 1px solid #e0e5ea;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+#diagnosticoConteudo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+  gap: 18px;
+  margin-top: 10px;
+}
+.card-dash {
+  background: #fff;
+  border: 1px solid #e5e9ed;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+}
+.card-dash span {
   display: block;
   font-size: 13px;
-  font-weight: 700;
+  color: #666;
   margin-bottom: 6px;
 }
-.campo input,
-.campo select {
-  width: 100%;
-  padding: 11px 12px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-  font-size: 15px;
-  background: #fff;
-}
-
-/* =========================
-   BOXES
-========================= */
-.box-claro {
-  background: #f6f9f7;
-  padding: 16px;
-  border-radius: 14px;
-  border: 1px solid #e6efe9;
-}
-.box-claro.azul {
-  background: #f2f6fb;
-  border-color: #dbe6f7;
-}
-.box-claro.amarelo {
-  background: #fffbe8;
-  border-color: #f3e7b3;
-}
-.box-claro h3 {
-  margin: 0 0 14px;
-  font-size: 16px;
+.card-dash strong {
+  font-size: 18px;
   color: #0b6e3b;
 }
 
 /* =========================
-   SUBGRID
+   BOTÕES DE SIMULAÇÃO
 ========================= */
-.subgrid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
+#boxSimulacoes {
+  display: none;
+  margin-top: 26px;
+  text-align: center;
 }
-@media (min-width: 768px) {
-  .subgrid { grid-template-columns: repeat(2, 1fr); }
-  .span2 { grid-column: 1 / -1; }
+.sim-btn {
+  margin: 6px;
+  padding: 12px 18px;
+  border: 1px solid #d5dce0;
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  color: #333;
+  transition: all .2s;
 }
-
-/* =========================
-   OBS
-========================= */
-.obs {
-  margin-top: 8px;
-  font-size: 13px;
-  font-style: italic;
-  opacity: .85;
+.sim-btn:hover {
+  background: #0b6e3b;
+  color: #fff;
+  border-color: #0b6e3b;
 }
 </style>
 </head>
 
 <body>
 
-<!-- =========================
-     CABEÇALHO — COMPRADOR
-========================= -->
-<div class="painel-topo">
-  <h1>Simulador Imobiliário</h1>
+<header>
+  <h1>Simulador Imobiliário — Comprador</h1>
+  <p>Descubra automaticamente quanto você pode financiar e em qual faixa se enquadra.</p>
+</header>
 
-  <div class="grid-topo">
+<main>
+  <div class="box">
+    <h3 class="section-title">👤 Sobre quem pretende adquirir o imóvel</h3>
+    <div class="grid">
+      <div class="campo">
+        <label>Pretende adquirir sozinho(a) ou com alguém?</label>
+        <select id="compraCom" onchange="onChangeComposicao()">
+          <option value="">Selecione...</option>
+          <option value="sozinho">Sozinho(a)</option>
+          <option value="namorado">Com namorado(a)</option>
+          <option value="noivo">Com noivo(a)</option>
+          <option value="conjuge">Com cônjuge</option>
+          <option value="familiar">Com familiar</option>
+        </select>
+      </div>
 
-    <!-- PERFIL -->
-    <div class="box-claro campo-full">
-      <h3>👤 Sobre quem pretende adquirir o imóvel</h3>
+      <div class="campo" id="boxIdade1" style="display:none;">
+        <label>🎂 Idade do comprador 1</label>
+        <input id="idade1" type="number" min="18" max="99" />
+      </div>
 
-      <div class="subgrid">
-        <div class="campo span2">
-          <label>👥 Pretende adquirir sozinho(a) ou com alguém?</label>
-          <select id="compraCom" onchange="onChangeComposicao()">
-            <option value="">Selecione...</option>
-            <option value="sozinho">Sozinho(a)</option>
-            <option value="namorado">Com namorado(a)</option>
-            <option value="noivo">Com noivo(a)</option>
-            <option value="conjuge">Com cônjuge</option>
-            <option value="familiar">Com familiar</option>
-          </select>
-        </div>
+      <div class="campo" id="boxRenda1" style="display:none;">
+        <label>💰 Renda mensal do comprador 1</label>
+        <input id="renda1" oninput="formatarMoeda(this)" />
+      </div>
 
-        <!-- IDADE E RENDA (DINÂMICOS) -->
-        <div class="campo" id="boxIdade1" style="display:none;">
-          <label>🎂 Idade do comprador 1</label>
-          <input id="idade1" type="number" min="18" max="99" placeholder="Ex.: 28" />
-        </div>
+      <div class="campo" id="boxIdade2" style="display:none;">
+        <label>🎂 Idade do comprador 2</label>
+        <input id="idade2" type="number" min="18" max="99" />
+      </div>
 
-        <div class="campo" id="boxRenda1" style="display:none;">
-          <label>💰 Renda mensal do comprador 1</label>
-          <input id="renda1" oninput="formatarMoeda(this)" />
-        </div>
+      <div class="campo" id="boxRenda2" style="display:none;">
+        <label>💰 Renda mensal do comprador 2</label>
+        <input id="renda2" oninput="formatarMoeda(this)" />
+      </div>
 
-        <div class="campo" id="boxIdade2" style="display:none;">
-          <label>🎂 Idade do comprador 2</label>
-          <input id="idade2" type="number" min="18" max="99" placeholder="Ex.: 26" />
-        </div>
-
-        <div class="campo" id="boxRenda2" style="display:none;">
-          <label>💰 Renda mensal do comprador 2</label>
-          <input id="renda2" oninput="formatarMoeda(this)" />
-        </div>
-
-        <div class="campo" id="boxEstado" style="display:none;">
-          <label>📍 Em qual estado será o lançamento?</label>
-          <select id="estado" onchange="onEstadoSelecionado()">
-            <option value="">Selecione...</option>
-            <option>CE</option><option>SP</option><option>RJ</option>
-            <option>MG</option><option>BA</option><option>PE</option>
-            <option>PR</option><option>SC</option><option>RS</option>
-            <option>GO</option><option>DF</option>
-          </select>
-        </div>
+      <div class="campo" id="boxEstado" style="display:none;">
+        <label>📍 Em qual estado será o lançamento?</label>
+        <select id="estado" onchange="onEstadoSelecionado()">
+          <option value="">Selecione...</option>
+          <option>CE</option><option>SP</option><option>RJ</option>
+          <option>MG</option><option>BA</option><option>PE</option>
+          <option>PR</option><option>SC</option><option>RS</option>
+          <option>GO</option><option>DF</option>
+        </select>
       </div>
     </div>
-
-    <!-- RENDA / FGTS -->
-    <div class="box-claro azul campo-full" id="boxProf" style="display:none;">
-      <h3>💼 Renda e FGTS</h3>
-
-      <div class="subgrid">
-        <div class="campo span2" id="boxSing" style="display:none;">
-          <label>Você trabalha como:</label>
-          <select id="tipoSing" onchange="onTipo()">
-            <option value="">Selecione...</option>
-            <option value="clt3">CLT (há mais de 3 anos)</option>
-            <option value="outro">CLT &lt; 3 anos / PJ</option>
-          </select>
-        </div>
-
-        <div class="campo span2" id="boxPlur" style="display:none;">
-          <label>Na composição, alguém é CLT há mais de 3 anos?</label>
-          <select id="tipoPlur" onchange="onTipo()">
-            <option value="">Selecione...</option>
-            <option value="sim">Sim</option>
-            <option value="nao">Não</option>
-          </select>
-        </div>
-
-        <div class="campo" id="boxFgts" style="display:none;">
-          <label>💰 Vai utilizar FGTS?</label>
-          <select id="usaFgts" onchange="toggleFgts()">
-            <option value="nao">Não</option>
-            <option value="sim">Sim</option>
-          </select>
-        </div>
-
-        <div class="campo" id="boxFgtsVal" style="display:none;">
-          <label>💰 Valor estimado do FGTS</label>
-          <input id="fgtsVal" oninput="formatarMoeda(this)" />
-        </div>
-      </div>
-    </div>
-
-    <!-- CAPACIDADE -->
-    <div class="box-claro amarelo campo-full" id="boxCap" style="display:none;">
-      <h3>💰 Capacidade inicial</h3>
-
-      <div class="subgrid">
-        <div class="campo span2">
-          <label>Possui algum valor guardado para entrada?</label>
-          <select id="temGuardado" onchange="toggleGuardado()">
-            <option value="">Selecione...</option>
-            <option value="nao">Não</option>
-            <option value="sim">Sim</option>
-          </select>
-        </div>
-
-        <div class="campo" id="boxGuardado" style="display:none;">
-          <label>💸 Quanto?</label>
-          <input id="valorGuardado" oninput="formatarMoeda(this)" />
-        </div>
-      </div>
-    </div>
-
   </div>
-</div>
+
+  <div class="box" id="boxProf" style="display:none;">
+    <h3 class="section-title">💼 Renda e FGTS</h3>
+    <div class="grid">
+      <div class="campo" id="boxSing" style="display:none;">
+        <label>Você trabalha como:</label>
+        <select id="tipoSing" onchange="onTipo()">
+          <option value="">Selecione...</option>
+          <option value="clt3">CLT (há mais de 3 anos)</option>
+          <option value="outro">CLT &lt; 3 anos / PJ</option>
+        </select>
+      </div>
+      <div class="campo" id="boxPlur" style="display:none;">
+        <label>Na composição, alguém é CLT há mais de 3 anos?</label>
+        <select id="tipoPlur" onchange="onTipo()">
+          <option value="">Selecione...</option>
+          <option value="sim">Sim</option>
+          <option value="nao">Não</option>
+        </select>
+      </div>
+      <div class="campo" id="boxCap" style="display:none;">
+        <label>Possui algum valor guardado para entrada?</label>
+        <select id="temGuardado" onchange="mostrarDiagnosticoBtn()">
+          <option value="">Selecione...</option>
+          <option value="nao">Não</option>
+          <option value="sim">Sim</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div id="boxAcao" style="display:none;text-align:center;">
+    <button class="btn" id="btnDiagnostico">Gerar Diagnóstico</button>
+  </div>
+
+  <div id="boxDiagnostico" style="display:none;">
+    <h3 class="section-title">🧾 Diagnóstico Financeiro</h3>
+    <div id="diagnosticoConteudo"></div>
+  </div>
+
+  <div id="boxSimulacoes">
+    <button class="sim-btn">💰 Simular Entrada</button>
+    <button class="sim-btn">📈 Simular INCC</button>
+    <button class="sim-btn">🏗️ Simular Juros de Obra</button>
+    <button class="sim-btn">📄 Gerar PDF</button>
+  </div>
+</main>
 
 <script>
+// === UTILITÁRIOS ===
 function formatarMoeda(c){
   let v=(c.value||"").replace(/\D/g,"");
   if(!v){c.value="";return;}
@@ -245,42 +269,77 @@ function formatarMoeda(c){
   v=v.replace(/\B(?=(\d{3})+(?!\d))/g,".");
   c.value="R$ "+v;
 }
+function limparMoeda(v){
+  return parseFloat((v||"").replace(/[R$\.\s]/g,"").replace(",", ".")) || 0;
+}
 
+// === FLUXO LÓGICO ===
 function onChangeComposicao(){
   const c=compraCom.value;
   const isComp=c!=="sozinho";
-  document.getElementById("boxIdade1").style.display="block";
-  document.getElementById("boxRenda1").style.display="block";
-  document.getElementById("boxIdade2").style.display=isComp?"block":"none";
-  document.getElementById("boxRenda2").style.display=isComp?"block":"none";
-  document.getElementById("boxEstado").style.display="block";
+  boxIdade1.style.display="block"; boxRenda1.style.display="block";
+  boxIdade2.style.display=isComp?"block":"none";
+  boxRenda2.style.display=isComp?"block":"none";
+  boxEstado.style.display="block";
 }
-
 function onEstadoSelecionado(){
-  document.getElementById("boxProf").style.display="block";
-  const isSolo = compraCom.value === "sozinho";
-  document.getElementById("boxSing").style.display=isSolo?"block":"none";
-  document.getElementById("boxPlur").style.display=isSolo?"none":"block";
+  boxProf.style.display="block";
+  const solo = compraCom.value==="sozinho";
+  boxSing.style.display=solo?"block":"none";
+  boxPlur.style.display=solo?"none":"block";
+}
+function onTipo(){ boxCap.style.display="block"; }
+function mostrarDiagnosticoBtn(){ boxAcao.style.display="block"; }
+
+// === DADOS MCMV ===
+const MCMV_RANGES = [
+  { faixa:"Faixa 1", min:0, max:2160, rate:(cot,reg)=> cot?(reg==="no_ne"?4.07:4.33):(reg==="no_ne"?4.59:4.84) },
+  { faixa:"Faixa 1", min:2160.01, max:2850, rate:(cot,reg)=> cot?(reg==="no_ne"?4.33:4.59):(reg==="no_ne"?4.84:5.12) },
+  { faixa:"Faixa 2", min:2850.01, max:4700, rate:(cot,reg)=> cot?(reg==="no_ne"?5.64:6.17):(reg==="no_ne"?6.70:7.23) },
+  { faixa:"Faixa 3", min:4700.01, max:8600, rate:(cot,reg)=> cot?(reg==="no_ne"?7.93:8.46):(reg==="no_ne"?8.46:8.99) },
+  { faixa:"Faixa 4", min:8600.01, max:12000, rate:()=>11.03 }
+];
+function getRegiao(uf){
+  const ne = ["MA","PI","CE","RN","PB","PE","AL","SE","BA"];
+  return ne.includes(uf)?"no_ne":"sul_se_co";
+}
+function findRangeByRenda(r){ return MCMV_RANGES.find(x=>r>=x.min && r<=x.max); }
+function calcularFinanciamentoMaximo(renda, jurosAA){
+  const i=(jurosAA/100)/12, n=420, lim=renda*0.3;
+  let low=0,high=1500000;
+  for(let k=0;k<45;k++){
+    const mid=(low+high)/2;
+    const pmt=(mid*i)/(1-Math.pow(1+i,-n));
+    if(pmt<=lim)low=mid; else high=mid;
+  }
+  return low;
 }
 
-function onTipo(){
-  const cotista =
-    compraCom.value==="sozinho"
-      ? tipoSing.value==="clt3"
-      : tipoPlur.value==="sim";
-  document.getElementById("boxFgts").style.display=cotista?"block":"none";
-  document.getElementById("boxCap").style.display="block";
-}
-
-function toggleFgts(){
-  document.getElementById("boxFgtsVal").style.display =
-    usaFgts.value==="sim"?"block":"none";
-}
-
-function toggleGuardado(){
-  document.getElementById("boxGuardado").style.display =
-    temGuardado.value==="sim"?"block":"none";
-}
+// === GERAR DIAGNÓSTICO ===
+btnDiagnostico.addEventListener("click",()=>{
+  const renda1v=limparMoeda(renda1.value);
+  const renda2v=limparMoeda(renda2.value);
+  const idade1v=parseInt(idade1.value)||0;
+  const idade2v=parseInt(idade2.value)||0;
+  const estadoV=estado.value;
+  const cotista=(tipoSing.value==="clt3" || tipoPlur.value==="sim");
+  const rendaTotal=renda1v+renda2v;
+  const idadeMedia=idade2v>0?(idade1v+idade2v)/2:idade1v;
+  const regiao=getRegiao(estadoV);
+  const faixa=findRangeByRenda(rendaTotal);
+  const taxa=faixa.rate(cotista,regiao);
+  const financiamento=calcularFinanciamentoMaximo(rendaTotal,taxa);
+  const tetoImovel=financiamento/0.8;
+  diagnosticoConteudo.innerHTML=`
+    <div class="card-dash"><span>Faixa MCMV</span><strong>${faixa.faixa}</strong></div>
+    <div class="card-dash"><span>Taxa de Juros</span><strong>${taxa.toFixed(2)}% a.a.</strong></div>
+    <div class="card-dash"><span>Financiamento Máximo</span><strong>R$ ${financiamento.toLocaleString("pt-BR",{minimumFractionDigits:2})}</strong></div>
+    <div class="card-dash"><span>Valor Máximo do Imóvel</span><strong>R$ ${tetoImovel.toLocaleString("pt-BR",{minimumFractionDigits:2})}</strong></div>
+  `;
+  boxDiagnostico.style.display="block";
+  boxSimulacoes.style.display="block";
+  boxAcao.style.display="none";
+});
 </script>
 
 </body>
