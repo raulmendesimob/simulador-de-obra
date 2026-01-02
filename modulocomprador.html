@@ -43,7 +43,7 @@ body {
   gap: 14px;
 }
 @media (min-width: 768px) {
-  .grid-topo { grid-template-columns: repeat(2, 1fr); }
+  .grid-topo { grid-template-columns: repeat(2,1fr); }
 }
 .campo-full { grid-column: 1 / -1; }
 
@@ -126,11 +126,11 @@ body {
 
     <!-- PERFIL -->
     <div class="box-claro campo-full">
-      <h3>👤 Sobre quem vai comprar</h3>
+      <h3>👤 Sobre quem pretende adquirir o imóvel</h3>
 
       <div class="subgrid">
         <div class="campo span2">
-          <label>👥 Vai adquirir sozinho(a) ou com alguém?</label>
+          <label>👥 Pretende adquirir sozinho(a) ou com alguém?</label>
           <select id="compraCom" onchange="onChangeComposicao()">
             <option value="">Selecione...</option>
             <option value="sozinho">Sozinho(a)</option>
@@ -141,14 +141,30 @@ body {
           </select>
         </div>
 
-        <div class="campo" id="boxRenda" style="display:none;">
-          <label id="labelRenda"></label>
-          <input id="renda" oninput="formatarMoeda(this); onRendaEstado();" />
+        <!-- IDADE E RENDA (DINÂMICOS) -->
+        <div class="campo" id="boxIdade1" style="display:none;">
+          <label>🎂 Idade do comprador 1</label>
+          <input id="idade1" type="number" min="18" max="99" placeholder="Ex.: 28" />
+        </div>
+
+        <div class="campo" id="boxRenda1" style="display:none;">
+          <label>💰 Renda mensal do comprador 1</label>
+          <input id="renda1" oninput="formatarMoeda(this)" />
+        </div>
+
+        <div class="campo" id="boxIdade2" style="display:none;">
+          <label>🎂 Idade do comprador 2</label>
+          <input id="idade2" type="number" min="18" max="99" placeholder="Ex.: 26" />
+        </div>
+
+        <div class="campo" id="boxRenda2" style="display:none;">
+          <label>💰 Renda mensal do comprador 2</label>
+          <input id="renda2" oninput="formatarMoeda(this)" />
         </div>
 
         <div class="campo" id="boxEstado" style="display:none;">
-          <label id="labelEstado"></label>
-          <select id="estado" onchange="onRendaEstado()">
+          <label>📍 Em qual estado será o lançamento?</label>
+          <select id="estado" onchange="onEstadoSelecionado()">
             <option value="">Selecione...</option>
             <option>CE</option><option>SP</option><option>RJ</option>
             <option>MG</option><option>BA</option><option>PE</option>
@@ -183,7 +199,7 @@ body {
         </div>
 
         <div class="campo" id="boxFgts" style="display:none;">
-          <label id="labelFgts"></label>
+          <label>💰 Vai utilizar FGTS?</label>
           <select id="usaFgts" onchange="toggleFgts()">
             <option value="nao">Não</option>
             <option value="sim">Sim</option>
@@ -203,7 +219,7 @@ body {
 
       <div class="subgrid">
         <div class="campo span2">
-          <label>Tem dinheiro guardado para usar na entrada?</label>
+          <label>Possui algum valor guardado para entrada?</label>
           <select id="temGuardado" onchange="toggleGuardado()">
             <option value="">Selecione...</option>
             <option value="nao">Não</option>
@@ -233,41 +249,37 @@ function formatarMoeda(c){
 function onChangeComposicao(){
   const c=compraCom.value;
   const isComp=c!=="sozinho";
-  labelRenda.innerText=isComp
-    ?"💰 Qual a renda mensal familiar? (soma)"
-    :"💰 Qual a sua renda mensal?";
-  labelEstado.innerText=isComp
-    ?"📍 Em qual estado vocês moram?"
-    :"📍 Em qual estado você mora?";
-  labelFgts.innerText=isComp
-    ?"💰 Vão utilizar FGTS? (de pelo menos 1)"
-    :"💰 Vai utilizar FGTS?";
-  boxRenda.style.display="block";
+  document.getElementById("boxIdade1").style.display="block";
+  document.getElementById("boxRenda1").style.display="block";
+  document.getElementById("boxIdade2").style.display=isComp?"block":"none";
+  document.getElementById("boxRenda2").style.display=isComp?"block":"none";
+  document.getElementById("boxEstado").style.display="block";
 }
 
-function onRendaEstado(){
-  if(renda.value) boxEstado.style.display="block";
-  if(estado.value){
-    boxProf.style.display="block";
-    boxSing.style.display=compraCom.value==="sozinho"?"block":"none";
-    boxPlur.style.display=compraCom.value!=="sozinho"?"block":"none";
-  }
+function onEstadoSelecionado(){
+  document.getElementById("boxProf").style.display="block";
+  const isSolo = compraCom.value === "sozinho";
+  document.getElementById("boxSing").style.display=isSolo?"block":"none";
+  document.getElementById("boxPlur").style.display=isSolo?"none":"block";
 }
 
 function onTipo(){
-  const cotista=
+  const cotista =
     compraCom.value==="sozinho"
-    ? tipoSing.value==="clt3"
-    : tipoPlur.value==="sim";
-  boxFgts.style.display=cotista?"block":"none";
-  boxCap.style.display="block";
+      ? tipoSing.value==="clt3"
+      : tipoPlur.value==="sim";
+  document.getElementById("boxFgts").style.display=cotista?"block":"none";
+  document.getElementById("boxCap").style.display="block";
 }
 
 function toggleFgts(){
-  boxFgtsVal.style.display=usaFgts.value==="sim"?"block":"none";
+  document.getElementById("boxFgtsVal").style.display =
+    usaFgts.value==="sim"?"block":"none";
 }
+
 function toggleGuardado(){
-  boxGuardado.style.display=temGuardado.value==="sim"?"block":"none";
+  document.getElementById("boxGuardado").style.display =
+    temGuardado.value==="sim"?"block":"none";
 }
 </script>
 
