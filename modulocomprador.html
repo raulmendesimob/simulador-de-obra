@@ -1,16 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador Imobiliário — Comprador</title>
+
+<style>
+/* =========================
+   RESET / BASE
+========================= */
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f4f6f5;
+  color: #222;
+}
+
+/* =========================
+   TOPO
+========================= */
+.painel-topo {
+  background: #fff;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 18px;
+}
+.painel-topo h1 {
+  text-align: center;
+  color: #0b6e3b;
+  margin: 0 0 18px;
+  font-size: 22px;
+}
+
+/* =========================
+   GRID
+========================= */
+.grid-topo {
+  max-width: 980px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+@media (min-width: 768px) {
+  .grid-topo { grid-template-columns: repeat(2, 1fr); }
+}
+.campo-full { grid-column: 1 / -1; }
+
+/* =========================
+   CAMPOS
+========================= */
+.campo label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.campo input,
+.campo select {
+  width: 100%;
+  padding: 11px 12px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+  background: #fff;
+}
+
+/* =========================
+   BOXES
+========================= */
+.box-claro {
+  background: #f6f9f7;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid #e6efe9;
+}
+.box-claro.azul {
+  background: #f2f6fb;
+  border-color: #dbe6f7;
+}
+.box-claro.amarelo {
+  background: #fffbe8;
+  border-color: #f3e7b3;
+}
+.box-claro h3 {
+  margin: 0 0 14px;
+  font-size: 16px;
+  color: #0b6e3b;
+}
+
+/* =========================
+   SUBGRID
+========================= */
+.subgrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+@media (min-width: 768px) {
+  .subgrid { grid-template-columns: repeat(2, 1fr); }
+  .span2 { grid-column: 1 / -1; }
+}
+
+/* =========================
+   OBS
+========================= */
+.obs {
+  margin-top: 8px;
+  font-size: 13px;
+  font-style: italic;
+  opacity: .85;
+}
+</style>
+</head>
+
+<body>
+
 <!-- =========================
-     CABEÇALHO — PERFIL DO COMPRADOR
+     CABEÇALHO — COMPRADOR
 ========================= -->
 <div class="painel-topo">
   <h1>Simulador Imobiliário</h1>
 
   <div class="grid-topo">
 
-    <!-- =========================
-         BLOCO 1 — PERFIL
-    ========================= -->
+    <!-- PERFIL -->
     <div class="box-claro campo-full">
-      <h3 style="margin:0 0 14px;">👤 Sobre quem vai comprar</h3>
+      <h3>👤 Sobre quem vai comprar</h3>
 
       <div class="subgrid">
         <div class="campo span2">
@@ -26,95 +142,64 @@
         </div>
 
         <div class="campo" id="boxRenda" style="display:none;">
-          <label id="labelRenda">💰 Qual a sua renda mensal?</label>
-          <input id="rendaFamiliar" oninput="formatarMoeda(this); onRendaOuEstadoChange();" />
+          <label id="labelRenda"></label>
+          <input id="renda" oninput="formatarMoeda(this); onRendaEstado();" />
         </div>
 
         <div class="campo" id="boxEstado" style="display:none;">
-          <label id="labelEstado">📍 Em qual estado você mora?</label>
-          <select id="estadoUF" onchange="onRendaOuEstadoChange()">
+          <label id="labelEstado"></label>
+          <select id="estado" onchange="onRendaEstado()">
             <option value="">Selecione...</option>
-            <option value="AC">Acre (AC)</option>
-            <option value="AL">Alagoas (AL)</option>
-            <option value="AP">Amapá (AP)</option>
-            <option value="AM">Amazonas (AM)</option>
-            <option value="BA">Bahia (BA)</option>
-            <option value="CE">Ceará (CE)</option>
-            <option value="DF">Distrito Federal (DF)</option>
-            <option value="ES">Espírito Santo (ES)</option>
-            <option value="GO">Goiás (GO)</option>
-            <option value="MA">Maranhão (MA)</option>
-            <option value="MT">Mato Grosso (MT)</option>
-            <option value="MS">Mato Grosso do Sul (MS)</option>
-            <option value="MG">Minas Gerais (MG)</option>
-            <option value="PA">Pará (PA)</option>
-            <option value="PB">Paraíba (PB)</option>
-            <option value="PR">Paraná (PR)</option>
-            <option value="PE">Pernambuco (PE)</option>
-            <option value="PI">Piauí (PI)</option>
-            <option value="RJ">Rio de Janeiro (RJ)</option>
-            <option value="RN">Rio Grande do Norte (RN)</option>
-            <option value="RS">Rio Grande do Sul (RS)</option>
-            <option value="RO">Rondônia (RO)</option>
-            <option value="RR">Roraima (RR)</option>
-            <option value="SC">Santa Catarina (SC)</option>
-            <option value="SP">São Paulo (SP)</option>
-            <option value="SE">Sergipe (SE)</option>
-            <option value="TO">Tocantins (TO)</option>
+            <option>CE</option><option>SP</option><option>RJ</option>
+            <option>MG</option><option>BA</option><option>PE</option>
+            <option>PR</option><option>SC</option><option>RS</option>
+            <option>GO</option><option>DF</option>
           </select>
         </div>
       </div>
     </div>
 
-    <!-- =========================
-         BLOCO 2 — RENDA / FGTS
-    ========================= -->
-    <div class="box-claro azul campo-full" id="boxProfissional" style="display:none;">
-      <h3 style="margin:0 0 14px;">💼 Renda e FGTS</h3>
+    <!-- RENDA / FGTS -->
+    <div class="box-claro azul campo-full" id="boxProf" style="display:none;">
+      <h3>💼 Renda e FGTS</h3>
 
       <div class="subgrid">
-        <div class="campo span2" id="boxTipoSing" style="display:none;">
+        <div class="campo span2" id="boxSing" style="display:none;">
           <label>Você trabalha como:</label>
-          <select id="tipoProfSing" onchange="onTipoProfChange()">
+          <select id="tipoSing" onchange="onTipo()">
             <option value="">Selecione...</option>
-            <option value="clt_mais_3">CLT (há mais de 3 anos)</option>
-            <option value="clt_menos_3">CLT (há menos de 3 anos)</option>
-            <option value="pj">PJ / Autônomo</option>
+            <option value="clt3">CLT (há mais de 3 anos)</option>
+            <option value="outro">CLT &lt; 3 anos / PJ</option>
           </select>
         </div>
 
-        <div class="campo span2" id="boxTipoPlur" style="display:none;">
-          <label>Na composição de renda, pelo menos uma pessoa é CLT há mais de 3 anos?</label>
-          <select id="tipoProfPlur" onchange="onTipoProfChange()">
+        <div class="campo span2" id="boxPlur" style="display:none;">
+          <label>Na composição, alguém é CLT há mais de 3 anos?</label>
+          <select id="tipoPlur" onchange="onTipo()">
             <option value="">Selecione...</option>
             <option value="sim">Sim</option>
             <option value="nao">Não</option>
           </select>
-          <div class="obs">
-            * Se a resposta for <b>Não</b>, o simulador considera <b>não cotista</b> (FGTS não entra nos cálculos).
-          </div>
         </div>
 
-        <div class="campo" id="boxUsaFgts" style="display:none;">
-          <label id="labelFgts">💰 Vai utilizar FGTS?</label>
-          <select id="usaFgts" onchange="toggleFGTS()">
+        <div class="campo" id="boxFgts" style="display:none;">
+          <label id="labelFgts"></label>
+          <select id="usaFgts" onchange="toggleFgts()">
             <option value="nao">Não</option>
             <option value="sim">Sim</option>
           </select>
         </div>
 
-        <div class="campo" id="boxFgtsValor" style="display:none;">
-          <label>💰 Valor estimado de FGTS (R$)</label>
-          <input id="fgtsValor" oninput="formatarMoeda(this)" />
+        <div class="campo" id="boxFgtsVal" style="display:none;">
+          <label>💰 Valor estimado do FGTS</label>
+          <input id="fgtsVal" oninput="formatarMoeda(this)" />
         </div>
       </div>
     </div>
 
-    <!-- =========================
-         BLOCO 3 — CAPACIDADE
-    ========================= -->
-    <div class="box-claro amarelo campo-full" id="boxGuardado" style="display:none;">
-      <h3 style="margin:0 0 14px;">💰 Capacidade inicial</h3>
+    <!-- CAPACIDADE -->
+    <div class="box-claro amarelo campo-full" id="boxCap" style="display:none;">
+      <h3>💰 Capacidade inicial</h3>
 
       <div class="subgrid">
         <div class="campo span2">
@@ -126,92 +211,65 @@
           </select>
         </div>
 
-        <div class="campo" id="boxValorGuardado" style="display:none;">
-          <label>💸 Quanto você tem guardado? (R$)</label>
+        <div class="campo" id="boxGuardado" style="display:none;">
+          <label>💸 Quanto?</label>
           <input id="valorGuardado" oninput="formatarMoeda(this)" />
         </div>
       </div>
     </div>
 
-    <!-- CAMPOS OCULTOS PARA CÁLCULO -->
-    <input type="hidden" id="regiaoCalc">
-    <input type="hidden" id="cotistaCalc">
-    <input type="hidden" id="podeFgtsCalc">
-
   </div>
 </div>
 
 <script>
-  function formatarMoeda(c){
-    let v=(c.value||"").replace(/\D/g,"");
-    if(!v){c.value="";return;}
-    v=(parseInt(v,10)/100).toFixed(2).replace(".",",");
-    v=v.replace(/\B(?=(\d{3})+(?!\d))/g,".");
-    c.value="R$ "+v;
+function formatarMoeda(c){
+  let v=(c.value||"").replace(/\D/g,"");
+  if(!v){c.value="";return;}
+  v=(parseInt(v,10)/100).toFixed(2).replace(".",",");
+  v=v.replace(/\B(?=(\d{3})+(?!\d))/g,".");
+  c.value="R$ "+v;
+}
+
+function onChangeComposicao(){
+  const c=compraCom.value;
+  const isComp=c!=="sozinho";
+  labelRenda.innerText=isComp
+    ?"💰 Qual a renda mensal familiar? (soma)"
+    :"💰 Qual a sua renda mensal?";
+  labelEstado.innerText=isComp
+    ?"📍 Em qual estado vocês moram?"
+    :"📍 Em qual estado você mora?";
+  labelFgts.innerText=isComp
+    ?"💰 Vão utilizar FGTS? (de pelo menos 1)"
+    :"💰 Vai utilizar FGTS?";
+  boxRenda.style.display="block";
+}
+
+function onRendaEstado(){
+  if(renda.value) boxEstado.style.display="block";
+  if(estado.value){
+    boxProf.style.display="block";
+    boxSing.style.display=compraCom.value==="sozinho"?"block":"none";
+    boxPlur.style.display=compraCom.value!=="sozinho"?"block":"none";
   }
-  function limparMoeda(v){
-    return parseFloat((v||"").replace(/[R$\.\s]/g,"").replace(",", "."))||0;
-  }
+}
 
-  const UF_NO_NE=new Set(["AC","AP","AM","PA","RO","RR","TO","AL","BA","CE","MA","PB","PE","PI","RN","SE"]);
+function onTipo(){
+  const cotista=
+    compraCom.value==="sozinho"
+    ? tipoSing.value==="clt3"
+    : tipoPlur.value==="sim";
+  boxFgts.style.display=cotista?"block":"none";
+  boxCap.style.display="block";
+}
 
-  function onChangeComposicao(){
-    const c=document.getElementById("compraCom").value;
-    if(!c)return;
-
-    const isComp=c!=="sozinho";
-    document.getElementById("labelRenda").innerText=isComp
-      ?"💰 Qual a renda mensal familiar? (soma das rendas)"
-      :"💰 Qual a sua renda mensal?";
-    document.getElementById("labelEstado").innerText=isComp
-      ?"📍 Em qual estado vocês moram?"
-      :"📍 Em qual estado você mora?";
-    document.getElementById("labelFgts").innerText=isComp
-      ?"💰 Vão utilizar FGTS? (de pelo menos 1)"
-      :"💰 Vai utilizar FGTS?";
-
-    document.getElementById("boxRenda").style.display="block";
-  }
-
-  function onRendaOuEstadoChange(){
-    const renda=limparMoeda(document.getElementById("rendaFamiliar").value);
-    if(renda>0) document.getElementById("boxEstado").style.display="block";
-
-    const uf=document.getElementById("estadoUF").value;
-    if(!uf)return;
-
-    document.getElementById("regiaoCalc").value=UF_NO_NE.has(uf)?"no_ne":"sul_se_co";
-    document.getElementById("boxProfissional").style.display="block";
-
-    const c=document.getElementById("compraCom").value;
-    document.getElementById("boxTipoSing").style.display=c==="sozinho"?"block":"none";
-    document.getElementById("boxTipoPlur").style.display=c!=="sozinho"?"block":"none";
-  }
-
-  function onTipoProfChange(){
-    const c=document.getElementById("compraCom").value;
-    let cotista=false;
-
-    if(c==="sozinho"){
-      cotista=document.getElementById("tipoProfSing").value==="clt_mais_3";
-    }else{
-      cotista=document.getElementById("tipoProfPlur").value==="sim";
-    }
-
-    document.getElementById("cotistaCalc").value=cotista?"cotista":"nao_cotista";
-    document.getElementById("podeFgtsCalc").value=cotista?"1":"0";
-
-    document.getElementById("boxUsaFgts").style.display=cotista?"block":"none";
-    document.getElementById("boxGuardado").style.display="block";
-  }
-
-  function toggleFGTS(){
-    const usa=document.getElementById("usaFgts").value==="sim";
-    document.getElementById("boxFgtsValor").style.display=usa?"block":"none";
-  }
-
-  function toggleGuardado(){
-    const v=document.getElementById("temGuardado").value;
-    document.getElementById("boxValorGuardado").style.display=v==="sim"?"block":"none";
-  }
+function toggleFgts(){
+  boxFgtsVal.style.display=usaFgts.value==="sim"?"block":"none";
+}
+function toggleGuardado(){
+  boxGuardado.style.display=temGuardado.value==="sim"?"block":"none";
+}
 </script>
+
+</body>
+</html>
