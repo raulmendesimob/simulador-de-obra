@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Simulador Imobiliário — Módulo Comprador</title>
 
 <style>
@@ -24,20 +24,25 @@ h3.section-title{color:#0b6e3b;margin-bottom:14px;}
 .card-dash{background:#fff;border:1px solid #e5e9ed;border-radius:12px;padding:16px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.03);}
 .card-dash span{display:block;font-size:13px;color:#666;margin-bottom:6px;}
 .card-dash strong{font-size:18px;color:#0b6e3b;}
-#boxSimulacoes{display:none;margin-top:26px;text-align:center;}
+#boxSimulacoes{text-align:center;margin-top:26px;}
 .sim-btn{margin:6px;padding:12px 18px;border:1px solid #d5dce0;border-radius:10px;background:#fff;cursor:pointer;font-weight:600;color:#333;transition:all .2s;}
 .sim-btn:hover{background:#0b6e3b;color:#fff;border-color:#0b6e3b;}
+#simEntradaBox{display:none;margin-top:30px;padding:28px;border-radius:14px;background:#f9fafb;border:1px solid #e0e5ea;}
+.result-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:18px;}
+.result-card{background:#fff;border:1px solid #e6e6e6;border-radius:10px;padding:14px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.03);}
+.result-card span{display:block;font-size:13px;color:#777;margin-bottom:4px;}
+.result-card strong{font-size:17px;color:#0b6e3b;}
 </style>
 </head>
 
 <body>
-
 <header>
   <h1>Simulador Imobiliário — Comprador</h1>
-  <p>Descubra automaticamente quanto você pode financiar e em qual faixa do MCMV se enquadra.</p>
+  <p>Descubra quanto você pode financiar e simule o valor do imóvel desejado.</p>
 </header>
 
 <main>
+  <!-- CABEÇALHO DO COMPRADOR -->
   <div class="box">
     <h3 class="section-title">👤 Sobre quem pretende adquirir o imóvel</h3>
     <div class="grid">
@@ -55,7 +60,7 @@ h3.section-title{color:#0b6e3b;margin-bottom:14px;}
 
       <div class="campo" id="boxIdade1" style="display:none;">
         <label>🎂 Idade do comprador 1</label>
-        <input id="idade1" type="number" min="18" max="99"/>
+        <input id="idade1" type="number" min="18" max="99" />
       </div>
 
       <div class="campo" id="boxRenda1" style="display:none;">
@@ -65,7 +70,7 @@ h3.section-title{color:#0b6e3b;margin-bottom:14px;}
 
       <div class="campo" id="boxIdade2" style="display:none;">
         <label>🎂 Idade do comprador 2</label>
-        <input id="idade2" type="number" min="18" max="99"/>
+        <input id="idade2" type="number" min="18" max="99" />
       </div>
 
       <div class="campo" id="boxRenda2" style="display:none;">
@@ -135,16 +140,39 @@ h3.section-title{color:#0b6e3b;margin-bottom:14px;}
     <button class="btn" id="btnDiagnostico">Gerar Diagnóstico</button>
   </div>
 
+  <!-- DIAGNÓSTICO -->
   <div id="boxDiagnostico" style="display:none;">
     <h3 class="section-title">🧾 Diagnóstico Financeiro</h3>
     <div id="diagnosticoConteudo"></div>
   </div>
 
-  <div id="boxSimulacoes">
-    <button class="sim-btn">💰 Simular Entrada</button>
-    <button class="sim-btn">📈 Simular INCC</button>
-    <button class="sim-btn">🏗️ Simular Juros de Obra</button>
-    <button class="sim-btn">📄 Gerar PDF</button>
+  <!-- SIMULAÇÕES -->
+  <div id="boxSimulacoes" style="display:none;">
+    <button class="sim-btn" onclick="abrirSimulacaoEntrada()">💰 Simular Entrada</button>
+  </div>
+
+  <!-- SIMULAÇÃO DE ENTRADA -->
+  <div id="simEntradaBox" style="display:none;">
+    <h3 class="section-title">💰 Simulação de Entrada</h3>
+    <div class="grid">
+      <div class="campo">
+        <label>Valor do imóvel pretendido (R$)</label>
+        <input id="valorImovel" placeholder="Ex.: 250000" />
+      </div>
+      <div class="campo">
+        <label>Prazo (meses)</label>
+        <input id="prazo" type="number" value="420" />
+      </div>
+      <div class="campo">
+        <label>Comprometimento da renda (%)</label>
+        <input id="compRenda" type="number" value="30" />
+      </div>
+    </div>
+    <div style="margin-top:20px;text-align:center;">
+      <button class="btn" onclick="calcularEntrada()">Calcular</button>
+      <button class="btn" style="background:#888;margin-left:6px;" onclick="limparEntrada()">Limpar</button>
+    </div>
+    <div id="resultadoEntrada" class="result-grid" style="display:none;"></div>
   </div>
 </main>
 
@@ -166,7 +194,6 @@ function onEstadoSelecionado(){
   boxPlur.style.display=solo?"none":"block";
 }
 function onTipo(){
-  const cotista=(compraCom.value==="sozinho"?tipoSing.value==="clt3":tipoPlur.value==="sim");
   boxFgts.style.display="block";
 }
 function toggleFgts(){
@@ -208,26 +235,69 @@ function calcularFinanciamentoMaximo(renda,jurosAA){
   return low;
 }
 
+let rendaTotalGlobal=0;let taxaGlobal=0;
+
 btnDiagnostico.addEventListener("click",()=>{
   const renda1v=limparMoeda(renda1.value);
   const renda2v=limparMoeda(renda2.value);
-  const idade1v=parseInt(idade1.value)||0;
-  const idade2v=parseInt(idade2.value)||0;
   const estadoV=estado.value;
   const cotista=(compraCom.value==="sozinho"?tipoSing.value==="clt3":tipoPlur.value==="sim");
   const rendaTotal=renda1v+renda2v;
-  const idadeMedia=idade2v>0?(idade1v+idade2v)/2:idade1v;
+  rendaTotalGlobal=rendaTotal;
   const {faixa,taxa}=getTaxaMCMV(rendaTotal,cotista,estadoV);
+  taxaGlobal=taxa;
   const financiamento=calcularFinanciamentoMaximo(rendaTotal,taxa);
   const tetoImovel=financiamento/0.8;
-
   diagnosticoConteudo.innerHTML=`
     <div class="card-dash"><span>Faixa MCMV</span><strong>${faixa}</strong></div>
     <div class="card-dash"><span>Taxa de Juros</span><strong>${taxa.toFixed(2)}% a.a.</strong></div>
     <div class="card-dash"><span>Financiamento Máximo</span><strong>R$ ${financiamento.toLocaleString("pt-BR",{minimumFractionDigits:2})}</strong></div>
     <div class="card-dash"><span>Valor Máximo do Imóvel</span><strong>R$ ${tetoImovel.toLocaleString("pt-BR",{minimumFractionDigits:2})}</strong></div>`;
-  boxDiagnostico.style.display="block";boxSimulacoes.style.display="block";boxAcao.style.display="none";
+  boxDiagnostico.style.display="block";
+  boxSimulacoes.style.display="block";
+  boxAcao.style.display="none";
 });
+
+function abrirSimulacaoEntrada(){
+  simEntradaBox.style.display="block";
+  document.getElementById("rendaSimulada")?.remove();
+}
+
+function limparEntrada(){
+  valorImovel.value="";
+  resultadoEntrada.style.display="none";
+}
+
+function calcularEntrada(){
+  const renda=rendaTotalGlobal;
+  const jurosAA=taxaGlobal;
+  const valorImovel=parseFloat(valorImovel.value)||0;
+  const prazo=parseInt(document.getElementById("prazo").value)||420;
+  const comp=parseFloat(document.getElementById("compRenda").value)||30;
+  
+  const i=(jurosAA/100)/12;
+  const parcelaMax=renda*(comp/100);
+  let low=0,high=1500000;
+  for(let k=0;k<45;k++){
+    const mid=(low+high)/2;
+    const pmt=(mid*i)/(1-Math.pow(1+i,-prazo));
+    if(pmt<=parcelaMax)low=mid;else high=mid;
+  }
+  const capFinanceira=low;
+  const tetoLTV=valorImovel*0.8;
+  const financiamentoAprovado=Math.min(capFinanceira,tetoLTV);
+  const entradaNecessaria=valorImovel-financiamentoAprovado;
+  const pmtReal=(financiamentoAprovado*i)/(1-Math.pow(1+i,-prazo));
+
+  resultadoEntrada.style.display="grid";
+  resultadoEntrada.innerHTML=`
+    <div class='result-card'><span>Parcela máxima permitida (renda)</span><strong>R$ ${parcelaMax.toLocaleString('pt-BR',{minimumFractionDigits:2})}</strong></div>
+    <div class='result-card'><span>Parcela estimada do financiamento aprovado</span><strong>R$ ${pmtReal.toLocaleString('pt-BR',{minimumFractionDigits:2})}</strong></div>
+    <div class='result-card'><span>Capacidade financeira máxima (renda)</span><strong>R$ ${capFinanceira.toLocaleString('pt-BR',{minimumFractionDigits:2})}</strong></div>
+    <div class='result-card'><span>Teto por LTV (80%)</span><strong>R$ ${tetoLTV.toLocaleString('pt-BR',{minimumFractionDigits:2})}</strong></div>
+    <div class='result-card'><span>Financiamento aprovado</span><strong>R$ ${financiamentoAprovado.toLocaleString('pt-BR',{minimumFractionDigits:2})}</strong></div>
+    <div class='result-card'><span>Entrada necessária</span><strong>R$ ${entradaNecessaria.toLocaleString('pt-BR',{minimumFractionDigits:2})}</strong></div>`;
+}
 </script>
 </body>
 </html>
