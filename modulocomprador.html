@@ -6,154 +6,27 @@
 <title>Simulador Imobiliário — Módulo Comprador</title>
 
 <style>
-/* =========================
-   BASE VISUAL / RESET
-========================= */
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: 'Inter', Arial, sans-serif;
-  background: #f5f7fa;
-  color: #222;
-  line-height: 1.5;
-}
-
-/* =========================
-   TÍTULO PRINCIPAL
-========================= */
-header {
-  background: linear-gradient(135deg, #0b6e3b, #0f9b50);
-  color: #fff;
-  text-align: center;
-  padding: 28px 18px;
-  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
-}
-header h1 {
-  font-size: 24px;
-  font-weight: 700;
-}
-header p {
-  opacity: 0.9;
-  font-size: 15px;
-  margin-top: 6px;
-}
-
-/* =========================
-   FORM CONTAINER
-========================= */
-main {
-  max-width: 980px;
-  margin: 28px auto;
-  background: #fff;
-  padding: 26px;
-  border-radius: 18px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-}
-h3.section-title {
-  color: #0b6e3b;
-  margin-bottom: 14px;
-}
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 14px;
-}
-.campo label {
-  font-weight: 600;
-  font-size: 13px;
-  margin-bottom: 6px;
-  display: block;
-}
-.campo input, .campo select {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  font-size: 15px;
-}
-.box {
-  border: 1px solid #e6efe9;
-  border-radius: 14px;
-  padding: 18px;
-  background: #f9fafb;
-  margin-bottom: 18px;
-}
-
-/* =========================
-   BOTÕES
-========================= */
-.btn {
-  background: #0b6e3b;
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  padding: 12px 24px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 600;
-  transition: background 0.2s;
-}
-.btn:hover { background: #0f9b50; }
-
-/* =========================
-   DASHBOARD
-========================= */
-#boxDiagnostico {
-  margin-top: 30px;
-  padding: 28px;
-  border-radius: 16px;
-  background: linear-gradient(180deg,#fdfdfd,#f7fafc);
-  border: 1px solid #e0e5ea;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
-}
-#diagnosticoConteudo {
-  display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
-  gap: 18px;
-  margin-top: 10px;
-}
-.card-dash {
-  background: #fff;
-  border: 1px solid #e5e9ed;
-  border-radius: 12px;
-  padding: 16px;
-  text-align: center;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
-}
-.card-dash span {
-  display: block;
-  font-size: 13px;
-  color: #666;
-  margin-bottom: 6px;
-}
-.card-dash strong {
-  font-size: 18px;
-  color: #0b6e3b;
-}
-
-/* =========================
-   BOTÕES DE SIMULAÇÃO
-========================= */
-#boxSimulacoes {
-  display: none;
-  margin-top: 26px;
-  text-align: center;
-}
-.sim-btn {
-  margin: 6px;
-  padding: 12px 18px;
-  border: 1px solid #d5dce0;
-  border-radius: 10px;
-  background: #fff;
-  cursor: pointer;
-  font-weight: 600;
-  color: #333;
-  transition: all .2s;
-}
-.sim-btn:hover {
-  background: #0b6e3b;
-  color: #fff;
-  border-color: #0b6e3b;
-}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',Arial,sans-serif;background:#f5f7fa;color:#222;line-height:1.5;}
+header{background:linear-gradient(135deg,#0b6e3b,#0f9b50);color:#fff;text-align:center;padding:28px 18px;box-shadow:0 3px 12px rgba(0,0,0,0.08);}
+header h1{font-size:24px;font-weight:700;}
+header p{opacity:.9;font-size:15px;margin-top:6px;}
+main{max-width:980px;margin:28px auto;background:#fff;padding:26px;border-radius:18px;box-shadow:0 4px 20px rgba(0,0,0,0.05);}
+h3.section-title{color:#0b6e3b;margin-bottom:14px;}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;}
+.campo label{font-weight:600;font-size:13px;margin-bottom:6px;display:block;}
+.campo input,.campo select{width:100%;padding:10px 12px;border:1px solid #ccc;border-radius:10px;font-size:15px;}
+.box{border:1px solid #e6efe9;border-radius:14px;padding:18px;background:#f9fafb;margin-bottom:18px;}
+.btn{background:#0b6e3b;color:#fff;border:none;border-radius:10px;padding:12px 24px;cursor:pointer;font-size:16px;font-weight:600;transition:background .2s;}
+.btn:hover{background:#0f9b50;}
+#boxDiagnostico{margin-top:30px;padding:28px;border-radius:16px;background:linear-gradient(180deg,#fdfdfd,#f7fafc);border:1px solid #e0e5ea;box-shadow:0 2px 12px rgba(0,0,0,0.04);}
+#diagnosticoConteudo{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-top:10px;}
+.card-dash{background:#fff;border:1px solid #e5e9ed;border-radius:12px;padding:16px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.03);}
+.card-dash span{display:block;font-size:13px;color:#666;margin-bottom:6px;}
+.card-dash strong{font-size:18px;color:#0b6e3b;}
+#boxSimulacoes{display:none;margin-top:26px;text-align:center;}
+.sim-btn{margin:6px;padding:12px 18px;border:1px solid #d5dce0;border-radius:10px;background:#fff;cursor:pointer;font-weight:600;color:#333;transition:all .2s;}
+.sim-btn:hover{background:#0b6e3b;color:#fff;border-color:#0b6e3b;}
 </style>
 </head>
 
@@ -161,7 +34,7 @@ h3.section-title {
 
 <header>
   <h1>Simulador Imobiliário — Comprador</h1>
-  <p>Descubra automaticamente quanto você pode financiar e em qual faixa se enquadra.</p>
+  <p>Descubra automaticamente quanto você pode financiar e em qual faixa do MCMV se enquadra.</p>
 </header>
 
 <main>
@@ -182,7 +55,7 @@ h3.section-title {
 
       <div class="campo" id="boxIdade1" style="display:none;">
         <label>🎂 Idade do comprador 1</label>
-        <input id="idade1" type="number" min="18" max="99" />
+        <input id="idade1" type="number" min="18" max="99"/>
       </div>
 
       <div class="campo" id="boxRenda1" style="display:none;">
@@ -192,7 +65,7 @@ h3.section-title {
 
       <div class="campo" id="boxIdade2" style="display:none;">
         <label>🎂 Idade do comprador 2</label>
-        <input id="idade2" type="number" min="18" max="99" />
+        <input id="idade2" type="number" min="18" max="99"/>
       </div>
 
       <div class="campo" id="boxRenda2" style="display:none;">
@@ -204,10 +77,9 @@ h3.section-title {
         <label>📍 Em qual estado será o lançamento?</label>
         <select id="estado" onchange="onEstadoSelecionado()">
           <option value="">Selecione...</option>
-          <option>CE</option><option>SP</option><option>RJ</option>
-          <option>MG</option><option>BA</option><option>PE</option>
-          <option>PR</option><option>SC</option><option>RS</option>
-          <option>GO</option><option>DF</option>
+          <option>CE</option><option>SP</option><option>RJ</option><option>MG</option>
+          <option>BA</option><option>PE</option><option>PR</option><option>SC</option>
+          <option>RS</option><option>GO</option><option>DF</option>
         </select>
       </div>
     </div>
@@ -221,7 +93,7 @@ h3.section-title {
         <select id="tipoSing" onchange="onTipo()">
           <option value="">Selecione...</option>
           <option value="clt3">CLT (há mais de 3 anos)</option>
-          <option value="outro">CLT &lt; 3 anos / PJ</option>
+          <option value="outro">CLT &lt; 3 anos / PJ / Autônomo</option>
         </select>
       </div>
       <div class="campo" id="boxPlur" style="display:none;">
@@ -232,6 +104,18 @@ h3.section-title {
           <option value="nao">Não</option>
         </select>
       </div>
+      <div class="campo" id="boxFgts" style="display:none;">
+        <label>💰 Vai utilizar FGTS?</label>
+        <select id="usaFgts" onchange="toggleFgts()">
+          <option value="">Selecione...</option>
+          <option value="nao">Não</option>
+          <option value="sim">Sim</option>
+        </select>
+      </div>
+      <div class="campo" id="boxFgtsVal" style="display:none;">
+        <label>💰 Valor estimado do FGTS</label>
+        <input id="fgtsVal" oninput="formatarMoeda(this)" />
+      </div>
       <div class="campo" id="boxCap" style="display:none;">
         <label>Possui algum valor guardado para entrada?</label>
         <select id="temGuardado" onchange="mostrarDiagnosticoBtn()">
@@ -239,6 +123,10 @@ h3.section-title {
           <option value="nao">Não</option>
           <option value="sim">Sim</option>
         </select>
+      </div>
+      <div class="campo" id="boxGuardado" style="display:none;">
+        <label>💸 Valor guardado</label>
+        <input id="valorGuardado" oninput="formatarMoeda(this)" />
       </div>
     </div>
   </div>
@@ -261,86 +149,85 @@ h3.section-title {
 </main>
 
 <script>
-// === UTILITÁRIOS ===
-function formatarMoeda(c){
-  let v=(c.value||"").replace(/\D/g,"");
-  if(!v){c.value="";return;}
-  v=(parseInt(v,10)/100).toFixed(2).replace(".",",");
-  v=v.replace(/\B(?=(\d{3})+(?!\d))/g,".");
-  c.value="R$ "+v;
-}
-function limparMoeda(v){
-  return parseFloat((v||"").replace(/[R$\.\s]/g,"").replace(",", ".")) || 0;
-}
+function formatarMoeda(c){let v=(c.value||"").replace(/\D/g,"");if(!v){c.value="";return;}v=(parseInt(v,10)/100).toFixed(2).replace(".",",");v=v.replace(/\B(?=(\d{3})+(?!\d))/g,".");c.value="R$ "+v;}
+function limparMoeda(v){return parseFloat((v||"").replace(/[R$\.\s]/g,"").replace(",", ".")) || 0;}
 
-// === FLUXO LÓGICO ===
 function onChangeComposicao(){
-  const c=compraCom.value;
-  const isComp=c!=="sozinho";
-  boxIdade1.style.display="block"; boxRenda1.style.display="block";
-  boxIdade2.style.display=isComp?"block":"none";
-  boxRenda2.style.display=isComp?"block":"none";
+  const c=compraCom.value;const comp=c!=="sozinho";
+  boxIdade1.style.display="block";boxRenda1.style.display="block";
+  boxIdade2.style.display=comp?"block":"none";
+  boxRenda2.style.display=comp?"block":"none";
   boxEstado.style.display="block";
 }
 function onEstadoSelecionado(){
   boxProf.style.display="block";
-  const solo = compraCom.value==="sozinho";
+  const solo=compraCom.value==="sozinho";
   boxSing.style.display=solo?"block":"none";
   boxPlur.style.display=solo?"none":"block";
 }
-function onTipo(){ boxCap.style.display="block"; }
-function mostrarDiagnosticoBtn(){ boxAcao.style.display="block"; }
-
-// === DADOS MCMV ===
-const MCMV_RANGES = [
-  { faixa:"Faixa 1", min:0, max:2160, rate:(cot,reg)=> cot?(reg==="no_ne"?4.07:4.33):(reg==="no_ne"?4.59:4.84) },
-  { faixa:"Faixa 1", min:2160.01, max:2850, rate:(cot,reg)=> cot?(reg==="no_ne"?4.33:4.59):(reg==="no_ne"?4.84:5.12) },
-  { faixa:"Faixa 2", min:2850.01, max:4700, rate:(cot,reg)=> cot?(reg==="no_ne"?5.64:6.17):(reg==="no_ne"?6.70:7.23) },
-  { faixa:"Faixa 3", min:4700.01, max:8600, rate:(cot,reg)=> cot?(reg==="no_ne"?7.93:8.46):(reg==="no_ne"?8.46:8.99) },
-  { faixa:"Faixa 4", min:8600.01, max:12000, rate:()=>11.03 }
-];
-function getRegiao(uf){
-  const ne = ["MA","PI","CE","RN","PB","PE","AL","SE","BA"];
-  return ne.includes(uf)?"no_ne":"sul_se_co";
+function onTipo(){
+  const cotista=(compraCom.value==="sozinho"?tipoSing.value==="clt3":tipoPlur.value==="sim");
+  boxFgts.style.display="block";
 }
-function findRangeByRenda(r){ return MCMV_RANGES.find(x=>r>=x.min && r<=x.max); }
-function calcularFinanciamentoMaximo(renda, jurosAA){
-  const i=(jurosAA/100)/12, n=420, lim=renda*0.3;
+function toggleFgts(){
+  boxFgtsVal.style.display=usaFgts.value==="sim"?"block":"none";
+  boxCap.style.display="block";
+}
+function mostrarDiagnosticoBtn(){
+  boxGuardado.style.display=temGuardado.value==="sim"?"block":"none";
+  boxAcao.style.display="block";
+}
+
+function getRegiao(uf){const ne=["MA","PI","CE","RN","PB","PE","AL","SE","BA"];return ne.includes(uf)?"no_ne":"sul_se_co";}
+function getTaxaMCMV(renda,cotista,estado){
+  const regiao=getRegiao(estado);let faixa;
+  if(renda<=2160)faixa="1A";
+  else if(renda<=2850)faixa="1B";
+  else if(renda<=3500)faixa="2A";
+  else if(renda<=4000)faixa="2B";
+  else if(renda<=4700)faixa="2C";
+  else if(renda<=8600)faixa="3";
+  else faixa="4";
+  const tabela={
+    "1A":{no_ne:{cot:4.07,nao:4.59},sul_se_co:{cot:4.33,nao:4.85}},
+    "1B":{no_ne:{cot:4.33,nao:4.85},sul_se_co:{cot:4.59,nao:5.12}},
+    "2A":{no_ne:{cot:4.85,nao:5.39},sul_se_co:{cot:5.12,nao:5.67}},
+    "2B":{no_ne:{cot:5.63,nao:6.17},sul_se_co:{cot:5.63,nao:6.17}},
+    "2C":{no_ne:{cot:6.69,nao:7.23},sul_se_co:{cot:6.69,nao:7.23}},
+    "3":{no_ne:{cot:7.93,nao:8.46},sul_se_co:{cot:7.93,nao:8.46}},
+    "4":{no_ne:{cot:11.03,nao:11.03},sul_se_co:{cot:11.03,nao:11.03}}
+  };
+  const taxa=tabela[faixa][regiao][cotista?"cot":"nao"];
+  return {faixa,taxa};
+}
+
+function calcularFinanciamentoMaximo(renda,jurosAA){
+  const i=(jurosAA/100)/12,n=420,lim=renda*0.3;
   let low=0,high=1500000;
-  for(let k=0;k<45;k++){
-    const mid=(low+high)/2;
-    const pmt=(mid*i)/(1-Math.pow(1+i,-n));
-    if(pmt<=lim)low=mid; else high=mid;
-  }
+  for(let k=0;k<45;k++){const mid=(low+high)/2;const pmt=(mid*i)/(1-Math.pow(1+i,-n));if(pmt<=lim)low=mid;else high=mid;}
   return low;
 }
 
-// === GERAR DIAGNÓSTICO ===
 btnDiagnostico.addEventListener("click",()=>{
   const renda1v=limparMoeda(renda1.value);
   const renda2v=limparMoeda(renda2.value);
   const idade1v=parseInt(idade1.value)||0;
   const idade2v=parseInt(idade2.value)||0;
   const estadoV=estado.value;
-  const cotista=(tipoSing.value==="clt3" || tipoPlur.value==="sim");
+  const cotista=(compraCom.value==="sozinho"?tipoSing.value==="clt3":tipoPlur.value==="sim");
   const rendaTotal=renda1v+renda2v;
   const idadeMedia=idade2v>0?(idade1v+idade2v)/2:idade1v;
-  const regiao=getRegiao(estadoV);
-  const faixa=findRangeByRenda(rendaTotal);
-  const taxa=faixa.rate(cotista,regiao);
+  const {faixa,taxa}=getTaxaMCMV(rendaTotal,cotista,estadoV);
   const financiamento=calcularFinanciamentoMaximo(rendaTotal,taxa);
   const tetoImovel=financiamento/0.8;
+
   diagnosticoConteudo.innerHTML=`
-    <div class="card-dash"><span>Faixa MCMV</span><strong>${faixa.faixa}</strong></div>
+    <div class="card-dash"><span>Faixa MCMV</span><strong>${faixa}</strong></div>
     <div class="card-dash"><span>Taxa de Juros</span><strong>${taxa.toFixed(2)}% a.a.</strong></div>
     <div class="card-dash"><span>Financiamento Máximo</span><strong>R$ ${financiamento.toLocaleString("pt-BR",{minimumFractionDigits:2})}</strong></div>
-    <div class="card-dash"><span>Valor Máximo do Imóvel</span><strong>R$ ${tetoImovel.toLocaleString("pt-BR",{minimumFractionDigits:2})}</strong></div>
-  `;
-  boxDiagnostico.style.display="block";
-  boxSimulacoes.style.display="block";
-  boxAcao.style.display="none";
+    <div class="card-dash"><span>Valor Máximo do Imóvel</span><strong>R$ ${tetoImovel.toLocaleString("pt-BR",{minimumFractionDigits:2})}</strong></div>`;
+  boxDiagnostico.style.display="block";boxSimulacoes.style.display="block";boxAcao.style.display="none";
 });
 </script>
-
 </body>
 </html>
