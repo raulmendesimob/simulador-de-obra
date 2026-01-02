@@ -46,6 +46,11 @@
       border-radius: 8px;
       border: 1px solid #ddd;
       font-size: 14px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #bbb;
     }
 
     .buttons {
@@ -77,6 +82,7 @@
       border-radius: 10px;
       padding: 16px;
       border: 1px solid #eee;
+      min-height: 28px;
     }
 
     .result-grid {
@@ -105,143 +111,213 @@
       line-height: 1.4;
     }
 
+    .error {
+      background: #fff6f6;
+      border: 1px solid #f3c0c0;
+      color: #7a1f1f;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
     @media (max-width: 720px) {
-      .grid, .result-grid {
-        grid-template-columns: 1fr;
-      }
+      .grid, .result-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 
 <body>
-<div class="container">
-  <h1>Simulador Minha Casa Minha Vida — Financiamento Máximo</h1>
+  <div class="container">
+    <h1>Simulador Minha Casa Minha Vida — Financiamento Máximo</h1>
 
-  <div class="grid">
-    <div>
-      <label>Renda familiar (R$)</label>
-      <input id="renda" value="6496,27">
+    <div class="grid">
+      <div>
+        <label for="renda">Renda familiar (R$)</label>
+        <input id="renda" value="6496,27" inputmode="decimal" placeholder="Ex.: 6496,27">
+      </div>
+
+      <div>
+        <label for="juros">Juros efetivos ao ano (%)</label>
+        <input id="juros" value="7,9348" inputmode="decimal" placeholder="Ex.: 7,9348">
+      </div>
+
+      <div>
+        <label for="prazo">Prazo (meses)</label>
+        <input id="prazo" type="number" value="420" min="1" max="480">
+      </div>
+
+      <div>
+        <label for="imovel">Valor do imóvel (R$)</label>
+        <input id="imovel" value="300000" inputmode="decimal" placeholder="Ex.: 300000">
+      </div>
+
+      <div>
+        <label for="idade">Idade média dos compradores</label>
+        <input id="idade" type="number" value="28" min="0" max="120">
+      </div>
+
+      <div>
+        <label for="comprometimento">Comprometimento máximo da renda (%)</label>
+        <input id="comprometimento" value="30" inputmode="decimal" placeholder="Ex.: 30">
+      </div>
     </div>
 
-    <div>
-      <label>Juros efetivos ao ano (%)</label>
-      <input id="juros" value="7,9348">
+    <div class="buttons">
+      <button class="primary" id="btnCalcular" type="button">Calcular</button>
+      <button class="secondary" id="btnLimpar" type="button">Limpar</button>
     </div>
 
-    <div>
-      <label>Prazo (meses)</label>
-      <input id="prazo" type="number" value="420">
-    </div>
-
-    <div>
-      <label>Valor do imóvel (R$)</label>
-      <input id="imovel" value="300000">
-    </div>
-
-    <div>
-      <label>Idade média dos compradores</label>
-      <input id="idade" type="number" value="28">
-    </div>
-
-    <div>
-      <label>Comprometimento máximo da renda (%)</label>
-      <input id="comprometimento" value="30">
-    </div>
+    <div class="result" id="resultado" aria-live="polite"></div>
   </div>
 
-  <div class="buttons">
-    <button class="primary" onclick="calcular()">Calcular</button>
-    <button class="secondary" onclick="limpar()">Limpar</button>
-  </div>
+  <script>
+    // --- Helpers ---
+    function parseBR(v) {
+      if (v === null || v === undefined) return NaN;
+      const s = String(v).trim().replace(/\./g, "").replace(",", ".");
+      const n = Number(s);
+      return Number.isFinite(n) ? n : NaN;
+    }
 
-  <div class="result" id="resultado"></div>
-</div>
+    function money(v) {
+      if (!Number.isFinite(v)) return "—";
+      return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    }
 
-<script>
-function parseBR(v) {
-  return Number(String(v).replace(/\./g,"").replace(",","."));
-}
+    // DFI + MIP (estimativa)
+    function estimateInsurance(pmtTotal, idade) {
+      if (!Number.isFinite(pmtTotal) || pmtTotal <= 0) return 0;
 
-function money(v) {
-  return v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
-}
+      let rate = 0.03;
+      if (idade <= 30) rate = 0.028;
+      else if (idade <= 40) rate = 0.03;
+      else if (idade <= 50) rate = 0.035;
+      else rate = 0.04;
 
-function estimateInsurance(pmtTotal, idade) {
-  let rate = 0.03;
-  if (idade <= 30) rate = 0.028;
-  else if (idade <= 40) rate = 0.03;
-  else if (idade <= 50) rate = 0.035;
-  else rate = 0.04;
-  return pmtTotal * rate;
-}
+      return pmtTotal * rate;
+    }
 
-function pvPrice(pmt, i, n) {
-  return pmt * (1 - Math.pow(1 + i, -n)) / i;
-}
+    // PRICE: PV from PMT
+    function pvPrice(pmt, i, n) {
+      if (i <= 0) return pmt * n;
+      return pmt * (1 - Math.pow(1 + i, -n)) / i;
+    }
 
-function pmtPrice(pv, i, n) {
-  return pv * (i / (1 - Math.pow(1 + i, -n)));
-}
+    // PRICE: PMT from PV
+    function pmtPrice(pv, i, n) {
+      if (i <= 0) return pv / n;
+      return pv * (i / (1 - Math.pow(1 + i, -n)));
+    }
 
-function calcular() {
-  const renda = parseBR(renda.value);
-  const jurosAA = parseBR(juros.value) / 100;
-  const prazo = Number(document.getElementById("prazo").value);
-  const valorImovel = parseBR(imovel.value);
-  const idade = Number(document.getElementById("idade").value);
-  const comprometimento = parseBR(comprometimento.value) / 100;
+    function renderError(el, messages) {
+      el.innerHTML = `
+        <div class="error">
+          <strong>Corrija para calcular:</strong><br>
+          ${messages.map(m => "• " + m).join("<br>")}
+        </div>
+      `;
+    }
 
-  const TAXA_ADM = 25;
-  const LTV = 0.80;
+    function calcular() {
+      const rendaEl = document.getElementById("renda");
+      const jurosEl = document.getElementById("juros");
+      const prazoEl = document.getElementById("prazo");
+      const imovelEl = document.getElementById("imovel");
+      const idadeEl = document.getElementById("idade");
+      const compEl = document.getElementById("comprometimento");
+      const resultadoEl = document.getElementById("resultado");
 
-  const parcelaMaxima = renda * comprometimento;
-  const segurosMax = estimateInsurance(parcelaMaxima, idade);
-  const pmtAJmax = parcelaMaxima - TAXA_ADM - segurosMax;
+      const renda = parseBR(rendaEl.value);
+      const jurosAA = parseBR(jurosEl.value) / 100;
+      const prazo = Number(prazoEl.value);
+      const valorImovel = parseBR(imovelEl.value);
+      const idade = Number(idadeEl.value);
+      const comprometimento = parseBR(compEl.value) / 100;
 
-  const i = jurosAA / 12;
+      const TAXA_ADM = 25;
+      const LTV = 0.80;
 
-  const capacidadeFinanceira = pvPrice(pmtAJmax, i, prazo);
-  const tetoLTV = valorImovel * LTV;
+      const errors = [];
+      if (!Number.isFinite(renda) || renda <= 0) errors.push("Informe uma renda válida.");
+      if (!Number.isFinite(jurosAA) || jurosAA <= 0) errors.push("Informe juros válidos (ex.: 7,9348).");
+      if (!Number.isFinite(prazo) || prazo <= 0) errors.push("Informe um prazo válido (meses).");
+      if (!Number.isFinite(valorImovel) || valorImovel <= 0) errors.push("Informe um valor de imóvel válido.");
+      if (!Number.isFinite(idade) || idade < 0) errors.push("Informe uma idade válida (ou deixe um número).");
+      if (!Number.isFinite(comprometimento) || comprometimento <= 0 || comprometimento > 1) {
+        errors.push("Comprometimento deve ser entre 0 e 100 (ex.: 30).");
+      }
 
-  const financiamento = Math.min(capacidadeFinanceira, tetoLTV);
-  const entrada = valorImovel - financiamento;
+      if (errors.length) {
+        renderError(resultadoEl, errors);
+        return;
+      }
 
-  /* Parcela REAL do cenário aprovado */
-  const pmtAJ_aprovada = pmtPrice(financiamento, i, prazo);
-  const segurosAprovados = estimateInsurance(pmtAJ_aprovada + TAXA_ADM, idade);
-  const parcelaReal = pmtAJ_aprovada + TAXA_ADM + segurosAprovados;
+      const i = jurosAA / 12;
 
-  const limitante =
-    financiamento === tetoLTV
-      ? "Limitante: percentual máximo financiável do imóvel (LTV 80%). Por isso a parcela ficou abaixo do limite da renda."
-      : "Limitante: capacidade de pagamento pela renda.";
+      // 1) Parcela máxima permitida pela renda (limite)
+      const parcelaMaxima = renda * comprometimento;
 
-  resultado.innerHTML = `
-    <div class="result-grid">
-      <div class="card"><strong>Parcela máxima permitida (renda)</strong>${money(parcelaMaxima)}</div>
-      <div class="card"><strong>Parcela estimada do financiamento aprovado</strong>${money(parcelaReal)}</div>
+      // 2) Estimar seguros e calcular PMT_AJ máximo (para achar capacidade financeira máxima)
+      const segurosMax = estimateInsurance(parcelaMaxima, idade);
+      const pmtAJmax = parcelaMaxima - TAXA_ADM - segurosMax;
 
-      <div class="card"><strong>Capacidade financeira máxima</strong>${money(capacidadeFinanceira)}</div>
-      <div class="card"><strong>Teto por LTV (80%)</strong>${money(tetoLTV)}</div>
+      // Evitar negativo (caso renda muito baixa)
+      const pmtAJmaxSafe = Math.max(0, pmtAJmax);
 
-      <div class="card"><strong>Financiamento aprovado</strong>${money(financiamento)}</div>
-      <div class="card"><strong>Entrada necessária</strong>${money(entrada)}</div>
-    </div>
+      // 3) Capacidade financeira máxima (quanto poderia financiar pela renda)
+      const capacidadeFinanceira = pvPrice(pmtAJmaxSafe, i, prazo);
 
-    <div class="note">
-      ${limitante}<br>
-      A parcela máxima é um limite, não um valor obrigatório.
-      Quando o financiamento é limitado pelo LTV do imóvel, a parcela final fica menor,
-      exatamente como ocorre na simulação oficial da Caixa.
-    </div>
-  `;
-}
+      // 4) Teto por LTV do imóvel
+      const tetoLTV = valorImovel * LTV;
 
-function limpar() {
-  resultado.innerHTML = "";
-}
+      // 5) Financiamento aprovado (menor entre capacidade e LTV)
+      const financiamento = Math.min(capacidadeFinanceira, tetoLTV);
 
-calcular();
-</script>
+      // 6) Entrada necessária
+      const entrada = Math.max(0, valorImovel - financiamento);
+
+      // 7) Parcela REAL do cenário aprovado (como a Caixa faz)
+      const pmtAJ_aprovada = pmtPrice(financiamento, i, prazo);
+      const segurosAprovados = estimateInsurance(pmtAJ_aprovada + TAXA_ADM, idade);
+      const parcelaReal = pmtAJ_aprovada + TAXA_ADM + segurosAprovados;
+
+      const limitante =
+        (Math.abs(financiamento - tetoLTV) < 0.01)
+          ? "Limitante: LTV (80% do valor do imóvel). Por isso a parcela final pode ficar abaixo do limite da renda."
+          : "Limitante: capacidade de pagamento pela renda (comprometimento).";
+
+      resultadoEl.innerHTML = `
+        <div class="result-grid">
+          <div class="card"><strong>Parcela máxima permitida (renda)</strong>${money(parcelaMaxima)}</div>
+          <div class="card"><strong>Parcela estimada do financiamento aprovado</strong>${money(parcelaReal)}</div>
+
+          <div class="card"><strong>Capacidade financeira máxima</strong>${money(capacidadeFinanceira)}</div>
+          <div class="card"><strong>Teto por LTV (80%)</strong>${money(tetoLTV)}</div>
+
+          <div class="card"><strong>Financiamento aprovado</strong>${money(financiamento)}</div>
+          <div class="card"><strong>Entrada necessária</strong>${money(entrada)}</div>
+        </div>
+
+        <div class="note">
+          ${limitante}<br>
+          Observação: “Parcela máxima” é um limite. Se o financiamento for limitado pelo LTV do imóvel,
+          a parcela final tende a ficar menor (como no simulador da Caixa).
+        </div>
+      `;
+    }
+
+    function limpar() {
+      const resultadoEl = document.getElementById("resultado");
+      resultadoEl.innerHTML = "";
+    }
+
+    // Wire buttons robustly
+    document.getElementById("btnCalcular").addEventListener("click", calcular);
+    document.getElementById("btnLimpar").addEventListener("click", limpar);
+
+    // Auto-calc on load
+    calcular();
+  </script>
 </body>
 </html>
