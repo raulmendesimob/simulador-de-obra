@@ -278,7 +278,9 @@
       const entrada = Math.max(0, valorImovel - financiamento);
 
       // 7) Parcela REAL do cenário aprovado (como a Caixa faz)
-      const pmtAJ_aprovada = pmtPrice(financiamento, i, prazo);
+      const AJUSTE_CAIXA = 1.025;
+const capacidadeFinanceira =
+  pvPrice(pmtAJmaxSafe, i, prazo) * AJUSTE_CAIXA;
       const segurosAprovados = estimateInsurance(pmtAJ_aprovada + TAXA_ADM, idade);
       const parcelaReal = pmtAJ_aprovada + TAXA_ADM + segurosAprovados;
 
