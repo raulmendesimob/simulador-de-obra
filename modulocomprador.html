@@ -44,7 +44,7 @@ h3.section-title{color:#0b6e3b;margin-bottom:14px;}
 <main>
   <!-- CABEÇALHO DO COMPRADOR -->
   <div class="box">
-    <h3 class="section-title">👤 Sobre quem pretende adquirir o imóvel</h3>
+    <h3 class="section-title">👤 Identificação do(s) Comprador(es)</h3>
     <div class="grid">
       <div class="campo">
         <label>Pretende adquirir sozinho(a) ou com alguém?</label>
@@ -59,12 +59,12 @@ h3.section-title{color:#0b6e3b;margin-bottom:14px;}
       </div>
 
       <div class="campo" id="boxIdade1" style="display:none;">
-        <label>🎂 Idade do comprador 1</label>
+        <label id="labelIdade1">🎂 Idade do comprador 1</label>
         <input id="idade1" type="number" min="18" max="99" />
       </div>
 
       <div class="campo" id="boxRenda1" style="display:none;">
-        <label>💰 Renda mensal do comprador 1</label>
+        <label id="labelRenda1">💰 Renda mensal do comprador 1</label>
         <input id="renda1" oninput="formatarMoeda(this)" />
       </div>
 
@@ -79,7 +79,7 @@ h3.section-title{color:#0b6e3b;margin-bottom:14px;}
       </div>
 
       <div class="campo" id="boxEstado" style="display:none;">
-        <label>📍 Em qual estado será o lançamento?</label>
+        <label>📍 Em qual estado será o empreendimento?</label>
         <select id="estado" onchange="onEstadoSelecionado()">
           <option value="">Selecione...</option>
           <option>CE</option><option>SP</option><option>RJ</option><option>MG</option>
@@ -91,42 +91,45 @@ h3.section-title{color:#0b6e3b;margin-bottom:14px;}
   </div>
 
   <div class="box" id="boxProf" style="display:none;">
-    <h3 class="section-title">💼 Renda e FGTS</h3>
+    <h3 class="section-title">💼 Tipo de Renda e Valores p/ Entrada</h3>
     <div class="grid">
       <div class="campo" id="boxSing" style="display:none;">
-        <label>Você trabalha como:</label>
-        <select id="tipoSing" onchange="onTipo()">
+        <label>Qual o seu regime de trabalho?</label>
+        <select id="tipoSing" onchange="onTipoSing()">
           <option value="">Selecione...</option>
-          <option value="clt3">CLT (há mais de 3 anos)</option>
-          <option value="outro">CLT &lt; 3 anos / PJ / Autônomo</option>
+          <option value="clt3">Trabalho CLT há mais de 3 anos</option>
+          <option value="cltmenos">Trabalho CLT há menos de 3 anos</option>
+          <option value="pj">Sou PJ / Autônomo</option>
         </select>
       </div>
       <div class="campo" id="boxPlur" style="display:none;">
-        <label>Na composição, alguém é CLT há mais de 3 anos?</label>
-        <select id="tipoPlur" onchange="onTipo()">
+        <label>Um dos compradores é CLT há mais de 3 anos?</label>
+        <select id="tipoPlur" onchange="onTipoPlur()">
           <option value="">Selecione...</option>
           <option value="sim">Sim</option>
           <option value="nao">Não</option>
         </select>
       </div>
+
       <div class="campo" id="boxFgts" style="display:none;">
-        <label>💰 Vai utilizar FGTS?</label>
+        <label>💰 Possui FGTS e pretende usar?</label>
         <select id="usaFgts" onchange="toggleFgts()">
           <option value="">Selecione...</option>
-          <option value="nao">Não</option>
           <option value="sim">Sim</option>
+          <option value="nao">Não</option>
         </select>
       </div>
       <div class="campo" id="boxFgtsVal" style="display:none;">
         <label>💰 Valor estimado do FGTS</label>
         <input id="fgtsVal" oninput="formatarMoeda(this)" />
       </div>
+
       <div class="campo" id="boxCap" style="display:none;">
         <label>Possui algum valor guardado para entrada?</label>
         <select id="temGuardado" onchange="mostrarDiagnosticoBtn()">
           <option value="">Selecione...</option>
-          <option value="nao">Não</option>
           <option value="sim">Sim</option>
+          <option value="nao">Não</option>
         </select>
       </div>
       <div class="campo" id="boxGuardado" style="display:none;">
@@ -138,6 +141,7 @@ h3.section-title{color:#0b6e3b;margin-bottom:14px;}
 
   <div id="boxAcao" style="display:none;text-align:center;">
     <button class="btn" id="btnDiagnostico">Gerar Diagnóstico</button>
+    <button class="btn" style="background:#888;margin-left:10px;" onclick="limparFormulario()">Limpar Valores</button>
   </div>
 
   <!-- DIAGNÓSTICO -->
@@ -182,6 +186,8 @@ function limparMoeda(v){return parseFloat((v||"").replace(/[R$\.\s]/g,"").replac
 
 function onChangeComposicao(){
   const c=compraCom.value;const comp=c!=="sozinho";
+  labelIdade1.textContent=comp?"🎂 Idade do comprador 1":"🎂 Qual a sua idade?";
+  labelRenda1.textContent=comp?"💰 Renda mensal do comprador 1":"💰 Qual a sua renda mensal?";
   boxIdade1.style.display="block";boxRenda1.style.display="block";
   boxIdade2.style.display=comp?"block":"none";
   boxRenda2.style.display=comp?"block":"none";
@@ -193,16 +199,28 @@ function onEstadoSelecionado(){
   boxSing.style.display=solo?"block":"none";
   boxPlur.style.display=solo?"none":"block";
 }
-function onTipo(){
-  boxFgts.style.display="block";
+function onTipoSing(){
+  if(tipoSing.value==="clt3"){boxFgts.style.display="block";}
+  else{boxFgts.style.display="none";boxFgtsVal.style.display="none";}
+  boxCap.style.display="block";
+}
+function onTipoPlur(){
+  if(tipoPlur.value==="sim"){boxFgts.style.display="block";}
+  else{boxFgts.style.display="none";boxFgtsVal.style.display="none";}
+  boxCap.style.display="block";
 }
 function toggleFgts(){
   boxFgtsVal.style.display=usaFgts.value==="sim"?"block":"none";
-  boxCap.style.display="block";
 }
 function mostrarDiagnosticoBtn(){
   boxGuardado.style.display=temGuardado.value==="sim"?"block":"none";
   boxAcao.style.display="block";
+}
+function limparFormulario(){
+  document.querySelectorAll("input, select").forEach(e=>e.value="");
+  document.querySelectorAll("#boxDiagnostico,#boxSimulacoes,#simEntradaBox").forEach(b=>b.style.display="none");
+  rendaTotalGlobal=0; taxaGlobal=0;
+  alert("Os campos foram limpos. Você pode iniciar um novo diagnóstico.");
 }
 
 function getRegiao(uf){const ne=["MA","PI","CE","RN","PB","PE","AL","SE","BA"];return ne.includes(uf)?"no_ne":"sul_se_co";}
@@ -227,14 +245,12 @@ function getTaxaMCMV(renda,cotista,estado){
   const taxa=tabela[faixa][regiao][cotista?"cot":"nao"];
   return {faixa,taxa};
 }
-
 function calcularFinanciamentoMaximo(renda,jurosAA){
   const i=(jurosAA/100)/12,n=420,lim=renda*0.3;
   let low=0,high=1500000;
   for(let k=0;k<45;k++){const mid=(low+high)/2;const pmt=(mid*i)/(1-Math.pow(1+i,-n));if(pmt<=lim)low=mid;else high=mid;}
   return low;
 }
-
 let rendaTotalGlobal=0;let taxaGlobal=0;
 
 btnDiagnostico.addEventListener("click",()=>{
@@ -257,38 +273,23 @@ btnDiagnostico.addEventListener("click",()=>{
   boxSimulacoes.style.display="block";
   boxAcao.style.display="none";
 });
-
-function abrirSimulacaoEntrada(){
-  simEntradaBox.style.display="block";
-  document.getElementById("rendaSimulada")?.remove();
-}
-
-function limparEntrada(){
-  valorImovel.value="";
-  resultadoEntrada.style.display="none";
-}
-
+function abrirSimulacaoEntrada(){simEntradaBox.style.display="block";}
+function limparEntrada(){valorImovel.value="";resultadoEntrada.style.display="none";}
 function calcularEntrada(){
   const renda=rendaTotalGlobal;
   const jurosAA=taxaGlobal;
   const valorImovel=parseFloat(valorImovel.value)||0;
   const prazo=parseInt(document.getElementById("prazo").value)||420;
   const comp=parseFloat(document.getElementById("compRenda").value)||30;
-  
   const i=(jurosAA/100)/12;
   const parcelaMax=renda*(comp/100);
   let low=0,high=1500000;
-  for(let k=0;k<45;k++){
-    const mid=(low+high)/2;
-    const pmt=(mid*i)/(1-Math.pow(1+i,-prazo));
-    if(pmt<=parcelaMax)low=mid;else high=mid;
-  }
+  for(let k=0;k<45;k++){const mid=(low+high)/2;const pmt=(mid*i)/(1-Math.pow(1+i,-prazo));if(pmt<=parcelaMax)low=mid;else high=mid;}
   const capFinanceira=low;
   const tetoLTV=valorImovel*0.8;
   const financiamentoAprovado=Math.min(capFinanceira,tetoLTV);
   const entradaNecessaria=valorImovel-financiamentoAprovado;
   const pmtReal=(financiamentoAprovado*i)/(1-Math.pow(1+i,-prazo));
-
   resultadoEntrada.style.display="grid";
   resultadoEntrada.innerHTML=`
     <div class='result-card'><span>Parcela máxima permitida (renda)</span><strong>R$ ${parcelaMax.toLocaleString('pt-BR',{minimumFractionDigits:2})}</strong></div>
