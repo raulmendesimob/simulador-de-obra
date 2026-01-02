@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Simulador MCMV - Financiamento Máximo</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 24px; }
+    .wrap { max-width: 860px; margin: 0 auto; }
+    h1 { font-size: 20px; margin: 0 0 16px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    label { display: block; font-size: 12px; margin: 0 0 6px; opacity: .85; }
+    input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 10px; font-size: 14px; }
+    .row { margin: 10px 0; }
+    .btns { display: flex; gap: 10px; margin-top: 12px; }
+    button { padding: 10px 14px; border: 0; border-radius: 10px; cursor: pointer; }
+    button.primary { background: #111; color: #fff; }
+    button.ghost { background: #f2f2f2; }
+    .out { margin-top: 18px; padding: 14px; border: 1px solid #eee; border-radius: 12px; background: #fafafa; }
+    .out h2 { font-size: 16px; margin: 0 0 10px; }
+    .kv { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .kv div { padding: 10px; border-radius: 10px; background: #fff; border: 1px solid #eee; }
+    .small { font-size: 12px; opacity: .75; margin-top: 8px; line-height: 1.35; }
+    @media (max-width: 720px) {
+      .grid, .kv { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Simulador MCMV — Financiamento Máximo (PRICE + limite 80% do imóvel)</h1>
+
+    <div class="grid">
+      <div class="row">
+        <label for="renda">Renda familiar (R$)</label>
+        <input id="renda" type="text" inputmode="decimal" placeholder="Ex.: 6496,27" value="6496,27">
+      </div>
+
+      <div class="row">
+        <label for="juros">Juros efetivos ao ano (%)</label>
+        <input id="juros" type="text" inputmode="decimal" placeholder="Ex.: 7,9348" value="7,9348">
+      </div>
+
+      <div class="row">
+        <label for="prazo">Prazo (meses)</label>
+        <input id="prazo" type="number" min="1" max="480" value="420">
+      </div>
+
+      <div class="row">
+        <label for="imovel">Valor do imóvel (R$)</label>
+        <input id="imovel" type="text" inputmode="decimal" placeholder="Ex.: 300000" value="300000">
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="row">
+        <label for="comprometimento">Comprometimento máximo da renda (%)</label>
+        <input id="comprometimento" type="text" inputmode="decimal" value="30">
+      </div>
+
+      <div class="row">
+        <label for="factorAJ">Fator Amortização+Juros (remove seguros/taxa)</label>
+        <input id="factorAJ" type="text" inputmode="decimal" value="0,95">
+      </div>
+
+      <div class="row">
+        <label for="ltv">LTV (máximo financiável do valor do imóvel)</label>
+        <input id="ltv" type="text" inputmode="decimal" value="0,80">
+      </div>
+
+      <div class="row">
+        <label for="idade">Idade (opcional — não altera prazo aqui)</label>
+        <input id="idade" type="number" min="0" max="120" placeholder="Ex.: 32">
+      </div>
+    </div>
+
+    <div class="btns">
+      <button class="primary" id="btnCalcular">Calcular</button>
+      <button class="ghost" id="btnReset">Limpar</button>
+    </div>
+
+    <div class="out" id="saida" aria-live="polite">
+      <h2>Resultado</h2>
+      <div class="kv" id="kv"></div>
+      <div class="small" id="obs"></div>
+    </div>
+  </div>
+
+  <script>
+    // --- Helpers (pt-BR numbers) ---
+    function parseBR(value) {
+      if (value === null || value === undefined) return NaN;
+      const s = String(value).trim()
+        .replace(/\./g, "")      // remove thousands separators
+        .replace(",", ".");      // decimal comma -> dot
+      const n = Number(s);
+      return Number.isFinite(n) ? n : NaN;
+    }
+
+    function moneyBR(n) {
+      if (!Number.isFinite(n)) return "—";
+      return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    }
+
+    function pctBR(n) {
+      if (!Number.isFinite(n)) return "—";
+      return (n * 100).toLocaleString("pt-BR", { maximumFractionDigits: 2 }) + "%";
+    }
+
+    // --- PRICE core ---
+    // PV = PMT * (1 - (1+i)^(-n)) / i
+    function pvPrice(pmt, i, n) {
+      if (i <= 0) return pmt * n; // fallback: juros 0
+      return pmt * (1 - Math.pow(1 + i, -n)) / i;
+    }
+
+    function calcular() {
+      const renda = parseBR(document.getElementById("renda").value);
+      const jurosAA = parseBR(document.getElementById("juros").value) / 100; // % -> decimal
+      const n = Number(document.getElementById("prazo").value);
+
+      const valorImovel = parseBR(document.getElementById("imovel").value);
+
+      const comprometimento = parseBR(document.getElementById("comprometimento").value) / 100; // % -> decimal
+      const factorAJ = parseBR(document.getElementById("factorAJ").value); // e.g. 0.95
+      const ltv = parseBR(document.getElementById("ltv").value); // e.g. 0.80
+
+      // Basic validations
+      const errors = [];
+      if (!Number.isFinite(renda) || renda <= 0) errors.push("Informe uma renda válida.");
+      if (!Number.isFinite(jurosAA) || jurosAA <= 0) errors.push("Informe uma taxa de juros anual válida.");
+      if (!Number.isFinite(n) || n <= 0) errors.push("Informe um prazo válido (meses).");
+      if (!Number.isFinite(valorImovel) || valorImovel <= 0) errors.push("Informe um valor de imóvel válido.");
+      if (!Number.isFinite(comprometimento) || comprometimento <= 0 || comprometimento > 1) errors.push("Comprometimento deve ser entre 0 e 100%.");
+      if (!Number.isFinite(factorAJ) || factorAJ <= 0 || factorAJ > 1) errors.push("Fator AJ deve ser entre 0 e 1 (ex.: 0,95).");
+      if (!Number.isFinite(ltv) || ltv <= 0 || ltv > 1) errors.push("LTV deve ser entre 0 e 1 (ex.: 0,80).");
+
+      const kv = document.getElementById("kv");
+      const obs = document.getElementById("obs");
+      kv.innerHTML = "";
+      obs.textContent = "";
+
+      if (errors.length) {
+        kv.innerHTML = `<div style="grid-column:1/-1;border-color:#f3c0c0;background:#fff6f6">
+          <strong>Erros:</strong><br>${errors.map(e => "• " + e).join("<br>")}
+        </div>`;
+        return;
+      }
+
+      // Step 1: max total installment from income
+      const pmtTotalMax = renda * comprometimento;
+
+      // Step 2: remove non-principal components (approx)
+      const pmtAJ = pmtTotalMax * factorAJ;
+
+      // Step 3: monthly interest
+      const i = jurosAA / 12;
+
+      // Step 4: financial capacity (PRICE PV)
+      const capacidadeFinanceira = pvPrice(pmtAJ, i, n);
+
+      // Step 5: LTV cap based on property value
+      const tetoLTV = valorImovel * ltv;
+
+      // Step 6: approved financing is the minimum of both
+      const financiamentoAprovado = Math.min(capacidadeFinanceira, tetoLTV);
+
+      // Step 7: required down payment
+      const entrada = Math.max(0, valorImovel - financiamentoAprovado);
+
+      // Extra: show which constraint is binding
+      const limitante = (financiamentoAprovado === tetoLTV)
+        ? "Limitante: LTV (percentual máximo do imóvel)"
+        : "Limitante: capacidade de pagamento (renda/parcela)";
+
+      // Render results
+      const items = [
+        ["Parcela máxima (total)", moneyBR(pmtTotalMax)],
+        ["Parcela usada em A+J (aprox.)", moneyBR(pmtAJ)],
+        ["Taxa mensal (i)", (i*100).toLocaleString("pt-BR",{maximumFractionDigits:6}) + "%"],
+        ["Capacidade financeira (PRICE)", moneyBR(capacidadeFinanceira)],
+        ["Teto por LTV", moneyBR(tetoLTV)],
+        ["Financiamento aprovado (min)", moneyBR(financiamentoAprovado)],
+        ["Entrada necessária", moneyBR(entrada)],
+      ];
+
+      kv.innerHTML = items.map(([k,v]) => `<div><strong>${k}</strong><br>${v}</div>`).join("");
+
+      obs.innerHTML =
+        `<strong>${limitante}</strong><br>` +
+        `Regra aplicada: <code>Financiamento = min( PRICE(PMT_AJ,i,n), LTV×Imóvel )</code><br>` +
+        `Onde <code>PMT_AJ = (Renda×${(comprometimento*100).toLocaleString("pt-BR")}%)×${factorAJ.toLocaleString("pt-BR")}</code>.`;
+    }
+
+    document.getElementById("btnCalcular").addEventListener("click", calcular);
+    document.getElementById("btnReset").addEventListener("click", () => {
+      ["renda","juros","prazo","imovel","comprometimento","factorAJ","ltv","idade"].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.value = "";
+      });
+      document.getElementById("kv").innerHTML = "";
+      document.getElementById("obs").textContent = "";
+    });
+
+    // Auto-calc on load with defaults
+    calcular();
+  </script>
+</body>
+</html>
