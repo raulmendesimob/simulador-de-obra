@@ -19,19 +19,27 @@ h3.section-title{color:#0b6e3b;margin-bottom:14px;}
 .box{border:1px solid #e6efe9;border-radius:14px;padding:18px;background:#f9fafb;margin-bottom:18px;}
 .btn{background:#0b6e3b;color:#fff;border:none;border-radius:10px;padding:12px 24px;cursor:pointer;font-size:16px;font-weight:600;transition:background .2s;}
 .btn:hover{background:#0f9b50;}
+.btn-danger{background:#b02a37;color:#fff;}
+.btn-danger:hover{background:#8a1f2b;}
 #diagnosticoContainer{display:none;margin-top:30px;padding:28px;border-radius:16px;background:#e6f3ff;border:1px solid #c6e0f5;}
 #diagnosticoContainer h3{color:#064d8a;margin-bottom:14px;}
 #diagnosticoConteudo{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;}
 .card-blue{background:#fff;border:1px solid #bcd7f2;border-radius:12px;padding:16px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.03);}
 .card-blue span{display:block;font-size:13px;color:#555;margin-bottom:6px;}
 .card-blue strong{font-size:18px;color:#064d8a;}
+#entradaContainer{display:none;margin-top:30px;padding:28px;border-radius:16px;background:#f3f9f4;border:1px solid #d9e7da;}
+#entradaContainer h3{color:#0b6e3b;margin-bottom:14px;}
+.result-table{width:100%;border-collapse:collapse;margin-top:15px;}
+.result-table th, .result-table td{border:1px solid #ddd;padding:10px;text-align:center;}
+.result-table th{background:#e0f2e9;}
+.result-table td strong{color:#0b6e3b;}
 </style>
 </head>
 
 <body>
 <header>
   <h1>Simulador Imobiliário — Comprador</h1>
-  <p>Descubra quanto você pode financiar com o programa Minha Casa Minha Vida.</p>
+  <p>Descubra quanto você pode financiar e estime sua entrada.</p>
 </header>
 
 <main>
@@ -120,24 +128,53 @@ h3.section-title{color:#0b6e3b;margin-bottom:14px;}
 
       <div class="campo" id="boxCap" style="display:none;">
         <label>Possui algum valor guardado para entrada?</label>
-        <select id="temGuardado" onchange="mostrarDiagnosticoBtn()">
+        <select id="temGuardado" onchange="mostrarValorGuardado()">
           <option value="">Selecione...</option>
           <option value="sim">Sim</option>
           <option value="nao">Não</option>
         </select>
+      </div>
+
+      <div class="campo" id="boxGuardado" style="display:none;">
+        <label>💸 Valor guardado</label>
+        <input id="valorGuardado" oninput="formatarMoeda(this)" />
       </div>
     </div>
   </div>
 
   <div id="boxAcao" style="display:none;text-align:center;">
     <button class="btn" id="btnDiagnostico">Gerar Diagnóstico</button>
-    <button class="btn" style="background:#888;margin-left:10px;" onclick="limparTudo()">🧹 Limpar Valores</button>
+    <button class="btn btn-danger" onclick="limparTudo()">🧹 Limpar Valores</button>
   </div>
 
-  <!-- DIAGNÓSTICO AZUL -->
+  <!-- DIAGNÓSTICO -->
   <div id="diagnosticoContainer">
     <h3>📘 Diagnóstico Financeiro</h3>
     <div id="diagnosticoConteudo"></div>
+  </div>
+
+  <!-- ESTIMATIVA DE ENTRADA -->
+  <div id="entradaContainer">
+    <h3>💰 Estimativa de Entrada</h3>
+    <div class="grid">
+      <div class="campo">
+        <label>Valor do Imóvel (R$)</label>
+        <input id="valorImovel" oninput="formatarMoeda(this)" />
+      </div>
+      <div class="campo">
+        <label>Previsão de Entrega</label>
+        <select id="prazoEntrega">
+          <option value="">Selecione...</option>
+          <option value="1">Até 1 ano</option>
+          <option value="2">Entre 1 e 2 anos</option>
+          <option value="3">Entre 2 e 3 anos</option>
+        </select>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:16px;">
+      <button class="btn" onclick="calcularEntrada()">Calcular Estimativa</button>
+    </div>
+    <div id="resultadoEntrada"></div>
   </div>
 </main>
 
@@ -173,9 +210,13 @@ function onTipoPlur(){
 function toggleFgts(){
   boxFgtsVal.style.display = usaFgts.value === "sim" ? "block" : "none";
 }
-function mostrarDiagnosticoBtn(){boxAcao.style.display="block";}
+function mostrarValorGuardado(){
+  if(temGuardado.value==="sim"){boxGuardado.style.display="block";}
+  else{boxGuardado.style.display="none";}
+  boxAcao.style.display="block";
+}
 
-// Valores fixos das faixas
+// tabela fixa
 const tetoFaixa = {"1":190000,"2":264000,"3":350000,"4":500000};
 
 function getTaxaMCMV(renda,cotista,estado){
@@ -196,6 +237,8 @@ function getTaxaMCMV(renda,cotista,estado){
   return {faixa,taxa};
 }
 
+let faixaAtual=null, taxaAtual=null;
+
 document.getElementById("btnDiagnostico").addEventListener("click",()=>{
   const renda1v=limparMoeda(renda1.value);
   const renda2v=limparMoeda(renda2.value);
@@ -203,19 +246,46 @@ document.getElementById("btnDiagnostico").addEventListener("click",()=>{
   const cotista=(compraCom.value==="sozinho"?tipoSing.value==="clt3":tipoPlur.value==="sim");
   const rendaTotal=renda1v+renda2v;
   const {faixa,taxa}=getTaxaMCMV(rendaTotal,cotista,estadoV);
+  faixaAtual=faixa;taxaAtual=taxa;
   const valorMax=tetoFaixa[faixa];
   document.getElementById("diagnosticoConteudo").innerHTML=`
     <div class='card-blue'><span>Faixa do MCMV</span><strong>Faixa ${faixa}</strong></div>
     <div class='card-blue'><span>Valor Máximo do Imóvel a ser Financiado</span><strong>R$ ${valorMax.toLocaleString("pt-BR",{minimumFractionDigits:2})}</strong></div>
     <div class='card-blue'><span>Taxa de Juros</span><strong>${taxa.toFixed(2)}% a.a.</strong></div>`;
   document.getElementById("diagnosticoContainer").style.display="block";
+  document.getElementById("entradaContainer").style.display="block";
 });
+
+function calcularEntrada(){
+  const valorImovel=limparMoeda(valorImovelEl.value);
+  const fgts=limparMoeda(fgtsVal.value);
+  const guardado=limparMoeda(valorGuardado.value);
+  const prazo=parseInt(prazoEntrega.value)||1;
+
+  const entradaTotal=valorImovel*0.2;
+  const disponivel=fgts+guardado;
+  const faltante=Math.max(0,entradaTotal-disponivel);
+  const meses=prazo*12;
+
+  const mensal=faltante/meses;
+  const intermediaria=faltante/Math.ceil(meses/6);
+
+  let html=`
+  <table class='result-table'>
+  <tr><th>Cenário</th><th>Parcelas Mensais</th><th>Intermediárias (a cada 6 meses)</th><th>Total Pago</th></tr>
+  <tr><td>Básico</td><td>R$ ${(mensal).toLocaleString('pt-BR',{minimumFractionDigits:2})}</td><td>R$ ${(intermediaria).toLocaleString('pt-BR',{minimumFractionDigits:2})}</td><td><strong>R$ ${(faltante).toLocaleString('pt-BR',{minimumFractionDigits:2})}</strong></td></tr>
+  <tr><td>Moderado</td><td>R$ ${(mensal*1.2).toLocaleString('pt-BR',{minimumFractionDigits:2})}</td><td>R$ ${(intermediaria*1.1).toLocaleString('pt-BR',{minimumFractionDigits:2})}</td><td><strong>R$ ${(faltante).toLocaleString('pt-BR',{minimumFractionDigits:2})}</strong></td></tr>
+  <tr><td>Confortável</td><td>R$ ${(mensal*1.5).toLocaleString('pt-BR',{minimumFractionDigits:2})}</td><td>R$ ${(intermediaria*1.2).toLocaleString('pt-BR',{minimumFractionDigits:2})}</td><td><strong>R$ ${(faltante).toLocaleString('pt-BR',{minimumFractionDigits:2})}</strong></td></tr>
+  </table>`;
+  resultadoEntrada.innerHTML=html;
+}
 
 function limparTudo(){
   document.querySelectorAll("input, select").forEach(el=>el.value="");
-  document.querySelectorAll("#boxIdade1,#boxRenda1,#boxIdade2,#boxRenda2,#boxEstado,#boxProf,#boxSing,#boxPlur,#boxFgts,#boxFgtsVal,#boxCap,#boxAcao,#diagnosticoContainer")
+  document.querySelectorAll("#boxIdade1,#boxRenda1,#boxIdade2,#boxRenda2,#boxEstado,#boxProf,#boxSing,#boxPlur,#boxFgts,#boxFgtsVal,#boxCap,#boxGuardado,#boxAcao,#diagnosticoContainer,#entradaContainer")
     .forEach(e=>e.style.display="none");
   document.getElementById("diagnosticoConteudo").innerHTML="";
+  document.getElementById("resultadoEntrada").innerHTML="";
   window.scrollTo({top:0,behavior:"smooth"});
 }
 </script>
