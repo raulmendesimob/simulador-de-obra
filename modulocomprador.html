@@ -168,6 +168,23 @@ main {
   box-shadow: 0 12px 28px rgba(5, 150, 105, 0.4);
 }
 
+.btn-select {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  padding: 10px 20px;
+  font-size: 14px;
+}
+
+.btn-select:hover {
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+}
+
+.btn-select.selected {
+  background: linear-gradient(135deg, #16a34a, #15803d);
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4);
+}
+
 #boxAcao {
   text-align: center;
   margin-top: 30px;
@@ -198,43 +215,65 @@ main {
 #diagnosticoContainer h3 {
   color: #1e40af;
   font-size: 22px;
-  margin-bottom: 24px;
+  margin-bottom: 8px;
   text-align: center;
+}
+
+.diagnostico-intro {
+  text-align: center;
+  color: #475569;
+  font-size: 15px;
+  margin-bottom: 24px;
 }
 
 #diagnosticoConteudo {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
-.card-blue {
+.diagnostico-item {
   background: #ffffff;
-  border: 2px solid #93c5fd;
-  border-radius: 16px;
-  padding: 24px;
-  text-align: center;
-  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.1);
+  border-left: 4px solid #3b82f6;
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  border-radius: 0 12px 12px 0;
+  box-shadow: 0 2px 8px rgba(30, 64, 175, 0.08);
   transition: all 0.3s ease;
 }
 
-.card-blue:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(30, 64, 175, 0.2);
+.diagnostico-item:hover {
+  transform: translateX(5px);
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.15);
 }
 
-.card-blue span {
-  display: block;
-  font-size: 13px;
+.diagnostico-item .label {
+  font-size: 12px;
   color: #64748b;
-  margin-bottom: 10px;
-  font-weight: 500;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
 }
 
-.card-blue strong {
-  font-size: 22px;
+.diagnostico-item .valor {
+  font-size: 15px;
+  color: #1e293b;
+  line-height: 1.5;
+}
+
+.diagnostico-item .valor strong {
   color: #1e40af;
   font-weight: 700;
+}
+
+.diagnostico-item.destaque {
+  border-left-color: #059669;
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+}
+
+.diagnostico-item.destaque .valor strong {
+  color: #059669;
 }
 
 #estimativaContainer {
@@ -242,13 +281,13 @@ main {
   margin-top: 40px;
   padding: 35px;
   border-radius: 20px;
-  background: linear-gradient(135deg, #fef3c7, #fde68a);
-  border: 2px solid #fbbf24;
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  border: 2px solid #86efac;
   animation: fadeIn 0.5s ease;
 }
 
 #estimativaContainer h3 {
-  color: #92400e;
+  color: #166534;
   font-size: 22px;
   margin-bottom: 24px;
   text-align: center;
@@ -257,60 +296,371 @@ main {
 #boxValorImovel {
   display: none;
   margin-top: 24px;
-  padding: 24px;
+  padding: 28px;
   background: #ffffff;
   border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
 }
 
-.result-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 24px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.result-table th,
-.result-table td {
-  border: 1px solid #e5e7eb;
-  padding: 14px;
+.campo-destaque {
+  max-width: 450px;
+  margin: 0 auto;
   text-align: center;
 }
 
-.result-table th {
-  background: linear-gradient(135deg, #059669, #047857);
-  color: #ffffff;
-  font-weight: 600;
+.campo-destaque label {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  color: #065f46;
+  margin-bottom: 12px;
+}
+
+.campo-destaque input {
+  width: 100%;
+  padding: 16px 20px;
+  border: 3px solid #059669;
+  border-radius: 14px;
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+  color: #065f46;
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  transition: all 0.3s ease;
+}
+
+.campo-destaque input:focus {
+  outline: none;
+  border-color: #047857;
+  box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.2);
+}
+
+.campo-destaque input::placeholder {
+  color: #86efac;
+  font-weight: 500;
+}
+
+/* Cenário único em bloco */
+.cenario-unico {
+  background: linear-gradient(135deg, #fef2f2, #fee2e2);
+  border: 2px solid #fca5a5;
+  border-radius: 16px;
+  padding: 28px;
+  margin-top: 24px;
+}
+
+.cenario-unico.ok {
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  border-color: #86efac;
+}
+
+.cenario-header-unico {
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.cenario-header-unico h4 {
+  font-size: 18px;
+  color: #1e293b;
+  margin: 0 0 8px 0;
+}
+
+.cenario-header-unico p {
   font-size: 14px;
+  color: #64748b;
+  margin: 0;
 }
 
-.result-table tr:nth-child(even) {
-  background: #f9fafb;
+.cenario-linha {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px dashed #e2e8f0;
 }
 
-.result-table tr:hover {
-  background: #f0fdf4;
+.cenario-linha:last-child {
+  border-bottom: none;
 }
 
-.result-table td strong {
+.cenario-linha .label {
+  font-size: 14px;
+  color: #475569;
+}
+
+.cenario-linha .valor {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.cenario-linha.destaque {
+  background: rgba(255,255,255,0.6);
+  margin: 8px -12px;
+  padding: 12px;
+  border-radius: 8px;
+  border-bottom: none;
+}
+
+.cenario-linha.destaque .valor {
   color: #059669;
   font-size: 16px;
 }
 
-#resultadoEntrada {
-  margin-top: 24px;
-  padding: 24px;
-  background: #f0fdf4;
-  border-radius: 12px;
-  border: 2px solid #a7f3d0;
+.cenario-linha.alerta .valor {
+  color: #dc2626;
 }
 
-#resultadoEntrada p {
-  font-size: 16px;
+/* Blocos coloridos para o resultado */
+.resultado-bloco {
+  border-radius: 12px;
+  padding: 16px;
+  margin: 12px 0;
+}
+
+.resultado-bloco-branco {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+}
+
+.resultado-bloco-azul {
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  border: 1px solid #93c5fd;
+}
+
+.resultado-bloco-amarelo {
+  background: linear-gradient(135deg, #fefce8, #fef9c3);
+  border: 1px solid #fde047;
+}
+
+.resultado-bloco-verde {
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  border: 1px solid #86efac;
+}
+
+.resultado-bloco .bloco-titulo {
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed rgba(0,0,0,0.1);
+}
+
+.resultado-bloco-azul .bloco-titulo {
+  color: #1e40af;
+}
+
+.resultado-bloco-amarelo .bloco-titulo {
+  color: #a16207;
+}
+
+.resultado-bloco-verde .bloco-titulo {
+  color: #166534;
+}
+
+.resultado-linha {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.resultado-linha:last-child {
+  padding-bottom: 0;
+}
+
+.resultado-linha .label {
+  font-size: 14px;
+  color: #475569;
+}
+
+.resultado-linha .valor {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.cenario-obs {
+  font-size: 12px;
+  color: #64748b;
+  font-style: italic;
+  margin-top: 4px;
+}
+
+.cenario-alerta-box {
+  background: rgba(220, 38, 38, 0.1);
+  border: 1px solid #fca5a5;
+  border-radius: 10px;
+  padding: 14px;
+  margin-top: 16px;
+}
+
+.cenario-alerta-box.ok {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: #86efac;
+}
+
+.cenario-alerta-box p {
+  margin: 0;
+  font-size: 14px;
+  color: #991b1b;
+  font-weight: 600;
+}
+
+.cenario-alerta-box.ok p {
+  color: #166534;
+}
+
+.cenario-botoes {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.btn-limpar-fluxo {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: white;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+.btn-limpar-fluxo:hover {
+  background: linear-gradient(135deg, #b91c1c, #991b1b);
+  transform: translateY(-2px);
+}
+
+/* Seção de seleção de prazo */
+.prazo-selector {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.prazo-selector label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 10px;
+}
+
+.prazo-options {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.prazo-option {
+  flex: 1;
+  min-width: 100px;
+  padding: 12px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f9fafb;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.prazo-option:hover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.prazo-option.selected {
+  border-color: #059669;
+  background: #dcfce7;
+}
+
+.prazo-option span {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.prazo-option small {
+  font-size: 11px;
+  color: #64748b;
+}
+
+/* Seção de detalhamento */
+#detalhamentoContainer {
+  display: none;
+  margin-top: 40px;
+  padding: 35px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
+  border: 2px solid #c084fc;
+  animation: fadeIn 0.5s ease;
+}
+
+#detalhamentoContainer h3 {
+  color: #7c3aed;
+  font-size: 22px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.detalhe-resumo {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.detalhe-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.detalhe-item {
+  text-align: center;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 12px;
+}
+
+.detalhe-item label {
+  display: block;
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.detalhe-item span {
+  font-size: 20px;
+  font-weight: 700;
+  color: #7c3aed;
+}
+
+.intermediarias-box {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  margin-top: 20px;
+}
+
+.intermediarias-box h4 {
+  color: #7c3aed;
   margin-bottom: 16px;
-  color: #065f46;
+  font-size: 16px;
 }
 
 @media (max-width: 768px) {
@@ -330,6 +680,15 @@ main {
   #diagnosticoConteudo {
     grid-template-columns: 1fr;
   }
+  
+  .cenario-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .cenario-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
 .info-banner {
@@ -346,6 +705,16 @@ main {
   display: block;
   margin-bottom: 8px;
   color: #075985;
+}
+
+.info-banner.warning {
+  background: linear-gradient(135deg, #fefce8, #fef9c3);
+  border-left-color: #eab308;
+  color: #713f12;
+}
+
+.info-banner.warning strong {
+  color: #a16207;
 }
 </style>
 </head>
@@ -376,7 +745,9 @@ main {
       <!-- Comprador 1 -->
       <div class="campo" id="boxIdade1" style="display:none;">
         <label id="labelIdade1">🎂 Qual a sua idade?</label>
-        <input id="idade1" type="number" min="18" max="99" placeholder="Digite sua idade" />
+        <select id="idade1">
+          <option value="">Selecione...</option>
+        </select>
       </div>
       <div class="campo" id="boxRenda1" style="display:none;">
         <label id="labelRenda1">💰 Qual a sua renda mensal?</label>
@@ -386,7 +757,9 @@ main {
       <!-- Comprador 2 -->
       <div class="campo" id="boxIdade2" style="display:none;">
         <label>🎂 Idade do comprador 2</label>
-        <input id="idade2" type="number" min="18" max="99" placeholder="Digite a idade" />
+        <select id="idade2">
+          <option value="">Selecione...</option>
+        </select>
       </div>
       <div class="campo" id="boxRenda2" style="display:none;">
         <label>💰 Renda mensal do comprador 2</label>
@@ -453,7 +826,7 @@ main {
         </select>
       </div>
       <div class="campo" id="boxGuardado" style="display:none;">
-        <label>💸 Valor guardado</label>
+        <label>💸 Valor guardado (Ato)</label>
         <input id="valorGuardado" oninput="formatarMoeda(this)" placeholder="R$ 0,00" />
       </div>
     </div>
@@ -471,34 +844,85 @@ main {
 
   <!-- Diagnóstico -->
   <div id="diagnosticoContainer">
-    <h3>📘 Diagnóstico Financeiro Completo</h3>
+    <h3>📋 Seu Diagnóstico Financeiro</h3>
+    <p class="diagnostico-intro">Levando em consideração as informações preenchidas, segue o diagnóstico:</p>
     <div id="diagnosticoConteudo"></div>
   </div>
 
   <!-- Estimativa -->
   <div id="estimativaContainer">
-    <h3>💰 Estimativa de Entrada e Financiamento</h3>
-    <div style="text-align:center;">
-      <button class="btn-large" id="btnAbrirEstimativa">🧮 Calcular Estimativa Detalhada</button>
-    </div>
+    <h3>📊 Simulação de Entrada</h3>
 
     <div id="boxValorImovel">
-      <div class="grid" style="margin-top:20px;">
-        <div class="campo">
-          <label>💎 Valor do Imóvel (R$)</label>
-          <input id="valorImovel" oninput="formatarMoeda(this)" placeholder="R$ 0,00" />
+      <div class="campo-destaque">
+        <label>💎 Valor do Imóvel Pretendido (R$)</label>
+        <input id="valorImovel" oninput="formatarMoeda(this)" placeholder="R$ 0,00" />
+        <small id="avisoTeto" style="color: #dc2626; font-size: 12px; display: none; margin-top: 6px;"></small>
+      </div>
+      
+      <!-- Seletor de prazo -->
+      <div class="prazo-selector" style="margin-top: 24px;">
+        <label>⏱️ Escolha o prazo médio da obra:</label>
+        <div class="prazo-options">
+          <div class="prazo-option" data-meses="12" onclick="selecionarPrazo(this, 12)">
+            <span>12 meses</span>
+            <small>Curto prazo</small>
+          </div>
+          <div class="prazo-option" data-meses="18" onclick="selecionarPrazo(this, 18)">
+            <span>18 meses</span>
+            <small>Médio prazo</small>
+          </div>
+          <div class="prazo-option" data-meses="24" onclick="selecionarPrazo(this, 24)">
+            <span>24 meses</span>
+            <small>Médio prazo</small>
+          </div>
+          <div class="prazo-option" data-meses="30" onclick="selecionarPrazo(this, 30)">
+            <span>30 meses</span>
+            <small>Longo prazo</small>
+          </div>
+          <div class="prazo-option" data-meses="36" onclick="selecionarPrazo(this, 36)">
+            <span>36 meses</span>
+            <small>Longo prazo</small>
+          </div>
         </div>
       </div>
-      <div style="text-align:center;margin-top:20px;">
-        <button class="btn" onclick="calcularEntrada()">✨ Calcular Cenários</button>
+      
+      <div style="text-align:center;margin-top:24px;">
+        <button class="btn" onclick="calcularCenario()">✨ Calcular Fluxo de Entrada</button>
       </div>
-      <div id="resultadoEntrada"></div>
+      
+      <!-- Resultado do cenário -->
+      <div id="cenarioResultado"></div>
     </div>
+  </div>
+  
+  <!-- Detalhamento do cenário escolhido -->
+  <div id="detalhamentoContainer">
+    <h3>📋 Detalhamento do Fluxo de Pagamento</h3>
+    <div id="detalhamentoConteudo"></div>
   </div>
 </main>
 
 <script>
-// Formatação de moeda
+// ==========================================
+// INICIALIZAÇÃO - Popular dropdowns de idade
+// ==========================================
+function popularIdades() {
+  const selects = [document.getElementById('idade1'), document.getElementById('idade2')];
+  selects.forEach(select => {
+    for (let i = 18; i <= 70; i++) {
+      const option = document.createElement('option');
+      option.value = i;
+      option.textContent = `${i} anos`;
+      select.appendChild(option);
+    }
+  });
+}
+popularIdades();
+
+// ==========================================
+// FORMATAÇÃO DE MOEDA
+// ==========================================
 function formatarMoeda(input) {
   let valor = (input.value || "").replace(/\D/g, "");
   if (!valor) {
@@ -514,7 +938,14 @@ function limparMoeda(valor) {
   return parseFloat((valor || "").replace(/[R$\.\s]/g, "").replace(",", ".")) || 0;
 }
 
-// Controles de interface
+function moeda(v) {
+  if (!Number.isFinite(v)) return "R$ 0,00";
+  return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+// ==========================================
+// CONTROLES DE INTERFACE
+// ==========================================
 function onChangeComposicao() {
   const modo = compraCom.value;
   const emConjunto = modo !== "sozinho" && modo !== "";
@@ -569,7 +1000,9 @@ function mostrarValorGuardado() {
   boxAcao.style.display = "block";
 }
 
-// Dados do MCMV
+// ==========================================
+// DADOS DO MCMV
+// ==========================================
 const tetoFaixa = {
   "1": 190000,
   "2": 264000,
@@ -582,7 +1015,7 @@ function getTaxaMCMV(renda, cotista, estado) {
   const regiao = nordeste.includes(estado) ? "no_ne" : "sul_se_co";
   
   let faixa;
-  if (renda <= 2160) faixa = "1";
+  if (renda <= 2850) faixa = "1";
   else if (renda <= 4700) faixa = "2";
   else if (renda <= 8600) faixa = "3";
   else faixa = "4";
@@ -595,15 +1028,28 @@ function getTaxaMCMV(renda, cotista, estado) {
   };
   
   const taxa = tabela[faixa][regiao][cotista ? "cot" : "nao"];
-  return { faixa, taxa };
+  return { faixa, taxa, regiao };
 }
 
-// Variáveis globais
-let faixaAtual = null;
-let taxaAtual = null;
-let rendaAtual = null;
+// ==========================================
+// VARIÁVEIS GLOBAIS
+// ==========================================
+let dadosDiagnostico = {
+  faixa: null,
+  taxa: null,
+  rendaTotal: null,
+  valorMaxFinanciavel: null,
+  fgts: 0,
+  ato: 0,
+  parcelaMaxima: 0,
+  idadeMedia: 0
+};
 
-// Gerar diagnóstico
+let cenarioSelecionado = null;
+
+// ==========================================
+// GERAR DIAGNÓSTICO
+// ==========================================
 document.getElementById("btnDiagnostico").addEventListener("click", () => {
   const r1 = limparMoeda(renda1.value);
   const r2 = limparMoeda(renda2.value);
@@ -611,114 +1057,278 @@ document.getElementById("btnDiagnostico").addEventListener("click", () => {
   const estadoV = estado.value;
   const cotista = tipoSing.value === "clt3";
   
-  const { faixa, taxa } = getTaxaMCMV(rendaTotal, cotista, estadoV);
-  faixaAtual = faixa;
-  taxaAtual = taxa;
-  rendaAtual = rendaTotal;
+  const id1 = parseInt(idade1.value) || 0;
+  const id2 = parseInt(idade2.value) || 0;
+  const idadeMedia = id2 > 0 ? Math.round((id1 + id2) / 2) : id1;
   
-  const valorMax = tetoFaixa[faixa];
+  const { faixa, taxa, regiao } = getTaxaMCMV(rendaTotal, cotista, estadoV);
+  
+  // Calcular valor máximo financiável baseado na renda (30% comprometimento)
+  const parcelaMaxima = rendaTotal * 0.30;
+  const i = taxa / 12 / 100;
+  const n = 420; // 35 anos
+  const valorMaxRenda = (parcelaMaxima * (1 - Math.pow(1 + i, -n))) / i;
+  const valorMaxFinanciavel = Math.min(valorMaxRenda, tetoFaixa[faixa]);
+  
+  // Salvar dados globais
+  dadosDiagnostico = {
+    faixa,
+    taxa,
+    rendaTotal,
+    valorMaxFinanciavel,
+    fgts: limparMoeda(fgtsVal.value),
+    ato: limparMoeda(valorGuardado.value),
+    parcelaMaxima,
+    idadeMedia
+  };
   
   diagnosticoConteudo.innerHTML = `
-    <div class='card-blue'>
-      <span>Faixa do MCMV</span>
-      <strong>Faixa ${faixa}</strong>
+    <div class="diagnostico-item">
+      <div class="label">🏠 Faixa do Minha Casa Minha Vida</div>
+      <div class="valor">Você faz parte da <strong>Faixa ${faixa}</strong> do Programa.</div>
     </div>
-    <div class='card-blue'>
-      <span>Valor Máximo Financiável</span>
-      <strong>R$ ${valorMax.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</strong>
+    
+    <div class="diagnostico-item">
+      <div class="label">💰 Teto do Programa</div>
+      <div class="valor">Na sua faixa, é possível adquirir imóveis de <strong>até ${moeda(tetoFaixa[faixa])}</strong>.</div>
     </div>
-    <div class='card-blue'>
-      <span>Taxa de Juros</span>
-      <strong>${taxa.toFixed(2)}% a.a.</strong>
+    
+    <div class="diagnostico-item destaque">
+      <div class="label">📊 Capacidade de Financiamento</div>
+      <div class="valor">Pela sua renda, é possível um financiamento estimado de <strong>até ${moeda(valorMaxFinanciavel)}</strong>.</div>
     </div>
-    <div class='card-blue'>
-      <span>Renda Total</span>
-      <strong>R$ ${rendaTotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</strong>
+    
+    <div class="diagnostico-item">
+      <div class="label">📈 Taxa de Juros</div>
+      <div class="valor">Financiamento com taxa estimada de <strong>${taxa.toFixed(2)}% ao ano</strong>.</div>
     </div>
   `;
   
   diagnosticoContainer.style.display = "block";
   estimativaContainer.style.display = "block";
+  document.getElementById("boxValorImovel").style.display = "block";
   
-  // Scroll suave até o diagnóstico
   diagnosticoContainer.scrollIntoView({ behavior: "smooth", block: "center" });
 });
 
-// Abrir estimativa
-document.getElementById("btnAbrirEstimativa").addEventListener("click", () => {
-  document.getElementById("boxValorImovel").style.display = "block";
-  boxValorImovel.scrollIntoView({ behavior: "smooth", block: "center" });
+// ==========================================
+// VALIDAR VALOR DO IMÓVEL
+// ==========================================
+document.getElementById("valorImovel").addEventListener("blur", function() {
+  const valor = limparMoeda(this.value);
+  const teto = tetoFaixa[dadosDiagnostico.faixa];
+  const avisoEl = document.getElementById("avisoTeto");
+  
+  if (valor > teto) {
+    avisoEl.textContent = `⚠️ Valor acima do teto da Faixa ${dadosDiagnostico.faixa} (máx: ${moeda(teto)}). O cálculo será limitado.`;
+    avisoEl.style.display = "block";
+  } else {
+    avisoEl.style.display = "none";
+  }
 });
 
-// Calcular entrada
-function calcularEntrada() {
-  const valorImovelVal = limparMoeda(document.getElementById("valorImovel").value);
+// ==========================================
+// SELECIONAR PRAZO
+// ==========================================
+let prazoSelecionado = null;
+
+function selecionarPrazo(elemento, meses) {
+  // Remove seleção anterior
+  document.querySelectorAll('.prazo-option').forEach(el => el.classList.remove('selected'));
+  // Adiciona seleção atual
+  elemento.classList.add('selected');
+  prazoSelecionado = meses;
+}
+
+// ==========================================
+// CALCULAR CENÁRIO ÚNICO
+// ==========================================
+function calcularCenario() {
+  let valorImovelVal = limparMoeda(document.getElementById("valorImovel").value);
   
   if (!valorImovelVal) {
     alert("Por favor, informe o valor do imóvel!");
     return;
   }
   
-  const fgts = limparMoeda(fgtsVal.value);
-  const guardado = limparMoeda(valorGuardado.value);
-  const entradaTotal = valorImovelVal * 0.2;
-  const disponivel = fgts + guardado;
+  if (!prazoSelecionado) {
+    alert("Por favor, selecione um prazo para a obra!");
+    return;
+  }
+  
+  const { faixa, fgts, ato, rendaTotal, valorMaxFinanciavel, parcelaMaxima } = dadosDiagnostico;
+  const teto = tetoFaixa[faixa];
+  
+  // Validar teto da faixa
+  if (valorImovelVal > teto) {
+    alert(`O valor do imóvel (${moeda(valorImovelVal)}) ultrapassa o teto da Faixa ${faixa} (${moeda(teto)}).\n\nPor favor, informe um valor dentro do limite do programa.`);
+    return;
+  }
+  
+  // Calcular LTV (80% do valor do imóvel)
+  const maxLTV = valorImovelVal * 0.80;
+  
+  // O financiamento é o MENOR entre: capacidade por renda OU 80% do imóvel
+  const financiamentoReal = Math.min(valorMaxFinanciavel, maxLTV);
+  
+  // Entrada = Valor do imóvel - Financiamento
+  const entradaTotal = valorImovelVal - financiamentoReal;
+  
+  // Recursos disponíveis
+  const disponivel = fgts + ato;
   const faltante = Math.max(0, entradaTotal - disponivel);
   
-  // Cálculo da capacidade de financiamento
-  const parcelaMax = rendaAtual * 0.3;
-  const i = taxaAtual / 12 / 100;
-  const n = 420; // 35 anos
-  const vmax = (parcelaMax * (1 - Math.pow(1 + i, -n))) / i;
-  const valorFinanciavel = Math.min(vmax, tetoFaixa[faixaAtual]);
+  // Calcular parcela mensal
+  const parcelaMensal = faltante > 0 ? faltante / prazoSelecionado : 0;
+  const ultrapassaLimite = parcelaMensal > parcelaMaxima;
   
-  const cenarios = [12, 18, 30];
+  // Calcular saldo restante se ultrapassar limite
+  let saldoRestante = 0;
+  let parcelaAjustada = parcelaMensal;
   
+  if (ultrapassaLimite) {
+    parcelaAjustada = parcelaMaxima;
+    const totalPossivelMensal = parcelaMaxima * prazoSelecionado;
+    saldoRestante = faltante - totalPossivelMensal;
+  }
+  
+  // Calcular previsão de entrega baseada no prazo selecionado
+  const hoje = new Date();
+  const previsaoData = new Date(hoje.getFullYear(), hoje.getMonth() + prazoSelecionado, 1);
+  const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+  const previsaoTexto = `${meses[previsaoData.getMonth()]}/${previsaoData.getFullYear()}`;
+  
+  // Gerar HTML do resultado
   let html = `
-    <p><strong>💎 Capacidade estimada de financiamento:</strong> 
-    R$ ${valorFinanciavel.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-    <p><strong>💰 Entrada necessária (20%):</strong> 
-    R$ ${entradaTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+    <div class="cenario-unico ${ultrapassaLimite ? '' : 'ok'}">
+      <div class="cenario-header-unico">
+        <h4>📋 Fluxo de Entrada - ${prazoSelecionado} meses</h4>
+        <p>📅 Previsão estimada de entrega: <strong>${previsaoTexto}</strong></p>
+      </div>
+      
+      <!-- Bloco Branco - Valor do Imóvel -->
+      <div class="resultado-bloco resultado-bloco-branco">
+        <div class="resultado-linha">
+          <span class="label">Valor do Imóvel Pretendido</span>
+          <span class="valor">${moeda(valorImovelVal)}</span>
+        </div>
+      </div>
+      
+      <!-- Bloco Azul - Financiamento e FGTS -->
+      <div class="resultado-bloco resultado-bloco-azul">
+        <div class="bloco-titulo">📊 Composição do Financiamento</div>
+        <div class="resultado-linha">
+          <span class="label">Financiamento Estimado</span>
+          <span class="valor">${moeda(financiamentoReal)}</span>
+        </div>
+        ${fgts > 0 ? `
+        <div class="resultado-linha">
+          <span class="label">FGTS</span>
+          <span class="valor">${moeda(fgts)}</span>
+        </div>
+        ` : ''}
+      </div>
+      
+      <!-- Bloco Verde - Entrada Total (destaque) -->
+      <div class="resultado-bloco resultado-bloco-verde">
+        <div class="resultado-linha">
+          <span class="label" style="font-weight: 700; color: #166534;">Entrada Total</span>
+          <span class="valor" style="font-size: 18px; color: #059669;">${moeda(entradaTotal)}</span>
+        </div>
+      </div>
+      
+      <!-- Bloco Amarelo - Ato e Mensais -->
+      <div class="resultado-bloco resultado-bloco-amarelo">
+        <div class="bloco-titulo">💳 Forma de Pagamento da Entrada</div>
+        <div class="resultado-linha">
+          <span class="label">Ato (Sinal)</span>
+          <span class="valor">${moeda(ato)}</span>
+        </div>
+        <div class="resultado-linha">
+          <span class="label">Mensais (${prazoSelecionado}x)</span>
+          <span class="valor" style="color: ${ultrapassaLimite ? '#dc2626' : '#1e293b'};">${moeda(ultrapassaLimite ? parcelaAjustada : parcelaMensal)}</span>
+        </div>
+      </div>
+      
+      <p class="cenario-obs">* Considerado limite de 30% da renda familiar para parcelas mensais.</p>
+      <p class="cenario-obs">* Financiamento limitado a até 80% do valor do imóvel.</p>
   `;
   
-  html += `<table class='result-table'>
-    <tr>
-      <th>Cenário</th>
-      <th>Meses</th>
-      <th>Parcela Mensal</th>
-      <th>FGTS + Guardado</th>
-      <th>Entrada Total</th>
-      <th>A Completar</th>
-    </tr>`;
+  if (ultrapassaLimite && saldoRestante > 0) {
+    html += `
+      <div class="resultado-bloco" style="background: linear-gradient(135deg, #fef2f2, #fee2e2); border: 1px solid #fca5a5; margin-top: 16px;">
+        <div class="resultado-linha">
+          <span class="label" style="font-weight: 700; color: #991b1b;">Saldo Restante</span>
+          <span class="valor" style="color: #dc2626;">${moeda(saldoRestante)}</span>
+        </div>
+      </div>
+      
+      <div class="cenario-alerta-box">
+        <p>⚠️ Valor de entrada ultrapassa os limites de parcelamento dentro do período informado.</p>
+      </div>
+    `;
+  } else {
+    html += `
+      <div class="cenario-alerta-box ok">
+        <p>✅ Fluxo dentro do limite! Parcelas cabem nos 30% da renda.</p>
+      </div>
+    `;
+  }
   
-  cenarios.forEach((meses, index) => {
-    const mensal = faltante / meses;
-    html += `<tr>
-      <td><strong>${index + 1}</strong></td>
-      <td>${meses} meses</td>
-      <td>R$ ${mensal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-      <td>R$ ${disponivel.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-      <td>R$ ${entradaTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-      <td><strong>R$ ${faltante.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong></td>
-    </tr>`;
-  });
+  html += `
+      <div class="cenario-botoes">
+        <button class="btn-limpar-fluxo" onclick="limparFluxo()">LIMPAR FLUXO DE ENTRADA</button>
+      </div>
+    </div>
+  `;
   
-  html += "</table>";
-  resultadoEntrada.innerHTML = html;
+  document.getElementById("cenarioResultado").innerHTML = html;
+  document.getElementById("cenarioResultado").scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
-// Limpar tudo
+// ==========================================
+// LIMPAR FLUXO
+// ==========================================
+function limparFluxo() {
+  document.getElementById("cenarioResultado").innerHTML = "";
+  document.getElementById("valorImovel").value = "";
+  document.getElementById("avisoTeto").style.display = "none";
+  document.querySelectorAll('.prazo-option').forEach(el => el.classList.remove('selected'));
+  prazoSelecionado = null;
+}
+
+// ==========================================
+// LIMPAR TUDO
+// ==========================================
 function limparTudo() {
   if (!confirm("Deseja realmente limpar todos os valores?")) {
     return;
   }
   
   document.querySelectorAll("input, select").forEach(el => el.value = "");
-  document.querySelectorAll("#boxIdade1, #boxIdade2, #boxRenda1, #boxRenda2, #boxEstado, #boxProf, #boxSing, #boxFgts, #boxFgtsVal, #boxCap, #boxGuardado, #boxAcao, #diagnosticoContainer, #estimativaContainer, #boxValorImovel")
+  document.querySelectorAll("#boxIdade1, #boxIdade2, #boxRenda1, #boxRenda2, #boxEstado, #boxProf, #boxSing, #boxFgts, #boxFgtsVal, #boxCap, #boxGuardado, #boxAcao, #diagnosticoContainer, #estimativaContainer, #boxValorImovel, #detalhamentoContainer")
     .forEach(e => e.style.display = "none");
   
   diagnosticoConteudo.innerHTML = "";
-  resultadoEntrada.innerHTML = "";
+  document.getElementById("cenarioResultado").innerHTML = "";
+  document.getElementById("detalhamentoConteudo").innerHTML = "";
+  document.getElementById("avisoTeto").style.display = "none";
+  
+  document.querySelectorAll('.prazo-option').forEach(el => el.classList.remove('selected'));
+  prazoSelecionado = null;
+  
+  dadosDiagnostico = {
+    faixa: null,
+    taxa: null,
+    rendaTotal: null,
+    valorMaxFinanciavel: null,
+    fgts: 0,
+    ato: 0,
+    parcelaMaxima: 0,
+    idadeMedia: 0
+  };
+  
+  cenarioSelecionado = null;
   
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
