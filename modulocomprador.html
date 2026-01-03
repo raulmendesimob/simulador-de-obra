@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Simulador Imobiliário — Módulo Comprador</title>
+
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Inter',Arial,sans-serif;background:#f5f7fa;color:#222;line-height:1.5;}
@@ -59,10 +60,27 @@ h3.section-title{color:#0b6e3b;margin-bottom:14px;}
           <option value="familiar">Com familiar</option>
         </select>
       </div>
+
+      <!-- Comprador 1 -->
+      <div class="campo" id="boxIdade1" style="display:none;">
+        <label id="labelIdade1">🎂 Qual a sua idade?</label>
+        <input id="idade1" type="number" min="18" max="99" />
+      </div>
       <div class="campo" id="boxRenda1" style="display:none;">
-        <label>💰 Qual a sua renda mensal?</label>
+        <label id="labelRenda1">💰 Qual a sua renda mensal?</label>
         <input id="renda1" oninput="formatarMoeda(this)" />
       </div>
+
+      <!-- Comprador 2 -->
+      <div class="campo" id="boxIdade2" style="display:none;">
+        <label>🎂 Idade do comprador 2</label>
+        <input id="idade2" type="number" min="18" max="99" />
+      </div>
+      <div class="campo" id="boxRenda2" style="display:none;">
+        <label>💰 Renda mensal do comprador 2</label>
+        <input id="renda2" oninput="formatarMoeda(this)" />
+      </div>
+
       <div class="campo" id="boxEstado" style="display:none;">
         <label>📍 Em qual estado será o empreendimento?</label>
         <select id="estado" onchange="onEstadoSelecionado()">
@@ -75,6 +93,7 @@ h3.section-title{color:#0b6e3b;margin-bottom:14px;}
     </div>
   </div>
 
+  <!-- Tipo de renda -->
   <div class="box" id="boxProf" style="display:none;">
     <h3 class="section-title">💼 Tipo de Renda e Valores p/ Entrada</h3>
     <div class="grid">
@@ -150,7 +169,15 @@ h3.section-title{color:#0b6e3b;margin-bottom:14px;}
 <script>
 function formatarMoeda(c){let v=(c.value||"").replace(/\D/g,"");if(!v){c.value="";return;}v=(parseInt(v,10)/100).toFixed(2).replace(".",",");v=v.replace(/\B(?=(\d{3})+(?!\d))/g,".");c.value="R$ "+v;}
 function limparMoeda(v){return parseFloat((v||"").replace(/[R$\.\s]/g,"").replace(",", ".")) || 0;}
-function onChangeComposicao(){boxRenda1.style.display="block";boxEstado.style.display="block";}
+
+function onChangeComposicao(){
+  const modo=compraCom.value;const emConjunto=modo!=="sozinho";
+  boxIdade1.style.display="block";boxRenda1.style.display="block";boxEstado.style.display="block";
+  labelIdade1.textContent=emConjunto?"🎂 Idade do comprador 1":"🎂 Qual a sua idade?";
+  labelRenda1.textContent=emConjunto?"💰 Renda mensal do comprador 1":"💰 Qual a sua renda mensal?";
+  boxIdade2.style.display=emConjunto?"block":"none";
+  boxRenda2.style.display=emConjunto?"block":"none";
+}
 function onEstadoSelecionado(){boxProf.style.display="block";boxSing.style.display="block";}
 function onTipoSing(){if(tipoSing.value==="clt3"){boxFgts.style.display="block";}else{boxFgts.style.display="none";boxFgtsVal.style.display="none";}boxCap.style.display="block";}
 function toggleFgts(){boxFgtsVal.style.display=usaFgts.value==="sim"?"block":"none";}
@@ -168,17 +195,19 @@ function getTaxaMCMV(renda,cotista,estado){
 
 let faixaAtual=null,taxaAtual=null,rendaAtual=null;
 document.getElementById("btnDiagnostico").addEventListener("click",()=>{
-  const renda=limparMoeda(renda1.value);const estadoV=estado.value;
-  const cotista=tipoSing.value==="clt3";const {faixa,taxa}=getTaxaMCMV(renda,cotista,estadoV);
-  faixaAtual=faixa;taxaAtual=taxa;rendaAtual=renda;
+  const r1=limparMoeda(renda1.value);const r2=limparMoeda(renda2.value);
+  const rendaTotal=r1+r2;const estadoV=estado.value;
+  const cotista=tipoSing.value==="clt3";const {faixa,taxa}=getTaxaMCMV(rendaTotal,cotista,estadoV);
+  faixaAtual=faixa;taxaAtual=taxa;rendaAtual=rendaTotal;
   const valorMax=tetoFaixa[faixa];
   diagnosticoConteudo.innerHTML=`<div class='card-blue'><span>Faixa do MCMV</span><strong>Faixa ${faixa}</strong></div><div class='card-blue'><span>Valor Máximo do Imóvel a ser Financiado</span><strong>R$ ${valorMax.toLocaleString("pt-BR",{minimumFractionDigits:2})}</strong></div><div class='card-blue'><span>Taxa de Juros</span><strong>${taxa.toFixed(2)}% a.a.</strong></div>`;
   diagnosticoContainer.style.display="block";estimativaContainer.style.display="block";
 });
+
 document.getElementById("btnAbrirEstimativa").addEventListener("click",()=>{document.getElementById("boxValorImovel").style.display="block";});
+
 function calcularEntrada(){
-  const valorImovelInput=document.getElementById("valorImovel");
-  const valorImovelVal=limparMoeda(valorImovelInput.value);
+  const valorImovelVal=limparMoeda(document.getElementById("valorImovel").value);
   const fgts=limparMoeda(fgtsVal.value);const guardado=limparMoeda(valorGuardado.value);
   const entradaTotal=valorImovelVal*0.2;const disponivel=fgts+guardado;const faltante=Math.max(0,entradaTotal-disponivel);
   const parcelaMax=rendaAtual*0.3;const i=taxaAtual/12/100;const n=420;
@@ -186,8 +215,16 @@ function calcularEntrada(){
   const cenarios=[12,18,30];let html=`<p><strong>Capacidade estimada de financiamento:</strong> R$ ${valorFinanciavel.toLocaleString('pt-BR',{minimumFractionDigits:2})}</p>`;
   html+=`<table class='result-table'><tr><th>Cenário</th><th>Meses</th><th>Parcela Mensal</th><th>FGTS+Guardado</th><th>Entrada Total</th><th>A Completar</th></tr>`;
   cenarios.forEach((m,i)=>{const mensal=faltante/m;html+=`<tr><td>${i+1}</td><td>${m}</td><td>R$ ${mensal.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td><td>R$ ${disponivel.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td><td>R$ ${entradaTotal.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td><td><strong>R$ ${faltante.toLocaleString('pt-BR',{minimumFractionDigits:2})}</strong></td></tr>`;});
-  html+="</table>";resultadoEntrada.innerHTML=html;}
-function limparTudo(){document.querySelectorAll("input, select").forEach(el=>el.value="");document.querySelectorAll("#boxRenda1,#boxEstado,#boxProf,#boxSing,#boxFgts,#boxFgtsVal,#boxCap,#boxGuardado,#boxAcao,#diagnosticoContainer,#estimativaContainer,#boxValorImovel").forEach(e=>e.style.display="none");diagnosticoConteudo.innerHTML="";resultadoEntrada.innerHTML="";window.scrollTo({top:0,behavior:"smooth"});}
+  html+="</table>";resultadoEntrada.innerHTML=html;
+}
+
+function limparTudo(){
+  document.querySelectorAll("input, select").forEach(el=>el.value="");
+  document.querySelectorAll("#boxIdade1,#boxIdade2,#boxRenda1,#boxRenda2,#boxEstado,#boxProf,#boxSing,#boxFgts,#boxFgtsVal,#boxCap,#boxGuardado,#boxAcao,#diagnosticoContainer,#estimativaContainer,#boxValorImovel")
+  .forEach(e=>e.style.display="none");
+  diagnosticoConteudo.innerHTML="";resultadoEntrada.innerHTML="";
+  window.scrollTo({top:0,behavior:"smooth"});
+}
 </script>
 </body>
 </html>
