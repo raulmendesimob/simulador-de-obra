@@ -1,51 +1,363 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Simulador Imobiliário — Módulo Comprador</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador Imobiliário - Módulo Comprador</title>
 
 <style>
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Inter',Arial,sans-serif;background:#f5f7fa;color:#222;line-height:1.5;}
-header{background:linear-gradient(135deg,#0b6e3b,#0f9b50);color:#fff;text-align:center;padding:28px 18px;box-shadow:0 3px 12px rgba(0,0,0,0.08);}
-header h1{font-size:24px;font-weight:700;}
-header p{opacity:.9;font-size:15px;margin-top:6px;}
-main{max-width:980px;margin:28px auto;background:#fff;padding:26px;border-radius:18px;box-shadow:0 4px 20px rgba(0,0,0,0.05);}
-h3.section-title{color:#0b6e3b;margin-bottom:14px;}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;}
-.campo label{font-weight:600;font-size:13px;margin-bottom:6px;display:block;}
-.campo input,.campo select{width:100%;padding:10px 12px;border:1px solid #ccc;border-radius:10px;font-size:15px;}
-.box{border:1px solid #e6efe9;border-radius:14px;padding:18px;background:#f9fafb;margin-bottom:18px;}
-.btn{background:#0b6e3b;color:#fff;border:none;border-radius:10px;padding:12px 24px;cursor:pointer;font-size:16px;font-weight:600;transition:background .2s;}
-.btn:hover{background:#0f9b50;}
-.btn-danger{background:#b02a37;color:#fff;}
-.btn-danger:hover{background:#8a1f2b;}
-.btn-large{width:60%;padding:18px;font-size:18px;border-radius:12px;background:#0b6e3b;color:#fff;font-weight:600;cursor:pointer;transition:all .2s;}
-.btn-large:hover{background:#0f9b50;}
-#diagnosticoContainer{display:none;margin-top:30px;padding:28px;border-radius:16px;background:#e6f3ff;border:1px solid #c6e0f5;}
-#diagnosticoConteudo{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;}
-.card-blue{background:#fff;border:1px solid #bcd7f2;border-radius:12px;padding:16px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.03);}
-.card-blue span{display:block;font-size:13px;color:#555;margin-bottom:6px;}
-.card-blue strong{font-size:18px;color:#064d8a;}
-#estimativaContainer{display:none;margin-top:30px;padding:28px;border-radius:16px;background:#fdfdfd;border:1px solid #e1e1e1;}
-#estimativaContainer h3{color:#0b6e3b;margin-bottom:16px;}
-#boxValorImovel{display:none;margin-top:18px;}
-.result-table{width:100%;border-collapse:collapse;margin-top:20px;}
-.result-table th,.result-table td{border:1px solid #ddd;padding:10px;text-align:center;}
-.result-table th{background:#e0f2e9;}
-.result-table td strong{color:#0b6e3b;}
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', 'Inter', Arial, sans-serif;
+  background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 50%, #10b981 100%);
+  min-height: 100vh;
+  color: #1e293b;
+  line-height: 1.6;
+  padding: 20px 0;
+}
+
+header {
+  background: linear-gradient(135deg, rgba(5, 150, 105, 0.95), rgba(6, 95, 70, 0.95));
+  color: #fff;
+  text-align: center;
+  padding: 40px 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  margin-bottom: 30px;
+}
+
+header h1 {
+  font-size: clamp(24px, 5vw, 36px);
+  font-weight: 700;
+  margin-bottom: 10px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+header p {
+  font-size: clamp(14px, 3vw, 18px);
+  opacity: 0.95;
+}
+
+main {
+  max-width: 1100px;
+  margin: 0 auto;
+  background: #ffffff;
+  padding: 35px;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+}
+
+.section-title {
+  color: #059669;
+  margin-bottom: 20px;
+  font-size: 20px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.box {
+  border: 2px solid #d1fae5;
+  border-radius: 16px;
+  padding: 24px;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  margin-bottom: 24px;
+  transition: all 0.3s ease;
+}
+
+.box:hover {
+  box-shadow: 0 8px 20px rgba(5, 150, 105, 0.1);
+  transform: translateY(-2px);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+}
+
+.campo label {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 8px;
+  color: #065f46;
+}
+
+.campo input,
+.campo select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #a7f3d0;
+  border-radius: 12px;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  background: #ffffff;
+}
+
+.campo input:focus,
+.campo select:focus {
+  outline: none;
+  border-color: #059669;
+  box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.1);
+}
+
+.btn {
+  background: linear-gradient(135deg, #059669, #047857);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 14px 28px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+  margin: 8px;
+}
+
+.btn:hover {
+  background: linear-gradient(135deg, #047857, #065f46);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(5, 150, 105, 0.4);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.btn-danger:hover {
+  background: linear-gradient(135deg, #b91c1c, #991b1b);
+  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.4);
+}
+
+.btn-large {
+  width: 100%;
+  max-width: 500px;
+  padding: 20px;
+  font-size: 18px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #059669, #047857);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px rgba(5, 150, 105, 0.3);
+  margin: 20px auto;
+  display: block;
+}
+
+.btn-large:hover {
+  background: linear-gradient(135deg, #047857, #065f46);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(5, 150, 105, 0.4);
+}
+
+#boxAcao {
+  text-align: center;
+  margin-top: 30px;
+  padding: 20px;
+}
+
+#diagnosticoContainer {
+  display: none;
+  margin-top: 40px;
+  padding: 35px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+  border: 2px solid #93c5fd;
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#diagnosticoContainer h3 {
+  color: #1e40af;
+  font-size: 22px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+#diagnosticoConteudo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.card-blue {
+  background: #ffffff;
+  border: 2px solid #93c5fd;
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.1);
+  transition: all 0.3s ease;
+}
+
+.card-blue:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(30, 64, 175, 0.2);
+}
+
+.card-blue span {
+  display: block;
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.card-blue strong {
+  font-size: 22px;
+  color: #1e40af;
+  font-weight: 700;
+}
+
+#estimativaContainer {
+  display: none;
+  margin-top: 40px;
+  padding: 35px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border: 2px solid #fbbf24;
+  animation: fadeIn 0.5s ease;
+}
+
+#estimativaContainer h3 {
+  color: #92400e;
+  font-size: 22px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+#boxValorImovel {
+  display: none;
+  margin-top: 24px;
+  padding: 24px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.result-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.result-table th,
+.result-table td {
+  border: 1px solid #e5e7eb;
+  padding: 14px;
+  text-align: center;
+}
+
+.result-table th {
+  background: linear-gradient(135deg, #059669, #047857);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.result-table tr:nth-child(even) {
+  background: #f9fafb;
+}
+
+.result-table tr:hover {
+  background: #f0fdf4;
+}
+
+.result-table td strong {
+  color: #059669;
+  font-size: 16px;
+}
+
+#resultadoEntrada {
+  margin-top: 24px;
+  padding: 24px;
+  background: #f0fdf4;
+  border-radius: 12px;
+  border: 2px solid #a7f3d0;
+}
+
+#resultadoEntrada p {
+  font-size: 16px;
+  margin-bottom: 16px;
+  color: #065f46;
+}
+
+@media (max-width: 768px) {
+  main {
+    padding: 20px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .btn-large {
+    font-size: 16px;
+    padding: 16px;
+  }
+
+  #diagnosticoConteudo {
+    grid-template-columns: 1fr;
+  }
+}
+
+.info-banner {
+  background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+  border-left: 4px solid #0ea5e9;
+  padding: 16px;
+  border-radius: 8px;
+  margin: 20px 0;
+  font-size: 14px;
+  color: #0c4a6e;
+}
+
+.info-banner strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #075985;
+}
 </style>
 </head>
 
 <body>
 <header>
-  <h1>Simulador Imobiliário — Comprador</h1>
-  <p>Descubra quanto você pode financiar e estime sua entrada.</p>
+  <h1>🏡 Simulador Imobiliário - Módulo Comprador</h1>
+  <p>Descubra quanto você pode financiar e estime sua entrada com precisão</p>
 </header>
 
 <main>
-  <!-- Cabeçalho -->
+  <!-- Identificação -->
   <div class="box">
     <h3 class="section-title">👤 Identificação do(s) Comprador(es)</h3>
     <div class="grid">
@@ -64,30 +376,44 @@ h3.section-title{color:#0b6e3b;margin-bottom:14px;}
       <!-- Comprador 1 -->
       <div class="campo" id="boxIdade1" style="display:none;">
         <label id="labelIdade1">🎂 Qual a sua idade?</label>
-        <input id="idade1" type="number" min="18" max="99" />
+        <input id="idade1" type="number" min="18" max="99" placeholder="Digite sua idade" />
       </div>
       <div class="campo" id="boxRenda1" style="display:none;">
         <label id="labelRenda1">💰 Qual a sua renda mensal?</label>
-        <input id="renda1" oninput="formatarMoeda(this)" />
+        <input id="renda1" oninput="formatarMoeda(this)" placeholder="R$ 0,00" />
       </div>
 
       <!-- Comprador 2 -->
       <div class="campo" id="boxIdade2" style="display:none;">
         <label>🎂 Idade do comprador 2</label>
-        <input id="idade2" type="number" min="18" max="99" />
+        <input id="idade2" type="number" min="18" max="99" placeholder="Digite a idade" />
       </div>
       <div class="campo" id="boxRenda2" style="display:none;">
         <label>💰 Renda mensal do comprador 2</label>
-        <input id="renda2" oninput="formatarMoeda(this)" />
+        <input id="renda2" oninput="formatarMoeda(this)" placeholder="R$ 0,00" />
       </div>
 
       <div class="campo" id="boxEstado" style="display:none;">
         <label>📍 Em qual estado será o empreendimento?</label>
         <select id="estado" onchange="onEstadoSelecionado()">
           <option value="">Selecione...</option>
-          <option>CE</option><option>SP</option><option>RJ</option><option>MG</option>
-          <option>BA</option><option>PE</option><option>PR</option><option>SC</option>
-          <option>RS</option><option>GO</option><option>DF</option>
+          <option value="MA">MA - Maranhão</option>
+          <option value="PI">PI - Piauí</option>
+          <option value="CE">CE - Ceará</option>
+          <option value="RN">RN - Rio Grande do Norte</option>
+          <option value="PB">PB - Paraíba</option>
+          <option value="PE">PE - Pernambuco</option>
+          <option value="AL">AL - Alagoas</option>
+          <option value="SE">SE - Sergipe</option>
+          <option value="BA">BA - Bahia</option>
+          <option value="SP">SP - São Paulo</option>
+          <option value="RJ">RJ - Rio de Janeiro</option>
+          <option value="MG">MG - Minas Gerais</option>
+          <option value="PR">PR - Paraná</option>
+          <option value="SC">SC - Santa Catarina</option>
+          <option value="RS">RS - Rio Grande do Sul</option>
+          <option value="GO">GO - Goiás</option>
+          <option value="DF">DF - Distrito Federal</option>
         </select>
       </div>
     </div>
@@ -95,7 +421,7 @@ h3.section-title{color:#0b6e3b;margin-bottom:14px;}
 
   <!-- Tipo de renda -->
   <div class="box" id="boxProf" style="display:none;">
-    <h3 class="section-title">💼 Tipo de Renda e Valores p/ Entrada</h3>
+    <h3 class="section-title">💼 Tipo de Renda e Valores para Entrada</h3>
     <div class="grid">
       <div class="campo" id="boxSing" style="display:none;">
         <label>Qual o seu regime de trabalho?</label>
@@ -116,7 +442,7 @@ h3.section-title{color:#0b6e3b;margin-bottom:14px;}
       </div>
       <div class="campo" id="boxFgtsVal" style="display:none;">
         <label>💰 Valor estimado do FGTS</label>
-        <input id="fgtsVal" oninput="formatarMoeda(this)" />
+        <input id="fgtsVal" oninput="formatarMoeda(this)" placeholder="R$ 0,00" />
       </div>
       <div class="campo" id="boxCap" style="display:none;">
         <label>Possui algum valor guardado para entrada?</label>
@@ -128,38 +454,43 @@ h3.section-title{color:#0b6e3b;margin-bottom:14px;}
       </div>
       <div class="campo" id="boxGuardado" style="display:none;">
         <label>💸 Valor guardado</label>
-        <input id="valorGuardado" oninput="formatarMoeda(this)" />
+        <input id="valorGuardado" oninput="formatarMoeda(this)" placeholder="R$ 0,00" />
       </div>
+    </div>
+    
+    <div class="info-banner">
+      <strong>💡 Dica importante:</strong>
+      Para CLT com mais de 3 anos, você pode usar o FGTS para entrada e reduzir juros (cotista).
     </div>
   </div>
 
-  <div id="boxAcao" style="display:none;text-align:center;">
-    <button class="btn" id="btnDiagnostico">Gerar Diagnóstico</button>
-    <button class="btn btn-danger" onclick="limparTudo()">🧹 Limpar Valores</button>
+  <div id="boxAcao" style="display:none;">
+    <button class="btn" id="btnDiagnostico">📊 Gerar Diagnóstico Financeiro</button>
+    <button class="btn btn-danger" onclick="limparTudo()">🧹 Limpar Todos os Valores</button>
   </div>
 
   <!-- Diagnóstico -->
   <div id="diagnosticoContainer">
-    <h3>📘 Diagnóstico Financeiro</h3>
+    <h3>📘 Diagnóstico Financeiro Completo</h3>
     <div id="diagnosticoConteudo"></div>
   </div>
 
   <!-- Estimativa -->
-  <div id="estimativaContainer" style="display:none;">
-    <h3>💰 Estimativa de Entrada</h3>
+  <div id="estimativaContainer">
+    <h3>💰 Estimativa de Entrada e Financiamento</h3>
     <div style="text-align:center;">
-      <button class="btn-large" id="btnAbrirEstimativa">Calcular Estimativa de Entrada</button>
+      <button class="btn-large" id="btnAbrirEstimativa">🧮 Calcular Estimativa Detalhada</button>
     </div>
 
     <div id="boxValorImovel">
-      <div class="grid" style="margin-top:16px;">
+      <div class="grid" style="margin-top:20px;">
         <div class="campo">
-          <label>Valor do Imóvel (R$)</label>
-          <input id="valorImovel" oninput="formatarMoeda(this)" />
+          <label>💎 Valor do Imóvel (R$)</label>
+          <input id="valorImovel" oninput="formatarMoeda(this)" placeholder="R$ 0,00" />
         </div>
       </div>
-      <div style="text-align:center;margin-top:16px;">
-        <button class="btn" onclick="calcularEntrada()">Calcular</button>
+      <div style="text-align:center;margin-top:20px;">
+        <button class="btn" onclick="calcularEntrada()">✨ Calcular Cenários</button>
       </div>
       <div id="resultadoEntrada"></div>
     </div>
@@ -167,63 +498,229 @@ h3.section-title{color:#0b6e3b;margin-bottom:14px;}
 </main>
 
 <script>
-function formatarMoeda(c){let v=(c.value||"").replace(/\D/g,"");if(!v){c.value="";return;}v=(parseInt(v,10)/100).toFixed(2).replace(".",",");v=v.replace(/\B(?=(\d{3})+(?!\d))/g,".");c.value="R$ "+v;}
-function limparMoeda(v){return parseFloat((v||"").replace(/[R$\.\s]/g,"").replace(",", ".")) || 0;}
-
-function onChangeComposicao(){
-  const modo=compraCom.value;const emConjunto=modo!=="sozinho";
-  boxIdade1.style.display="block";boxRenda1.style.display="block";boxEstado.style.display="block";
-  labelIdade1.textContent=emConjunto?"🎂 Idade do comprador 1":"🎂 Qual a sua idade?";
-  labelRenda1.textContent=emConjunto?"💰 Renda mensal do comprador 1":"💰 Qual a sua renda mensal?";
-  boxIdade2.style.display=emConjunto?"block":"none";
-  boxRenda2.style.display=emConjunto?"block":"none";
-}
-function onEstadoSelecionado(){boxProf.style.display="block";boxSing.style.display="block";}
-function onTipoSing(){if(tipoSing.value==="clt3"){boxFgts.style.display="block";}else{boxFgts.style.display="none";boxFgtsVal.style.display="none";}boxCap.style.display="block";}
-function toggleFgts(){boxFgtsVal.style.display=usaFgts.value==="sim"?"block":"none";}
-function mostrarValorGuardado(){if(temGuardado.value==="sim"){boxGuardado.style.display="block";}else{boxGuardado.style.display="none";}boxAcao.style.display="block";}
-
-const tetoFaixa={"1":190000,"2":264000,"3":350000,"4":500000};
-function getTaxaMCMV(renda,cotista,estado){
-  const ne=["MA","PI","CE","RN","PB","PE","AL","SE","BA"];
-  const regiao=ne.includes(estado)?"no_ne":"sul_se_co";
-  let faixa;if(renda<=2160)faixa="1";else if(renda<=4700)faixa="2";else if(renda<=8600)faixa="3";else faixa="4";
-  const tabela={"1":{no_ne:{cot:4.07,nao:4.59},sul_se_co:{cot:4.33,nao:4.85}},"2":{no_ne:{cot:6.69,nao:7.23},sul_se_co:{cot:6.69,nao:7.23}},"3":{no_ne:{cot:7.93,nao:8.46},sul_se_co:{cot:7.93,nao:8.46}},"4":{no_ne:{cot:11.03,nao:11.03},sul_se_co:{cot:11.03,nao:11.03}}};
-  const taxa=tabela[faixa][regiao][cotista?"cot":"nao"];
-  return {faixa,taxa};
+// Formatação de moeda
+function formatarMoeda(input) {
+  let valor = (input.value || "").replace(/\D/g, "");
+  if (!valor) {
+    input.value = "";
+    return;
+  }
+  valor = (parseInt(valor, 10) / 100).toFixed(2).replace(".", ",");
+  valor = valor.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  input.value = "R$ " + valor;
 }
 
-let faixaAtual=null,taxaAtual=null,rendaAtual=null;
-document.getElementById("btnDiagnostico").addEventListener("click",()=>{
-  const r1=limparMoeda(renda1.value);const r2=limparMoeda(renda2.value);
-  const rendaTotal=r1+r2;const estadoV=estado.value;
-  const cotista=tipoSing.value==="clt3";const {faixa,taxa}=getTaxaMCMV(rendaTotal,cotista,estadoV);
-  faixaAtual=faixa;taxaAtual=taxa;rendaAtual=rendaTotal;
-  const valorMax=tetoFaixa[faixa];
-  diagnosticoConteudo.innerHTML=`<div class='card-blue'><span>Faixa do MCMV</span><strong>Faixa ${faixa}</strong></div><div class='card-blue'><span>Valor Máximo do Imóvel a ser Financiado</span><strong>R$ ${valorMax.toLocaleString("pt-BR",{minimumFractionDigits:2})}</strong></div><div class='card-blue'><span>Taxa de Juros</span><strong>${taxa.toFixed(2)}% a.a.</strong></div>`;
-  diagnosticoContainer.style.display="block";estimativaContainer.style.display="block";
+function limparMoeda(valor) {
+  return parseFloat((valor || "").replace(/[R$\.\s]/g, "").replace(",", ".")) || 0;
+}
+
+// Controles de interface
+function onChangeComposicao() {
+  const modo = compraCom.value;
+  const emConjunto = modo !== "sozinho" && modo !== "";
+  
+  if (modo) {
+    boxIdade1.style.display = "block";
+    boxRenda1.style.display = "block";
+    boxEstado.style.display = "block";
+    
+    if (emConjunto) {
+      labelIdade1.textContent = "🎂 Idade do comprador 1";
+      labelRenda1.textContent = "💰 Renda mensal do comprador 1";
+      boxIdade2.style.display = "block";
+      boxRenda2.style.display = "block";
+    } else {
+      labelIdade1.textContent = "🎂 Qual a sua idade?";
+      labelRenda1.textContent = "💰 Qual a sua renda mensal?";
+      boxIdade2.style.display = "none";
+      boxRenda2.style.display = "none";
+    }
+  }
+}
+
+function onEstadoSelecionado() {
+  if (estado.value) {
+    boxProf.style.display = "block";
+    boxSing.style.display = "block";
+  }
+}
+
+function onTipoSing() {
+  const tipo = tipoSing.value;
+  if (tipo === "clt3") {
+    boxFgts.style.display = "block";
+  } else {
+    boxFgts.style.display = "none";
+    boxFgtsVal.style.display = "none";
+  }
+  boxCap.style.display = "block";
+}
+
+function toggleFgts() {
+  boxFgtsVal.style.display = usaFgts.value === "sim" ? "block" : "none";
+}
+
+function mostrarValorGuardado() {
+  if (temGuardado.value === "sim") {
+    boxGuardado.style.display = "block";
+  } else {
+    boxGuardado.style.display = "none";
+  }
+  boxAcao.style.display = "block";
+}
+
+// Dados do MCMV
+const tetoFaixa = {
+  "1": 190000,
+  "2": 264000,
+  "3": 350000,
+  "4": 500000
+};
+
+function getTaxaMCMV(renda, cotista, estado) {
+  const nordeste = ["MA", "PI", "CE", "RN", "PB", "PE", "AL", "SE", "BA"];
+  const regiao = nordeste.includes(estado) ? "no_ne" : "sul_se_co";
+  
+  let faixa;
+  if (renda <= 2160) faixa = "1";
+  else if (renda <= 4700) faixa = "2";
+  else if (renda <= 8600) faixa = "3";
+  else faixa = "4";
+  
+  const tabela = {
+    "1": { no_ne: { cot: 4.07, nao: 4.59 }, sul_se_co: { cot: 4.33, nao: 4.85 } },
+    "2": { no_ne: { cot: 6.69, nao: 7.23 }, sul_se_co: { cot: 6.69, nao: 7.23 } },
+    "3": { no_ne: { cot: 7.93, nao: 8.46 }, sul_se_co: { cot: 7.93, nao: 8.46 } },
+    "4": { no_ne: { cot: 11.03, nao: 11.03 }, sul_se_co: { cot: 11.03, nao: 11.03 } }
+  };
+  
+  const taxa = tabela[faixa][regiao][cotista ? "cot" : "nao"];
+  return { faixa, taxa };
+}
+
+// Variáveis globais
+let faixaAtual = null;
+let taxaAtual = null;
+let rendaAtual = null;
+
+// Gerar diagnóstico
+document.getElementById("btnDiagnostico").addEventListener("click", () => {
+  const r1 = limparMoeda(renda1.value);
+  const r2 = limparMoeda(renda2.value);
+  const rendaTotal = r1 + r2;
+  const estadoV = estado.value;
+  const cotista = tipoSing.value === "clt3";
+  
+  const { faixa, taxa } = getTaxaMCMV(rendaTotal, cotista, estadoV);
+  faixaAtual = faixa;
+  taxaAtual = taxa;
+  rendaAtual = rendaTotal;
+  
+  const valorMax = tetoFaixa[faixa];
+  
+  diagnosticoConteudo.innerHTML = `
+    <div class='card-blue'>
+      <span>Faixa do MCMV</span>
+      <strong>Faixa ${faixa}</strong>
+    </div>
+    <div class='card-blue'>
+      <span>Valor Máximo Financiável</span>
+      <strong>R$ ${valorMax.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</strong>
+    </div>
+    <div class='card-blue'>
+      <span>Taxa de Juros</span>
+      <strong>${taxa.toFixed(2)}% a.a.</strong>
+    </div>
+    <div class='card-blue'>
+      <span>Renda Total</span>
+      <strong>R$ ${rendaTotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</strong>
+    </div>
+  `;
+  
+  diagnosticoContainer.style.display = "block";
+  estimativaContainer.style.display = "block";
+  
+  // Scroll suave até o diagnóstico
+  diagnosticoContainer.scrollIntoView({ behavior: "smooth", block: "center" });
 });
 
-document.getElementById("btnAbrirEstimativa").addEventListener("click",()=>{document.getElementById("boxValorImovel").style.display="block";});
+// Abrir estimativa
+document.getElementById("btnAbrirEstimativa").addEventListener("click", () => {
+  document.getElementById("boxValorImovel").style.display = "block";
+  boxValorImovel.scrollIntoView({ behavior: "smooth", block: "center" });
+});
 
-function calcularEntrada(){
-  const valorImovelVal=limparMoeda(document.getElementById("valorImovel").value);
-  const fgts=limparMoeda(fgtsVal.value);const guardado=limparMoeda(valorGuardado.value);
-  const entradaTotal=valorImovelVal*0.2;const disponivel=fgts+guardado;const faltante=Math.max(0,entradaTotal-disponivel);
-  const parcelaMax=rendaAtual*0.3;const i=taxaAtual/12/100;const n=420;
-  const vmax=(parcelaMax*(1-Math.pow(1+i,-n)))/i;const valorFinanciavel=Math.min(vmax,tetoFaixa[faixaAtual]);
-  const cenarios=[12,18,30];let html=`<p><strong>Capacidade estimada de financiamento:</strong> R$ ${valorFinanciavel.toLocaleString('pt-BR',{minimumFractionDigits:2})}</p>`;
-  html+=`<table class='result-table'><tr><th>Cenário</th><th>Meses</th><th>Parcela Mensal</th><th>FGTS+Guardado</th><th>Entrada Total</th><th>A Completar</th></tr>`;
-  cenarios.forEach((m,i)=>{const mensal=faltante/m;html+=`<tr><td>${i+1}</td><td>${m}</td><td>R$ ${mensal.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td><td>R$ ${disponivel.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td><td>R$ ${entradaTotal.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td><td><strong>R$ ${faltante.toLocaleString('pt-BR',{minimumFractionDigits:2})}</strong></td></tr>`;});
-  html+="</table>";resultadoEntrada.innerHTML=html;
+// Calcular entrada
+function calcularEntrada() {
+  const valorImovelVal = limparMoeda(document.getElementById("valorImovel").value);
+  
+  if (!valorImovelVal) {
+    alert("Por favor, informe o valor do imóvel!");
+    return;
+  }
+  
+  const fgts = limparMoeda(fgtsVal.value);
+  const guardado = limparMoeda(valorGuardado.value);
+  const entradaTotal = valorImovelVal * 0.2;
+  const disponivel = fgts + guardado;
+  const faltante = Math.max(0, entradaTotal - disponivel);
+  
+  // Cálculo da capacidade de financiamento
+  const parcelaMax = rendaAtual * 0.3;
+  const i = taxaAtual / 12 / 100;
+  const n = 420; // 35 anos
+  const vmax = (parcelaMax * (1 - Math.pow(1 + i, -n))) / i;
+  const valorFinanciavel = Math.min(vmax, tetoFaixa[faixaAtual]);
+  
+  const cenarios = [12, 18, 30];
+  
+  let html = `
+    <p><strong>💎 Capacidade estimada de financiamento:</strong> 
+    R$ ${valorFinanciavel.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+    <p><strong>💰 Entrada necessária (20%):</strong> 
+    R$ ${entradaTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+  `;
+  
+  html += `<table class='result-table'>
+    <tr>
+      <th>Cenário</th>
+      <th>Meses</th>
+      <th>Parcela Mensal</th>
+      <th>FGTS + Guardado</th>
+      <th>Entrada Total</th>
+      <th>A Completar</th>
+    </tr>`;
+  
+  cenarios.forEach((meses, index) => {
+    const mensal = faltante / meses;
+    html += `<tr>
+      <td><strong>${index + 1}</strong></td>
+      <td>${meses} meses</td>
+      <td>R$ ${mensal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+      <td>R$ ${disponivel.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+      <td>R$ ${entradaTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+      <td><strong>R$ ${faltante.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong></td>
+    </tr>`;
+  });
+  
+  html += "</table>";
+  resultadoEntrada.innerHTML = html;
 }
 
-function limparTudo(){
-  document.querySelectorAll("input, select").forEach(el=>el.value="");
-  document.querySelectorAll("#boxIdade1,#boxIdade2,#boxRenda1,#boxRenda2,#boxEstado,#boxProf,#boxSing,#boxFgts,#boxFgtsVal,#boxCap,#boxGuardado,#boxAcao,#diagnosticoContainer,#estimativaContainer,#boxValorImovel")
-  .forEach(e=>e.style.display="none");
-  diagnosticoConteudo.innerHTML="";resultadoEntrada.innerHTML="";
-  window.scrollTo({top:0,behavior:"smooth"});
+// Limpar tudo
+function limparTudo() {
+  if (!confirm("Deseja realmente limpar todos os valores?")) {
+    return;
+  }
+  
+  document.querySelectorAll("input, select").forEach(el => el.value = "");
+  document.querySelectorAll("#boxIdade1, #boxIdade2, #boxRenda1, #boxRenda2, #boxEstado, #boxProf, #boxSing, #boxFgts, #boxFgtsVal, #boxCap, #boxGuardado, #boxAcao, #diagnosticoContainer, #estimativaContainer, #boxValorImovel")
+    .forEach(e => e.style.display = "none");
+  
+  diagnosticoConteudo.innerHTML = "";
+  resultadoEntrada.innerHTML = "";
+  
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 </script>
 </body>
