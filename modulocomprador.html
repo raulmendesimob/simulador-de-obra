@@ -4,7 +4,6 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Simulador Imobiliário — Módulo Comprador</title>
-
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Inter',Arial,sans-serif;background:#f5f7fa;color:#222;line-height:1.5;}
@@ -24,7 +23,6 @@ h3.section-title{color:#0b6e3b;margin-bottom:14px;}
 .btn-large{width:60%;padding:18px;font-size:18px;border-radius:12px;background:#0b6e3b;color:#fff;font-weight:600;cursor:pointer;transition:all .2s;}
 .btn-large:hover{background:#0f9b50;}
 #diagnosticoContainer{display:none;margin-top:30px;padding:28px;border-radius:16px;background:#e6f3ff;border:1px solid #c6e0f5;}
-#diagnosticoContainer h3{color:#064d8a;margin-bottom:14px;}
 #diagnosticoConteudo{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;}
 .card-blue{background:#fff;border:1px solid #bcd7f2;border-radius:12px;padding:16px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.03);}
 .card-blue span{display:block;font-size:13px;color:#555;margin-bottom:6px;}
@@ -46,7 +44,7 @@ h3.section-title{color:#0b6e3b;margin-bottom:14px;}
 </header>
 
 <main>
-  <!-- CABEÇALHO -->
+  <!-- Cabeçalho -->
   <div class="box">
     <h3 class="section-title">👤 Identificação do(s) Comprador(es)</h3>
     <div class="grid">
@@ -61,12 +59,8 @@ h3.section-title{color:#0b6e3b;margin-bottom:14px;}
           <option value="familiar">Com familiar</option>
         </select>
       </div>
-      <div class="campo" id="boxIdade1" style="display:none;">
-        <label id="labelIdade1">🎂 Qual a sua idade?</label>
-        <input id="idade1" type="number" min="18" max="99" />
-      </div>
       <div class="campo" id="boxRenda1" style="display:none;">
-        <label id="labelRenda1">💰 Qual a sua renda mensal?</label>
+        <label>💰 Qual a sua renda mensal?</label>
         <input id="renda1" oninput="formatarMoeda(this)" />
       </div>
       <div class="campo" id="boxEstado" style="display:none;">
@@ -125,13 +119,13 @@ h3.section-title{color:#0b6e3b;margin-bottom:14px;}
     <button class="btn btn-danger" onclick="limparTudo()">🧹 Limpar Valores</button>
   </div>
 
-  <!-- DIAGNÓSTICO -->
+  <!-- Diagnóstico -->
   <div id="diagnosticoContainer">
     <h3>📘 Diagnóstico Financeiro</h3>
     <div id="diagnosticoConteudo"></div>
   </div>
 
-  <!-- NOVO BLOCO: ESTIMATIVA -->
+  <!-- Estimativa -->
   <div id="estimativaContainer" style="display:none;">
     <h3>💰 Estimativa de Entrada</h3>
     <div style="text-align:center;">
@@ -156,8 +150,7 @@ h3.section-title{color:#0b6e3b;margin-bottom:14px;}
 <script>
 function formatarMoeda(c){let v=(c.value||"").replace(/\D/g,"");if(!v){c.value="";return;}v=(parseInt(v,10)/100).toFixed(2).replace(".",",");v=v.replace(/\B(?=(\d{3})+(?!\d))/g,".");c.value="R$ "+v;}
 function limparMoeda(v){return parseFloat((v||"").replace(/[R$\.\s]/g,"").replace(",", ".")) || 0;}
-
-function onChangeComposicao(){boxIdade1.style.display="block";boxRenda1.style.display="block";boxEstado.style.display="block";}
+function onChangeComposicao(){boxRenda1.style.display="block";boxEstado.style.display="block";}
 function onEstadoSelecionado(){boxProf.style.display="block";boxSing.style.display="block";}
 function onTipoSing(){if(tipoSing.value==="clt3"){boxFgts.style.display="block";}else{boxFgts.style.display="none";boxFgtsVal.style.display="none";}boxCap.style.display="block";}
 function toggleFgts(){boxFgtsVal.style.display=usaFgts.value==="sim"?"block":"none";}
@@ -168,58 +161,33 @@ function getTaxaMCMV(renda,cotista,estado){
   const ne=["MA","PI","CE","RN","PB","PE","AL","SE","BA"];
   const regiao=ne.includes(estado)?"no_ne":"sul_se_co";
   let faixa;if(renda<=2160)faixa="1";else if(renda<=4700)faixa="2";else if(renda<=8600)faixa="3";else faixa="4";
-  const tabela={"1":{no_ne:{cot:4.07,nao:4.59},sul_se_co:{cot:4.33,nao:4.85}},
-                "2":{no_ne:{cot:6.69,nao:7.23},sul_se_co:{cot:6.69,nao:7.23}},
-                "3":{no_ne:{cot:7.93,nao:8.46},sul_se_co:{cot:7.93,nao:8.46}},
-                "4":{no_ne:{cot:11.03,nao:11.03},sul_se_co:{cot:11.03,nao:11.03}}};
+  const tabela={"1":{no_ne:{cot:4.07,nao:4.59},sul_se_co:{cot:4.33,nao:4.85}},"2":{no_ne:{cot:6.69,nao:7.23},sul_se_co:{cot:6.69,nao:7.23}},"3":{no_ne:{cot:7.93,nao:8.46},sul_se_co:{cot:7.93,nao:8.46}},"4":{no_ne:{cot:11.03,nao:11.03},sul_se_co:{cot:11.03,nao:11.03}}};
   const taxa=tabela[faixa][regiao][cotista?"cot":"nao"];
   return {faixa,taxa};
 }
 
-let faixaAtual=null,taxaAtual=null;
-
+let faixaAtual=null,taxaAtual=null,rendaAtual=null;
 document.getElementById("btnDiagnostico").addEventListener("click",()=>{
-  const renda1v=limparMoeda(renda1.value);const estadoV=estado.value;
-  const cotista=tipoSing.value==="clt3";const rendaTotal=renda1v;
-  const {faixa,taxa}=getTaxaMCMV(rendaTotal,cotista,estadoV);
-  faixaAtual=faixa;taxaAtual=taxa;
+  const renda=limparMoeda(renda1.value);const estadoV=estado.value;
+  const cotista=tipoSing.value==="clt3";const {faixa,taxa}=getTaxaMCMV(renda,cotista,estadoV);
+  faixaAtual=faixa;taxaAtual=taxa;rendaAtual=renda;
   const valorMax=tetoFaixa[faixa];
-  diagnosticoConteudo.innerHTML=`
-  <div class='card-blue'><span>Faixa do MCMV</span><strong>Faixa ${faixa}</strong></div>
-  <div class='card-blue'><span>Valor Máximo do Imóvel a ser Financiado</span><strong>R$ ${valorMax.toLocaleString("pt-BR",{minimumFractionDigits:2})}</strong></div>
-  <div class='card-blue'><span>Taxa de Juros</span><strong>${taxa.toFixed(2)}% a.a.</strong></div>`;
-  diagnosticoContainer.style.display="block";
-  estimativaContainer.style.display="block";
+  diagnosticoConteudo.innerHTML=`<div class='card-blue'><span>Faixa do MCMV</span><strong>Faixa ${faixa}</strong></div><div class='card-blue'><span>Valor Máximo do Imóvel a ser Financiado</span><strong>R$ ${valorMax.toLocaleString("pt-BR",{minimumFractionDigits:2})}</strong></div><div class='card-blue'><span>Taxa de Juros</span><strong>${taxa.toFixed(2)}% a.a.</strong></div>`;
+  diagnosticoContainer.style.display="block";estimativaContainer.style.display="block";
 });
-
-document.getElementById("btnAbrirEstimativa").addEventListener("click",()=>{
-  document.getElementById("boxValorImovel").style.display="block";
-});
-
+document.getElementById("btnAbrirEstimativa").addEventListener("click",()=>{document.getElementById("boxValorImovel").style.display="block";});
 function calcularEntrada(){
-  const valorImovel=limparMoeda(valorImovel.value);
-  const fgts=limparMoeda(fgtsVal.value);
-  const guardado=limparMoeda(valorGuardado.value);
-  const entradaTotal=valorImovel*0.2;
-  const disponivel=fgts+guardado;
-  const faltante=Math.max(0,entradaTotal-disponivel);
-  const cenarios=[12,18,30];
-  let html=`<table class='result-table'><tr><th>Cenário</th><th>Meses</th><th>Parcela Mensal</th><th>FGTS+Guardado</th><th>Entrada Total</th><th>A Completar</th></tr>`;
-  cenarios.forEach((m,i)=>{
-    const mensal=faltante/m;
-    html+=`<tr><td>${i+1}</td><td>${m}</td><td>R$ ${mensal.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td><td>R$ ${disponivel.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td><td>R$ ${entradaTotal.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td><td><strong>R$ ${faltante.toLocaleString('pt-BR',{minimumFractionDigits:2})}</strong></td></tr>`;
-  });
-  html+="</table>";
-  resultadoEntrada.innerHTML=html;
-}
-
-function limparTudo(){
-  document.querySelectorAll("input, select").forEach(el=>el.value="");
-  document.querySelectorAll("#boxIdade1,#boxRenda1,#boxEstado,#boxProf,#boxSing,#boxFgts,#boxFgtsVal,#boxCap,#boxGuardado,#boxAcao,#diagnosticoContainer,#estimativaContainer,#boxValorImovel")
-  .forEach(e=>e.style.display="none");
-  diagnosticoConteudo.innerHTML="";resultadoEntrada.innerHTML="";
-  window.scrollTo({top:0,behavior:"smooth"});
-}
+  const valorImovelInput=document.getElementById("valorImovel");
+  const valorImovelVal=limparMoeda(valorImovelInput.value);
+  const fgts=limparMoeda(fgtsVal.value);const guardado=limparMoeda(valorGuardado.value);
+  const entradaTotal=valorImovelVal*0.2;const disponivel=fgts+guardado;const faltante=Math.max(0,entradaTotal-disponivel);
+  const parcelaMax=rendaAtual*0.3;const i=taxaAtual/12/100;const n=420;
+  const vmax=(parcelaMax*(1-Math.pow(1+i,-n)))/i;const valorFinanciavel=Math.min(vmax,tetoFaixa[faixaAtual]);
+  const cenarios=[12,18,30];let html=`<p><strong>Capacidade estimada de financiamento:</strong> R$ ${valorFinanciavel.toLocaleString('pt-BR',{minimumFractionDigits:2})}</p>`;
+  html+=`<table class='result-table'><tr><th>Cenário</th><th>Meses</th><th>Parcela Mensal</th><th>FGTS+Guardado</th><th>Entrada Total</th><th>A Completar</th></tr>`;
+  cenarios.forEach((m,i)=>{const mensal=faltante/m;html+=`<tr><td>${i+1}</td><td>${m}</td><td>R$ ${mensal.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td><td>R$ ${disponivel.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td><td>R$ ${entradaTotal.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td><td><strong>R$ ${faltante.toLocaleString('pt-BR',{minimumFractionDigits:2})}</strong></td></tr>`;});
+  html+="</table>";resultadoEntrada.innerHTML=html;}
+function limparTudo(){document.querySelectorAll("input, select").forEach(el=>el.value="");document.querySelectorAll("#boxRenda1,#boxEstado,#boxProf,#boxSing,#boxFgts,#boxFgtsVal,#boxCap,#boxGuardado,#boxAcao,#diagnosticoContainer,#estimativaContainer,#boxValorImovel").forEach(e=>e.style.display="none");diagnosticoConteudo.innerHTML="";resultadoEntrada.innerHTML="";window.scrollTo({top:0,behavior:"smooth"});}
 </script>
 </body>
 </html>
