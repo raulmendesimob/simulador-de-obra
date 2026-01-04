@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador Imobiliário Pro - MCMV</title>
+    <!-- Google Fonts: Inter & Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons (via CDN for modern look) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary: #059669;
+            --primary-dark: #047857;
+            --primary-light: #d1fae5;
+            --secondary: #3b82f6;
+            --accent: #10b981;
+            --danger: #ef4444;
+            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --radius-lg: 20px;
+            --radius-md: 12px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-md: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.05);
+            --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px 16px;
+        }
+
+        /* Layout Container */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Header Moderno */
+        header {
+            text-align: center;
+            margin-bottom: 32px;
+            padding: 20px 0;
+        }
+
+        header h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: clamp(24px, 6vw, 36px);
+            color: var(--primary-dark);
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: clamp(14px, 3vw, 16px);
+            font-weight: 400;
+        }
+
+        /* Cards e Seções */
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: var(--radius-lg);
+            padding: clamp(20px, 5vw, 32px);
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 24px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .section-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 18px;
+            color: var(--text-main);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: var(--primary);
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Formulários */
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 640px) {
+            .grid-2 { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 14px;
+            color: var(--text-muted);
+            width: 18px;
+            height: 18px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 16px;
+            padding-left: 44px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: var(--radius-md);
+            font-size: 16px;
+            font-family: inherit;
+            color: var(--text-main);
+            background: #fff;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px var(--primary-light);
+        }
+
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            background-size: 18px;
+        }
+
+        /* Botões */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 28px;
+            border-radius: var(--radius-md);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 4px 14px 0 rgba(5, 150, 105, 0.39);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(5, 150, 105, 0.23);
+        }
+
+        .btn-primary:active { transform: translateY(0); }
+
+        .btn-danger {
+            background: #fff;
+            color: var(--danger);
+            border: 1.5px solid #fee2e2;
+        }
+
+        .btn-danger:hover {
+            background: #fef2f2;
+            border-color: var(--danger);
+        }
+
+        /* Animações de Entrada */
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hidden { display: none; }
+
+        /* Diagnóstico e Resultados */
+        .result-card {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            margin-top: 32px;
+        }
+
+        .result-header {
+            background: var(--primary);
+            color: #fff;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .result-body {
+            padding: 24px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .result-item:last-child { border-bottom: none; }
+
+        .result-label { color: var(--text-muted); font-size: 14px; }
+        .result-value { font-weight: 700; color: var(--text-main); }
+
+        .highlight-box {
+            background: var(--primary-light);
+            padding: 20px;
+            border-radius: var(--radius-md);
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .highlight-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary-dark); font-weight: 700; }
+        .highlight-value { font-size: 28px; font-weight: 800; color: var(--primary-dark); }
+
+        /* Prazo Selector */
+        .prazo-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        @media (min-width: 480px) {
+            .prazo-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+
+        .prazo-btn {
+            padding: 12px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: var(--radius-md);
+            background: #fff;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .prazo-btn.active {
+            border-color: var(--primary);
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            font-weight: 700;
+        }
+
+        /* Tooltip e Helpers */
+        .helper-text {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-bottom: 20px;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Simulador Imobiliário</h1>
+        <p>Planeje sua conquista no Minha Casa Minha Vida</p>
+    </header>
+
+    <main id="app">
+        <!-- Passo 1: Composição -->
+        <section class="card fade-in">
+            <h3 class="section-title"><i data-lucide="users"></i> Composição da Compra</h3>
+            <div class="form-group">
+                <label for="compraCom">Quem participará da compra?</label>
+                <div class="input-wrapper">
+                    <i data-lucide="user-plus"></i>
+                    <select id="compraCom">
+                        <option value="">Selecione uma opção...</option>
+                        <option value="sozinho">Comprar Sozinho(a)</option>
+                        <option value="conjunto">Comprar em Conjunto</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <!-- Passo 2: Dados Pessoais (Dinâmico) -->
+        <section id="stepDados" class="card fade-in hidden">
+            <h3 class="section-title"><i data-lucide="clipboard-list"></i> Informações Financeiras</h3>
+            <div class="grid grid-2">
+                <div class="form-group">
+                    <label id="labelIdade1" for="idade1">Sua Idade</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="calendar"></i>
+                        <input type="number" id="idade1" placeholder="Ex: 25" min="18" max="100">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label id="labelRenda1" for="renda1">Sua Renda Mensal</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="dollar-sign"></i>
+                        <input type="text" id="renda1" class="money-mask" placeholder="R$ 0,00">
+                    </div>
+                </div>
+                <div id="boxComprador2" class="grid grid-2 hidden" style="grid-column: 1 / -1; gap: 20px;">
+                    <div class="form-group">
+                        <label for="idade2">Idade do 2º Comprador</label>
+                        <div class="input-wrapper">
+                            <i data-lucide="calendar"></i>
+                            <input type="number" id="idade2" placeholder="Ex: 28" min="18" max="100">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="renda2">Renda do 2º Comprador</label>
+                        <div class="input-wrapper">
+                            <i data-lucide="dollar-sign"></i>
+                            <input type="text" id="renda2" class="money-mask" placeholder="R$ 0,00">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label for="estado">Estado da Compra</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="map-pin"></i>
+                        <select id="estado">
+                            <option value="">Selecione o estado...</option>
+                            <option value="AC">Acre</option><option value="AL">Alagoas</option><option value="AP">Amapá</option>
+                            <option value="AM">Amazonas</option><option value="BA">Bahia</option><option value="CE">Ceará</option>
+                            <option value="DF">Distrito Federal</option><option value="ES">Espírito Santo</option><option value="GO">Goiás</option>
+                            <option value="MA">Maranhão</option><option value="MT">Mato Grosso</option><option value="MS">Mato Grosso do Sul</option>
+                            <option value="MG">Minas Gerais</option><option value="PA">Pará</option><option value="PB">Paraíba</option>
+                            <option value="PR">Paraná</option><option value="PE">Pernambuco</option><option value="PI">Piauí</option>
+                            <option value="RJ">Rio de Janeiro</option><option value="RN">Rio Grande do Norte</option><option value="RS">Rio Grande do Sul</option>
+                            <option value="RO">Rondônia</option><option value="RR">Roraima</option><option value="SC">Santa Catarina</option>
+                            <option value="SP">São Paulo</option><option value="SE">Sergipe</option><option value="TO">Tocantins</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Passo 3: Detalhes Profissionais -->
+        <section id="stepProf" class="card fade-in hidden">
+            <h3 class="section-title"><i data-lucide="briefcase"></i> Regime de Trabalho</h3>
+            <div class="grid">
+                <div class="form-group">
+                    <label id="labelRegime">Qual seu regime de trabalho predominante?</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="award"></i>
+                        <select id="regimeTrabalho">
+                            <option value="">Selecione...</option>
+                            <option value="clt3">CLT (Mais de 3 anos de FGTS)</option>
+                            <option value="cltmenos">CLT (Menos de 3 anos de FGTS)</option>
+                            <option value="pj">Autônomo / PJ / Outros</option>
+                        </select>
+                    </div>
+                    <p class="helper-text">Isso influencia na taxa de juros e uso do FGTS.</p>
+                </div>
+                <div id="boxFgts" class="form-group hidden">
+                    <label for="fgtsVal">Saldo de FGTS para Entrada</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="piggy-bank"></i>
+                        <input type="text" id="fgtsVal" class="money-mask" placeholder="R$ 0,00">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="valorAto">Valor que possui para Sinal (Ato)</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="wallet"></i>
+                        <input type="text" id="valorAto" class="money-mask" placeholder="R$ 0,00">
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 32px;">
+                <button id="btnGerarDiagnostico" class="btn btn-primary">
+                    <i data-lucide="bar-chart-3"></i> Gerar Diagnóstico Completo
+                </button>
+            </div>
+        </section>
+
+        <!-- Diagnóstico e Simulação de Fluxo -->
+        <div id="diagnosticoContainer" class="hidden">
+            <div class="result-card fade-in">
+                <div class="result-header">
+                    <h3 style="font-family: 'Poppins';">Seu Diagnóstico MCMV</h3>
+                    <p style="opacity: 0.9; font-size: 14px;">Análise baseada no seu perfil financeiro</p>
+                </div>
+                <div class="result-body">
+                    <div id="diagnosticoResumo"></div>
+                    
+                    <div style="margin-top: 32px; padding-top: 24px; border-top: 2px dashed #e2e8f0;">
+                        <h4 class="section-title"><i data-lucide="calculator"></i> Simular Fluxo de Obra</h4>
+                        <div class="grid">
+                            <div class="form-group">
+                                <label for="valorImovel">Valor do Imóvel Pretendido</label>
+                                <div class="input-wrapper">
+                                    <i data-lucide="home"></i>
+                                    <input type="text" id="valorImovel" class="money-mask" placeholder="R$ 0,00">
+                                </div>
+                                <div id="avisoTeto" class="helper-text" style="color: var(--danger); font-weight: 600; display: none;"></div>
+                            </div>
+                            <div class="form-group">
+                                <label>Prazo de Entrega (Meses)</label>
+                                <div class="prazo-grid">
+                                    <button class="prazo-btn" data-meses="12">12 meses</button>
+                                    <button class="prazo-btn" data-meses="24">24 meses</button>
+                                    <button class="prazo-btn" data-meses="36">36 meses</button>
+                                    <button class="prazo-btn" data-meses="48">48 meses</button>
+                                </div>
+                            </div>
+                            <button id="btnCalcularFluxo" class="btn btn-primary">Calcular Fluxo de Entrada</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="fluxoResultado" class="hidden">
+                <!-- Resultados do fluxo aparecerão aqui -->
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 32px;">
+            <button id="btnLimpar" class="btn btn-danger" style="width: auto;">
+                <i data-lucide="refresh-cw"></i> Reiniciar Simulador
+            </button>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Simulador Imobiliário Pro. Todos os direitos reservados.</p>
+        <p style="margin-top: 4px; font-size: 11px; opacity: 0.7;">Os valores apresentados são estimativas e podem variar conforme análise de crédito bancária.</p>
+    </footer>
+</div>
+
+<script>
+    // Configuração e Constantes
+    const CONFIG = {
+        TETOS: { 1: 190000, 1.5: 264000, 2: 350000, 3: 450000 },
+        REGIOES_PRIVILEGIADAS: ["SP", "RJ", "MG", "ES", "PR", "SC", "RS", "DF", "GO", "MT", "MS"],
+        PERCENTUAL_COMPROMETIMENTO: 0.30,
+        LTV_MAX: 0.80,
+        PRAZO_MAX_MESES: 420
+    };
+
+    // Estado da Aplicação
+    let state = {
+        dadosDiagnostico: null,
+        prazoSelecionado: null
+    };
+
+    // Inicialização
+    document.addEventListener('DOMContentLoaded', () => {
+        lucide.createIcons();
+        setupEventListeners();
+        setupMasks();
+    });
+
+    function setupEventListeners() {
+        // Mudança de Composição
+        document.getElementById('compraCom').addEventListener('change', (e) => {
+            const isConjunto = e.target.value === 'conjunto';
+            const stepDados = document.getElementById('stepDados');
+            const boxComprador2 = document.getElementById('boxComprador2');
+            
+            if (e.target.value) {
+                stepDados.classList.remove('hidden');
+                boxComprador2.classList.toggle('hidden', !isConjunto);
+                document.getElementById('labelIdade1').textContent = isConjunto ? 'Idade Comprador 1' : 'Sua Idade';
+                document.getElementById('labelRenda1').textContent = isConjunto ? 'Renda Comprador 1' : 'Sua Renda Mensal';
+            } else {
+                stepDados.classList.add('hidden');
+            }
+            checkStepProf();
+        });
+
+        // Monitorar campos para mostrar próximo passo
+        ['idade1', 'renda1', 'idade2', 'renda2', 'estado'].forEach(id => {
+            document.getElementById(id).addEventListener('input', checkStepProf);
+        });
+
+        document.getElementById('estado').addEventListener('change', checkStepProf);
+
+        // Regime de Trabalho
+        document.getElementById('regimeTrabalho').addEventListener('change', (e) => {
+            const boxFgts = document.getElementById('boxFgts');
+            boxFgts.classList.toggle('hidden', e.target.value !== 'clt3');
+        });
+
+        // Botão Gerar Diagnóstico
+        document.getElementById('btnGerarDiagnostico').addEventListener('click', gerarDiagnostico);
+
+        // Seletor de Prazo
+        document.querySelectorAll('.prazo-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.prazo-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.prazoSelecionado = parseInt(btn.dataset.meses);
+            });
+        });
+
+        // Botão Calcular Fluxo
+        document.getElementById('btnCalcularFluxo').addEventListener('click', calcularFluxo);
+
+        // Botão Limpar
+        document.getElementById('btnLimpar').addEventListener('click', () => {
+            if(confirm('Deseja realmente reiniciar a simulação?')) location.reload();
+        });
+    }
+
+    function checkStepProf() {
+        const compraCom = document.getElementById('compraCom').value;
+        const r1 = parseMoney(document.getElementById('renda1').value);
+        const i1 = document.getElementById('idade1').value;
+        const estado = document.getElementById('estado').value;
+        
+        let valid = compraCom && r1 > 0 && i1 >= 18 && estado;
+        
+        if (compraCom === 'conjunto') {
+            const r2 = parseMoney(document.getElementById('renda2').value);
+            const i2 = document.getElementById('idade2').value;
+            valid = valid && r2 > 0 && i2 >= 18;
+        }
+
+        document.getElementById('stepProf').classList.toggle('hidden', !valid);
+    }
+
+    // Lógica de Negócio
+    function getTaxaMCMV(rendaTotal, cotista, uf) {
+        const isPrivilegiada = CONFIG.REGIOES_PRIVILEGIADAS.includes(uf);
+        let faixa, taxa;
+
+        if (rendaTotal <= 2640) {
+            faixa = 1;
+            taxa = cotista ? 4.00 : 5.00;
+        } else if (rendaTotal <= 4400) {
+            faixa = 1.5;
+            taxa = cotista ? 5.50 : 6.50;
+        } else if (rendaTotal <= 8000) {
+            faixa = 2;
+            taxa = cotista ? 7.66 : 8.16;
+        } else {
+            faixa = 3;
+            taxa = isPrivilegiada ? 9.16 : 8.16;
+        }
+        return { faixa, taxa };
+    }
+
+    function gerarDiagnostico() {
+        const r1 = parseMoney(document.getElementById('renda1').value);
+        const r2 = parseMoney(document.getElementById('renda2').value);
+        const i1 = parseInt(document.getElementById('idade1').value);
+        const i2 = parseInt(document.getElementById('idade2').value) || 0;
+        const uf = document.getElementById('estado').value;
+        const cotista = document.getElementById('regimeTrabalho').value === 'clt3';
+        const fgts = parseMoney(document.getElementById('fgtsVal').value);
+        const ato = parseMoney(document.getElementById('valorAto').value);
+
+        const rendaTotal = r1 + r2;
+        const idadeMedia = i2 > 0 ? Math.round((i1 + i2) / 2) : i1;
+        const { faixa, taxa } = getTaxaMCMV(rendaTotal, cotista, uf);
+
+        // Cálculo de Financiamento (Price)
+        const parcelaMax = rendaTotal * CONFIG.PERCENTUAL_COMPROMETIMENTO;
+        const taxaMensal = taxa / 12 / 100;
+        const prazoMaxIdade = (80 - idadeMedia) * 12;
+        const n = Math.min(CONFIG.PRAZO_MAX_MESES, prazoMaxIdade);
+        
+        const capFinanciamento = (parcelaMax * (1 - Math.pow(1 + taxaMensal, -n))) / taxaMensal;
+        const tetoFaixa = CONFIG.TETOS[faixa];
+        const financiamentoMaximo = Math.min(capFinanciamento, tetoFaixa * CONFIG.LTV_MAX);
+
+        state.dadosDiagnostico = { faixa, taxa, rendaTotal, financiamentoMaximo, tetoFaixa, fgts, ato, parcelaMax };
+
+        renderDiagnostico();
+    }
+
+    function renderDiagnostico() {
+        const d = state.dadosDiagnostico;
+        const container = document.getElementById('diagnosticoResumo');
+        
+        container.innerHTML = `
+            <div class="highlight-box">
+                <div class="highlight-label">Capacidade de Financiamento</div>
+                <div class="highlight-value">${formatMoney(d.financiamentoMaximo)}</div>
+            </div>
+            <div class="grid grid-2">
+                <div class="result-item">
+                    <span class="result-label">Faixa MCMV</span>
+                    <span class="result-value">Faixa ${d.faixa}</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Taxa de Juros</span>
+                    <span class="result-value">${d.taxa.toFixed(2)}% a.a.</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Teto do Imóvel</span>
+                    <span class="result-value">${formatMoney(d.tetoFaixa)}</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Parcela Máxima</span>
+                    <span class="result-value">${formatMoney(d.parcelaMax)}</span>
+                </div>
+            </div>
+        `;
+
+        document.getElementById('diagnosticoContainer').classList.remove('hidden');
+        document.getElementById('diagnosticoContainer').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function calcularFluxo() {
+        const valorImovel = parseMoney(document.getElementById('valorImovel').value);
+        if (!valorImovel) return alert('Informe o valor do imóvel');
+        if (!state.prazoSelecionado) return alert('Selecione o prazo de entrega');
+
+        const d = state.dadosDiagnostico;
+        if (valorImovel > d.tetoFaixa) {
+            const aviso = document.getElementById('avisoTeto');
+            aviso.textContent = `⚠️ Valor acima do teto para sua faixa (${formatMoney(d.tetoFaixa)})`;
+            aviso.style.display = 'block';
+            return;
+        }
+
+        const financiamentoReal = Math.min(d.financiamentoMaximo, valorImovel * CONFIG.LTV_MAX);
+        const entradaTotal = valorImovel - financiamentoReal;
+        const faltante = Math.max(0, entradaTotal - d.fgts - d.ato);
+        const parcelaObra = faltante / state.prazoSelecionado;
+        const ultrapassa = parcelaObra > d.parcelaMax;
+
+        const resultadoDiv = document.getElementById('fluxoResultado');
+        resultadoDiv.innerHTML = `
+            <div class="card fade-in" style="border-top: 4px solid ${ultrapassa ? 'var(--danger)' : 'var(--primary)'};">
+                <h3 class="section-title"><i data-lucide="trending-up"></i> Resultado do Fluxo</h3>
+                <div class="result-item">
+                    <span class="result-label">Entrada Total</span>
+                    <span class="result-value">${formatMoney(entradaTotal)}</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Financiamento Bancário</span>
+                    <span class="result-value">${formatMoney(financiamentoReal)}</span>
+                </div>
+                <div class="highlight-box" style="background: ${ultrapassa ? '#fef2f2' : '#f0fdf4'}">
+                    <div class="highlight-label" style="color: ${ultrapassa ? 'var(--danger)' : 'var(--primary-dark)'}">
+                        Parcela de Obra (${state.prazoSelecionado}x)
+                    </div>
+                    <div class="highlight-value" style="color: ${ultrapassa ? 'var(--danger)' : 'var(--primary-dark)'}">
+                        ${formatMoney(parcelaObra)}
+                    </div>
+                    <p style="font-size: 12px; margin-top: 8px; color: ${ultrapassa ? 'var(--danger)' : 'var(--primary-dark)'}">
+                        ${ultrapassa ? '⚠️ Parcela acima de 30% da sua renda!' : '✅ Parcela dentro do seu orçamento.'}
+                    </p>
+                </div>
+            </div>
+        `;
+        resultadoDiv.classList.remove('hidden');
+        lucide.createIcons();
+        resultadoDiv.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Utilitários
+    function setupMasks() {
+        document.querySelectorAll('.money-mask').forEach(input => {
+            input.addEventListener('input', (e) => {
+                let value = e.target.value.replace(/\D/g, '');
+                value = (value / 100).toLocaleString('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL'
+                });
+                e.target.value = value === 'R$ 0,00' ? '' : value;
+            });
+        });
+    }
+
+    function parseMoney(text) {
+        if (!text) return 0;
+        return parseFloat(text.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+    }
+
+    function formatMoney(value) {
+        return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+</script>
+</body>
+</html>
