@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador Imobiliário Pro v7 - MCMV Oficial</title>
+    <title>Simulador Imobiliário Pro v7.2 - MCMV Oficial</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
@@ -122,7 +122,7 @@
         .prazo-btn span { display: block; font-weight: 700; font-size: 14px; }
         .prazo-btn.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary-dark); }
 
-        .hidden { display: none; }
+        .hidden { display: none !important; }
         .fade-in { animation: fadeIn 0.4s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         
@@ -138,10 +138,10 @@
     <div class="consent-card">
         <h2><i data-lucide="alert-triangle"></i> ATENÇÃO</h2>
         <p>Antes de prosseguir, esteja ciente de que:</p>
-        <ul>
-            <li>Este é um simulador apenas para fins educativos e estimativas financeiras referente à aquisição de imóveis na planta pelo programa Minha Casa Minha Vida;</li>
-            <li>Usamos valores pré-programados, como 30% da renda mensal para parcelas da entrada e 100% da renda para intermediárias/anuais/chaves;</li>
-            <li>Valores reais, condições de pagamento e detalhes deverão ser verificados diretamente com o seu corretor responsável.</li>
+        <ul style="text-align: left; margin-bottom: 25px; padding-left: 20px;">
+            <li style="font-size: 14px; color: var(--text-muted); margin-bottom: 10px;">Este é um simulador apenas para fins educativos e estimativas financeiras referente à aquisição de imóveis na planta pelo programa Minha Casa Minha Vida;</li>
+            <li style="font-size: 14px; color: var(--text-muted); margin-bottom: 10px;">Usamos valores pré-programados, como 30% da renda mensal para parcelas da entrada e 100% da renda para intermediárias/anuais/chaves;</li>
+            <li style="font-size: 14px; color: var(--text-muted); margin-bottom: 10px;">Valores reais, condições de pagamento e detalhes deverão ser verificados diretamente com o seu corretor responsável.</li>
         </ul>
         <button id="btnConcordo" class="btn btn-primary">Sim. De acordo</button>
     </div>
@@ -269,7 +269,7 @@
                 <div id="diagnosticoResumo" class="diag-container"></div>
             </section>
 
-            <!-- BLOCO DE SIMULAÇÃO (REFORMULADO v7) -->
+            <!-- BLOCO DE SIMULAÇÃO -->
             <section id="blocoSimulacao" class="card bloco-simulacao fade-in">
                 <h3 class="section-title"><i data-lucide="calculator"></i> 💡 Simular Fluxo de Entrada</h3>
                 <div class="grid">
@@ -279,22 +279,21 @@
                         <div id="avisoTeto" style="font-size: 12px; color: var(--danger); font-weight: 600; margin-top: 4px; display: none;"></div>
                     </div>
                     
-                    <!-- Valor do Ato -->
                     <div class="form-group" style="background: #f0f9ff; padding: 15px; border-radius: var(--radius-md); border: 1px solid #bae6fd;">
                         <label for="valorAto">💳 Valor do Ato (1ª Parcela)</label>
                         <div class="input-wrapper"><i data-lucide="wallet"></i><input type="text" id="valorAto" class="money-mask" placeholder="R$ 0,00"></div>
-                        <p class="helper-text" style="color: #0369a1; font-weight: 500;">💡 Quanto maior o valor do Ato, menor os valores das parcelas mensais.</p>
+                        <p style="color: #0369a1; font-weight: 500; font-size: 12px; margin-top: 5px;">💡 Quanto maior o valor do Ato, menor os valores das parcelas mensais.</p>
                     </div>
 
-                    <!-- Intermediárias -->
                     <div class="form-group" style="background: #fffbeb; padding: 15px; border-radius: var(--radius-md); border: 1px solid #fef3c7;">
                         <label for="usaIntermediarias">📅 Deseja incluir estimativa com intermediárias/anuais/chaves?</label>
                         <div class="input-wrapper"><i data-lucide="help-circle"></i>
                             <select id="usaIntermediarias">
                                 <option value="nao">Não. Apenas parcelas mensais</option>
-                                <option value="sim">Sim, quero incluir</select>
+                                <option value="sim">Sim, quero incluir</option>
+                            </select>
                         </div>
-                        <p class="helper-text" style="color: #b45309; font-weight: 500;">💡 Valores serão estimados conforme prazo escolhido. Cada empreendimento possui regras próprias.</p>
+                        <p style="color: #b45309; font-weight: 500; font-size: 12px; margin-top: 5px;">💡 Valores serão estimados conforme prazo escolhido. Cada empreendimento possui regras próprias.</p>
                     </div>
 
                     <div class="form-group">
@@ -344,11 +343,14 @@
     }
 
     function setupEventListeners() {
-        document.getElementById('btnConcordo').addEventListener('click', () => {
-            document.getElementById('consentBlock').classList.add('hidden');
-            document.getElementById('mainContent').classList.remove('hidden');
-            window.scrollTo(0,0);
-        });
+        const btnConcordo = document.getElementById('btnConcordo');
+        if (btnConcordo) {
+            btnConcordo.onclick = () => {
+                document.getElementById('consentBlock').classList.add('hidden');
+                document.getElementById('mainContent').classList.remove('hidden');
+                window.scrollTo(0,0);
+            };
+        }
 
         document.getElementById('compraCom').addEventListener('change', (e) => {
             const val = e.target.value; const isConjunto = val === 'conjunto';
@@ -441,21 +443,21 @@
         document.getElementById('diagnosticoContainer').classList.remove('hidden');
         document.getElementById('diagnosticoContainer').scrollIntoView({ behavior: 'smooth' });
         
-        // Puxar valor guardado para o Ato
         if (guardado > 0) document.getElementById('valorAto').value = formatMoney(guardado);
-        
         lucide.createIcons();
     }
 
     function calcularFluxo() {
         const valorImovel = parseMoney(document.getElementById('valorImovel').value);
-        const valorAto = parseMoney(document.getElementById('valorAto').value) || 1000; // Mínimo 1000
+        const valorAto = parseMoney(document.getElementById('valorAto').value) || 1000;
         const usaInter = document.getElementById('usaIntermediarias').value === 'sim';
         
         if (!valorImovel) return alert('Informe o valor do imóvel');
         if (!state.prazoSelecionado) return alert('Selecione o prazo de entrega');
 
         const d = state.dadosDiagnostico;
+        if (!d) return alert('Por favor, gere o diagnóstico primeiro.');
+
         if (valorImovel > d.teto) {
             document.getElementById('avisoTeto').textContent = `⚠️ Valor acima do teto (${formatMoney(d.teto)})`;
             document.getElementById('avisoTeto').style.display = 'block';
@@ -465,7 +467,6 @@
         const financiamentoEstimado = Math.min(d.capFinanciamento, valorImovel * CONFIG.LTV_MAX);
         const entradaTotal = valorImovel - financiamentoEstimado - d.fgts;
         
-        // Lógica de Intermediárias
         let numInter = 0;
         if (usaInter) {
             if (state.prazoSelecionado <= 12) numInter = 1;
@@ -473,18 +474,16 @@
             else numInter = 3;
         }
         
-        const valorTotalInter = numInter * d.rendaTotal; // 100% da renda por intermediária
+        const valorTotalInter = numInter * d.rendaTotal;
         const faltanteMensal = Math.max(0, entradaTotal - valorAto - valorTotalInter);
         const parcelaMensal = faltanteMensal / state.prazoSelecionado;
         const ultrapassa = parcelaMensal > d.parcelaMax;
         
-        // Saldo Restante
         let saldoRestante = 0;
         if (ultrapassa) {
             saldoRestante = faltanteMensal - (d.parcelaMax * state.prazoSelecionado);
         }
 
-        // Previsão de Entrega
         const hoje = new Date();
         const previsao = new Date(hoje.getFullYear(), hoje.getMonth() + state.prazoSelecionado, 1);
         const mesesNomes = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
