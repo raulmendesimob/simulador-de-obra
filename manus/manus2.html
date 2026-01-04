@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador Imobiliário Pro v12 - Raul Mendes Imob</title>
+    <title>Simulador Imobiliário Pro v14 - Raul Mendes Imob</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         :root {
             --primary: #059669;
@@ -17,6 +18,7 @@
             --accent: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
+            --orange: #d97706;
             --text-main: #1e293b;
             --text-muted: #64748b;
             --radius-lg: 24px;
@@ -81,6 +83,8 @@
         .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 28px; border-radius: var(--radius-md); font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; border: none; width: 100%; }
         .btn-primary { background: var(--primary); color: #fff; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.15); }
         .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        .btn-secondary { background: var(--secondary); color: #fff; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15); }
+        .btn-warning { background: var(--orange); color: #fff; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.15); }
         .btn-outline { background: transparent; border: 1.5px solid var(--primary); color: var(--primary); }
         .btn-outline:hover { background: var(--primary-light); }
         .btn-danger-real { background: var(--danger); color: #fff; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15); margin-top: 20px; }
@@ -138,12 +142,44 @@
         .mini-bloco-titulo { font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
         .inter-item { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; background: #ffffff; border-radius: 8px; margin-bottom: 8px; border: 1px solid #edf2f7; }
 
+        /* Blocos Expansíveis v13 */
+        .bloco-expansivel { background: #fff; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid #e2e8f0; margin-bottom: 16px; box-shadow: var(--shadow-lg); }
+        .bloco-header-exp { padding: 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; }
+        .bloco-header-exp:hover { background: #f8fafc; }
+        .bloco-header-exp.incc { background: #fffbeb; border-bottom: 2px solid var(--warning); }
+        .bloco-header-exp.juros { background: #fff7ed; border-bottom: 2px solid var(--orange); }
+        .bloco-header-exp.pdf { background: #eff6ff; border-bottom: 2px solid var(--secondary); }
+        .bloco-header-exp h4 { font-family: 'Poppins'; font-size: 16px; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
+        .bloco-header-exp i { width: 20px; height: 20px; }
+        .toggle-icon { font-size: 20px; font-weight: bold; transition: transform 0.3s; }
+        .toggle-icon.open { transform: rotate(180deg); }
+        .bloco-conteudo-exp { display: none; padding: 20px; background: #fafafa; }
+        .bloco-conteudo-exp.open { display: block; }
+
+        /* Tabela de Juros */
+        .juros-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+        .juros-table th, .juros-table td { padding: 10px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        .juros-table th { background: #f8fafc; font-weight: 700; font-size: 13px; text-transform: uppercase; color: var(--text-muted); }
+        .juros-table td { font-size: 14px; }
+
         .hidden { display: none !important; }
         .fade-in { animation: fadeIn 0.4s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         
         .color-azul { color: #3b82f6 !important; }
         .color-laranja { color: #f59e0b !important; }
+
+        .obs-box { background: #fffbeb; border: 1px solid #fde68a; padding: 12px; border-radius: var(--radius-md); font-size: 13px; color: var(--text-main); margin-top: 12px; line-height: 1.5; }
+        .obs-box a { color: var(--secondary); text-decoration: none; font-weight: 600; }
+        .obs-box a:hover { text-decoration: underline; }
+        
+        /* INCC Result Sections v14 */
+        .incc-secao { background: #fff; border-radius: var(--radius-md); padding: 16px; margin-bottom: 16px; border: 1px solid #e2e8f0; }
+        .incc-secao-titulo { font-size: 12px; text-transform: uppercase; font-weight: 700; color: var(--orange); margin-bottom: 12px; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
+        .incc-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; font-size: 14px; border-bottom: 1px solid #f1f5f9; }
+        .incc-row:last-child { border-bottom: none; }
+        .incc-label { color: var(--text-muted); }
+        .incc-valor { font-weight: 700; color: var(--text-main); }
     </style>
 </head>
 <body>
@@ -429,6 +465,72 @@
             </section>
 
             <div id="fluxoResultado" class="hidden"></div>
+
+            <!-- BLOCOS EXPANSÍVEIS: INCC, JUROS E PDF -->
+            <div id="blocosExtras" class="hidden">
+                <!-- INCC -->
+                <div class="bloco-expansivel">
+                    <div class="bloco-header-exp incc" onclick="toggleBloco('incc')">
+                        <h4><i data-lucide="trending-up"></i> Estimativa de INCC</h4>
+                        <span class="toggle-icon" id="toggleINCC">▼</span>
+                    </div>
+                    <div class="bloco-conteudo-exp" id="conteudoINCC">
+                        <div class="grid">
+                            <div class="form-group">
+                                <label for="inccTaxa">Taxa média mensal do INCC (%)</label>
+                                <input type="number" id="inccTaxa" step="0.01" value="0.50" style="padding-left: 16px;">
+                            </div>
+                            <button class="btn btn-warning" onclick="calcularINCC()"><i data-lucide="calculator"></i> CALCULAR INCC</button>
+                        </div>
+                        <div id="resultadoINCC" class="hidden" style="margin-top: 16px;"></div>
+                    </div>
+                </div>
+
+                <!-- JUROS DE OBRA -->
+                <div class="bloco-expansivel">
+                    <div class="bloco-header-exp juros" onclick="toggleBloco('juros')">
+                        <h4><i data-lucide="percent"></i> Juros de Obra (Tabela)</h4>
+                        <span class="toggle-icon" id="toggleJuros">▼</span>
+                    </div>
+                    <div class="bloco-conteudo-exp" id="conteudoJuros">
+                        <div class="grid grid-2">
+                            <div class="form-group">
+                                <label for="trTaxa">TR - Taxa Referencial (%)</label>
+                                <input type="number" id="trTaxa" step="0.01" value="0.17" style="padding-left: 16px;">
+                            </div>
+                            <div class="form-group">
+                                <label for="taxasAdm">Taxas Adm + Seguros (R$)</label>
+                                <input type="text" id="taxasAdm" class="money-mask" placeholder="R$ 0,00">
+                            </div>
+                            <div class="form-group">
+                                <label for="passoTabela">Intervalo da Tabela</label>
+                                <select id="passoTabela" style="padding-left: 16px;">
+                                    <option value="3">3 em 3%</option>
+                                    <option value="5">5 em 5%</option>
+                                    <option value="10">10 em 10%</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button class="btn btn-warning" onclick="calcularJuros()"><i data-lucide="calculator"></i> CALCULAR JUROS DE OBRA</button>
+                        <div id="resultadoJuros" class="hidden" style="margin-top: 16px;"></div>
+                    </div>
+                </div>
+
+                <!-- GERAR PDF -->
+                <div id="blocoPDF" class="bloco-expansivel hidden">
+                    <div class="bloco-header-exp pdf" onclick="toggleBloco('pdf')">
+                        <h4><i data-lucide="file-text"></i> Gerar PDF da Simulação</h4>
+                        <span class="toggle-icon" id="togglePDF">▼</span>
+                    </div>
+                    <div class="bloco-conteudo-exp" id="conteudoPDF">
+                        <div class="obs-box" style="margin-bottom: 16px;">
+                            <strong>📄 Resumo da Simulação</strong><br>
+                            <p style="margin-top: 8px;">Você pode gerar um PDF completo com todos os detalhes da simulação, incluindo a análise de perfil, fluxo de entrada, estimativa de INCC e tabela de juros de obra.</p>
+                        </div>
+                        <button class="btn btn-secondary" onclick="gerarPDF()"><i data-lucide="download"></i> GERAR PDF COMPLETO</button>
+                    </div>
+                </div>
+            </div>
         </div>
         <div style="text-align: center; margin-bottom: 40px;"><button id="btnLimpar" class="btn btn-danger-real">🗑️ REINICIAR SIMULADOR</button></div>
     </main>
@@ -443,7 +545,14 @@
         IDADE_LIMITE_CAIXA: 80.5
     };
 
-    let state = { dadosDiagnostico: null, prazoSelecionado: null, simType: 'estimada' };
+    let state = { 
+        dadosDiagnostico: null, 
+        prazoSelecionado: null, 
+        simType: 'estimada', 
+        ultimoCalculo: null,
+        inccCalculado: false,
+        jurosCalculado: false
+    };
 
     document.addEventListener('DOMContentLoaded', () => { 
         lucide.createIcons(); 
@@ -451,6 +560,8 @@
         popularPrazosObra();
         setupEventListeners(); 
         setupMasks(); 
+        // Preencher taxas padrão
+        document.getElementById('taxasAdm').value = formatMoney(65);
     });
 
     function popularIdades() {
@@ -578,6 +689,9 @@
         document.getElementById('blocoSimulacaoDetalhada').classList.add('hidden');
         document.getElementById('blocoEscolha').classList.remove('hidden');
         document.getElementById('fluxoResultado').classList.add('hidden');
+        document.getElementById('blocosExtras').classList.add('hidden');
+        state.inccCalculado = false;
+        state.jurosCalculado = false;
     }
 
     function checkStepFinanceiro() {
@@ -655,6 +769,7 @@
             document.getElementById('valorAto').value = formatMoney(guardado);
             document.getElementById('valorAtoDet').value = formatMoney(guardado);
         }
+        
         lucide.createIcons();
     }
 
@@ -671,6 +786,12 @@
         const entradaTotal = valorImovel - financiamentoEstimado - d.fgts;
         const parcelaMensal = (entradaTotal - valorAto) / state.prazoSelecionado;
         const ultrapassa = parcelaMensal > d.parcelaMax;
+
+        state.ultimoCalculo = {
+            valorImovel, financiamento: financiamentoEstimado, fgts: d.fgts, entradaTotal, 
+            ato: valorAto, mensal: parcelaMensal, prazo: state.prazoSelecionado, ultrapassa,
+            intermediarias: []
+        };
 
         renderResultado(valorImovel, financiamentoEstimado, d.fgts, entradaTotal, valorAto, parcelaMensal, state.prazoSelecionado, 0, 0, ultrapassa);
     }
@@ -692,15 +813,25 @@
         const entradaTotal = valorReal - financiamentoAprovado - d.fgts;
         
         let somaInter = 0;
+        let intermediarias = [];
         if (temInterm) {
-            document.querySelectorAll('.inter-val').forEach(input => {
-                somaInter += parseMoney(input.value);
+            const dates = document.querySelectorAll('.inter-date');
+            const vals = document.querySelectorAll('.inter-val');
+            dates.forEach((dateEl, idx) => {
+                const val = parseMoney(vals[idx].value);
+                somaInter += val;
+                intermediarias.push({ data: dateEl.value, valor: val });
             });
         }
 
         const saldoParaMensais = entradaTotal - valorAto - somaInter;
         const parcelaMensal = Math.max(0, saldoParaMensais / prazo);
         const ultrapassa = parcelaMensal > d.parcelaMax;
+
+        state.ultimoCalculo = {
+            valorImovel: valorReal, financiamento: financiamentoAprovado, fgts: d.fgts, entradaTotal, 
+            ato: valorAto, mensal: parcelaMensal, prazo, ultrapassa, somaInter, aceitaPos, intermediarias
+        };
 
         renderResultado(valorReal, financiamentoAprovado, d.fgts, entradaTotal, valorAto, parcelaMensal, prazo, 0, somaInter, ultrapassa, 0, aceitaPos);
     }
@@ -745,8 +876,228 @@
             </div>
         `;
         resDiv.classList.remove('hidden');
+        document.getElementById('blocosExtras').classList.remove('hidden');
         resDiv.scrollIntoView({ behavior: 'smooth' });
         lucide.createIcons();
+    }
+
+    function toggleBloco(tipo) {
+        const tipoMap = { 'incc': 'INCC', 'juros': 'Juros', 'pdf': 'PDF' };
+        const tipoId = tipoMap[tipo];
+        const conteudo = document.getElementById(`conteudo${tipoId}`);
+        const toggle = document.getElementById(`toggle${tipoId}`);
+        if (conteudo && toggle) {
+            conteudo.classList.toggle('open');
+            toggle.classList.toggle('open');
+        }
+    }
+
+    function calcularINCC() {
+        if (!state.ultimoCalculo) return alert('Calcule o fluxo de entrada primeiro.');
+        
+        const taxa = parseFloat(document.getElementById('inccTaxa').value) / 100 || 0.005;
+        const { mensal, prazo, intermediarias = [], ato, aceitaPos = false } = state.ultimoCalculo;
+        
+        // Cálculo Mensais
+        const totalSemCorrecao = mensal * prazo;
+        let totalCorrigido = 0;
+        for (let mes = 1; mes <= prazo; mes++) {
+            const mesesRestantes = prazo - mes;
+            const correcao = mensal * Math.pow(1 + taxa, mesesRestantes);
+            totalCorrigido += correcao;
+        }
+        const aumentoMedio = (totalCorrigido - totalSemCorrecao) / prazo;
+        const ultimaParcela = mensal * Math.pow(1 + taxa, prazo - 1);
+        
+        // Cálculo Intermediárias
+        let htmlInter = '';
+        if (intermediarias.length > 0) {
+            const hoje = new Date();
+            let interCorrigidas = [];
+            intermediarias.forEach((inter, idx) => {
+                const [mesAno, anoAno] = inter.data.split('/');
+                const mesesNomes = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+                const mesIdx = mesesNomes.indexOf(mesAno);
+                const ano = 2000 + parseInt(anoAno);
+                const dataPgto = new Date(ano, mesIdx, 1);
+                const mesesAteData = Math.max(0, Math.round((dataPgto - hoje) / (1000 * 60 * 60 * 24 * 30)));
+                const valorCorrigido = inter.valor * Math.pow(1 + taxa, mesesAteData);
+                interCorrigidas.push({ ordem: idx + 1, valor: inter.valor, corrigido: valorCorrigido });
+            });
+            
+            htmlInter = `
+                <div class="incc-secao">
+                    <div class="incc-secao-titulo"><i data-lucide="calendar-check"></i> Intermediárias</div>
+                    <div class="incc-row"><span class="incc-label">Valor Total em Contrato</span><span class="incc-valor">${formatMoney(intermediarias.reduce((s, i) => s + i.valor, 0))}</span></div>
+            `;
+            interCorrigidas.forEach(ic => {
+                htmlInter += `<div class="incc-row"><span class="incc-label">${ic.ordem}ª Parcela Corrigida</span><span class="incc-valor">${formatMoney(ic.corrigido)}</span></div>`;
+            });
+            htmlInter += `</div>`;
+        }
+        
+        let htmlPosObra = '';
+        if (aceitaPos) {
+            htmlPosObra = `
+                <div class="incc-secao">
+                    <div class="incc-secao-titulo"><i data-lucide="home"></i> Saldo Pós-Obra</div>
+                    <div class="incc-row"><span class="incc-label" style="font-size: 13px;">Verificar com corretor a forma de correção do saldo pós-chaves.</span></div>
+                </div>
+            `;
+        }
+        
+        const html = `
+            <div class="incc-secao">
+                <div class="incc-secao-titulo"><i data-lucide="calendar"></i> Parcelas Mensais</div>
+                <div class="incc-row"><span class="incc-label">Valor em Contrato (cada)</span><span class="incc-valor">${formatMoney(mensal)}</span></div>
+                <div class="incc-row"><span class="incc-label">Aumento Médio Estimado (cada)</span><span class="incc-valor">+${formatMoney(aumentoMedio)}</span></div>
+                <div class="incc-row"><span class="incc-label">Última Parcela Estimada</span><span class="incc-valor">${formatMoney(ultimaParcela)}</span></div>
+            </div>
+            ${htmlInter}
+            ${htmlPosObra}
+            <div class="obs-box" style="margin-top: 16px;">
+                * Valores aproximados para fins de simulação e entendimento.<br>
+                * Taxa INCC utilizada: <strong>${(taxa * 100).toFixed(2)}%</strong> ao mês.<br>
+                * INCC atualizado disponível em: <a href="https://portal.fgv.br/noticias/incc-m-2025" target="_blank">portal.fgv.br/noticias/incc-m-2025</a>
+            </div>
+        `;
+        
+        document.getElementById('resultadoINCC').innerHTML = html;
+        document.getElementById('resultadoINCC').classList.remove('hidden');
+        state.inccCalculado = true;
+        checkPDFVisibility();
+        lucide.createIcons();
+    }
+
+    function calcularJuros() {
+        if (!state.ultimoCalculo) return alert('Calcule o fluxo de entrada primeiro.');
+        
+        const financiamento = state.ultimoCalculo.financiamento;
+        const taxaEfetiva = state.dadosDiagnostico.taxa;
+        const tr = parseFloat(document.getElementById('trTaxa').value) || 0;
+        const taxas = parseMoney(document.getElementById('taxasAdm').value);
+        const passo = parseInt(document.getElementById('passoTabela').value) || 10;
+        
+        const jurosMensal = (taxaEfetiva / 100) / 12;
+        const trMensal = tr / 100;
+        
+        const percList = [];
+        for (let p = passo; p <= 100; p += passo) percList.push(p);
+        if (percList[percList.length - 1] !== 100) percList.push(100);
+        
+        const rows = percList.map(perc => {
+            const liberado = financiamento * (perc / 100);
+            const parcela = (liberado * jurosMensal) + (liberado * trMensal) + taxas;
+            return { perc, parcela };
+        });
+        
+        let html = `
+            <table class="juros-table">
+                <thead>
+                    <tr>
+                        <th>% da Obra</th>
+                        <th>Parcela Estimada (mês)</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+        rows.forEach(r => {
+            html += `<tr><td><strong>${r.perc}%</strong></td><td>${formatMoney(r.parcela)}</td></tr>`;
+        });
+        html += `
+                </tbody>
+            </table>
+            <div class="obs-box" style="margin-top: 16px;">
+                * Valores aproximados para fins de simulação e entendimento.<br>
+                * Valor estimado de <strong>${formatMoney(taxas)}</strong> para taxas administrativas e seguros obrigatórios (MIP/DFI).<br>
+                * A TR possui variação mensal. Valor utilizado apenas para fins estimativos.<br>
+                * Consulta da TR atualizada: <a href="https://www.debit.com.br/tabelas/tr-bacen" target="_blank">debit.com.br/tabelas/tr-bacen</a>
+            </div>
+        `;
+        
+        document.getElementById('resultadoJuros').innerHTML = html;
+        document.getElementById('resultadoJuros').classList.remove('hidden');
+        state.jurosCalculado = true;
+        checkPDFVisibility();
+    }
+
+    function checkPDFVisibility() {
+        if (state.inccCalculado && state.jurosCalculado) {
+            document.getElementById('blocoPDF').classList.remove('hidden');
+        }
+    }
+
+    function gerarPDF() {
+        if (!state.ultimoCalculo) return alert('Calcule o fluxo de entrada primeiro.');
+        if (!window.jspdf || !window.jspdf.jsPDF) return alert('Biblioteca do PDF não carregou.');
+        
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ unit: "mm", format: "a4" });
+        
+        const dataDoc = new Date().toLocaleDateString("pt-BR");
+        
+        const { valorImovel, financiamento, fgts, entradaTotal, ato, mensal, prazo } = state.ultimoCalculo;
+        const d = state.dadosDiagnostico;
+        
+        let y = 14;
+        const left = 14;
+        const right = 196;
+        
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(14);
+        doc.text("SIMULAÇÃO FINANCEIRA – IMÓVEL NA PLANTA", 105, y, { align: "center" });
+        y += 7;
+        
+        doc.setDrawColor(200);
+        doc.line(left, y, right, y);
+        y += 6;
+        
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(11);
+        doc.text("Identificação", left, y);
+        y += 6;
+        
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.text(`Corretor(a): Raul Mendes | Instagram: @raulmendes.imob`, left, y); y += 5;
+        doc.text(`Data do documento: ${dataDoc}`, left, y); y += 5;
+        
+        y += 2;
+        doc.setDrawColor(220);
+        doc.line(left, y, right, y);
+        y += 6;
+        
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(11);
+        doc.text("Resumo Financeiro", left, y);
+        y += 6;
+        
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.text(`Valor do imóvel: ${formatMoney(valorImovel)}`, left, y); y += 5;
+        doc.text(`Valor do financiamento: ${formatMoney(financiamento)}`, left, y); y += 5;
+        doc.text(`FGTS considerado: ${formatMoney(fgts)}`, left, y); y += 5;
+        doc.text(`Renda familiar: ${formatMoney(d.rendaTotal)}`, left, y); y += 5;
+        doc.text(`Faixa MCMV: ${d.faixa} | Taxa: ${d.taxa.toFixed(2)}% ao ano`, left, y); y += 5;
+        
+        y += 2;
+        doc.setDrawColor(220);
+        doc.line(left, y, right, y);
+        y += 6;
+        
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(11);
+        doc.text("Fluxo de Pagamento – Entrada", left, y);
+        y += 6;
+        
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.text(`Entrada Total: ${formatMoney(entradaTotal)}`, left, y); y += 5;
+        doc.text(`Ato (Sinal): ${formatMoney(ato)}`, left, y); y += 5;
+        doc.text(`Mensais (${prazo}x): ${formatMoney(mensal)}`, left, y); y += 5;
+        
+        doc.save("simulacao-imobiliaria.pdf");
+        alert('PDF gerado com sucesso!');
     }
 
     function setupMasks() {
