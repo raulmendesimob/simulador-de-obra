@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador Imobiliário Pro v7.2 - MCMV Oficial</title>
+    <title>Simulador Imobiliário Pro v8 - Raul Mendes Imob</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
@@ -34,30 +34,31 @@
         body { font-family: 'Inter', sans-serif; background-color: #ffffff; color: var(--text-main); line-height: 1.6; min-height: 100vh; padding: 20px 16px; }
         .container { max-width: 700px; margin: 0 auto; }
         
-        /* Bloco de Consentimento */
+        /* Bloco de Consentimento v8 */
         #consentBlock {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.98);
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .consent-card {
-            max-width: 550px;
             background: #fff;
-            padding: 40px;
+            z-index: 9999;
+            overflow-y: auto;
+            padding: 40px 20px;
+        }
+        .consent-wrapper { max-width: 600px; margin: 0 auto; }
+        .consent-card {
+            background: #fff;
+            padding: clamp(24px, 5vw, 40px);
             border-radius: var(--radius-lg);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.08);
             text-align: center;
             border: 1px solid #f1f5f9;
         }
-        .consent-card h2 { font-family: 'Poppins'; color: var(--danger); margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .consent-card h2 { font-family: 'Poppins'; color: var(--danger); margin-bottom: 24px; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 24px; }
         .consent-card p { font-size: 15px; color: var(--text-main); margin-bottom: 15px; text-align: left; }
-        .consent-card ul { text-align: left; margin-bottom: 25px; padding-left: 20px; }
-        .consent-card li { font-size: 14px; color: var(--text-muted); margin-bottom: 10px; }
+        .consent-card ul { text-align: left; margin-bottom: 30px; padding-left: 20px; list-style: none; }
+        .consent-card li { font-size: 14px; color: var(--text-muted); margin-bottom: 12px; position: relative; padding-left: 24px; }
+        .consent-card li::before { content: '✓'; position: absolute; left: 0; color: var(--primary); font-weight: bold; }
+        .consent-footer { margin-top: 30px; font-size: 13px; color: var(--text-muted); border-top: 1px solid #f1f5f9; padding-top: 20px; }
+        .consent-footer a { color: var(--secondary); text-decoration: none; font-weight: 600; }
 
         header { text-align: center; margin-bottom: 32px; }
         header h1 { font-family: 'Poppins', sans-serif; font-size: clamp(22px, 6vw, 32px); color: var(--primary-dark); margin-bottom: 4px; }
@@ -87,7 +88,8 @@
         .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 28px; border-radius: var(--radius-md); font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; border: none; width: 100%; }
         .btn-primary { background: var(--primary); color: #fff; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.15); }
         .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
-        .btn-danger { background: transparent; color: var(--text-muted); font-size: 13px; margin-top: 10px; text-decoration: underline; }
+        .btn-danger-real { background: var(--danger); color: #fff; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15); margin-top: 20px; }
+        .btn-danger-real:hover { background: #dc2626; transform: translateY(-1px); }
 
         .diag-container { display: flex; flex-direction: column; gap: 12px; }
         .diag-item { background: #fff; border-left: 4px solid var(--secondary); padding: 16px; border-radius: 0 var(--radius-md) var(--radius-md) 0; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
@@ -97,7 +99,6 @@
         .diag-value { font-size: 15px; color: var(--text-main); }
         .diag-value strong { color: var(--primary-dark); }
 
-        /* Resultado Fluxo v7 */
         .fluxo-card { background: #fff; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid #e2e8f0; margin-top: 24px; box-shadow: var(--shadow-lg); }
         .fluxo-header { background: #f8fafc; padding: 20px; border-bottom: 1px solid #e2e8f0; text-align: center; }
         .fluxo-header h4 { font-family: 'Poppins'; color: var(--text-main); font-size: 18px; }
@@ -106,7 +107,6 @@
         .fluxo-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; font-size: 14px; }
         .fluxo-label { color: var(--text-muted); }
         .fluxo-valor { font-weight: 700; }
-        .fluxo-divider { height: 1px; background: #f1f5f9; margin: 8px 0; }
         .fluxo-secao { background: #f8fafc; padding: 16px; border-radius: var(--radius-md); margin: 16px 0; border: 1px solid #e2e8f0; }
         .fluxo-secao-titulo { font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--secondary); margin-bottom: 12px; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
         .fluxo-destaque { background: #f0fdf4; border: 1px solid #bbf7d0; padding: 20px; border-radius: var(--radius-md); margin: 16px 0; text-align: center; }
@@ -126,24 +126,34 @@
         .fade-in { animation: fadeIn 0.4s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Cores específicas solicitadas */
         .color-azul { color: #3b82f6 !important; }
         .color-laranja { color: #f59e0b !important; }
     </style>
 </head>
 <body>
 
-<!-- BLOCO DE CONSENTIMENTO -->
+<!-- BLOCO DE CONSENTIMENTO v8 -->
 <div id="consentBlock">
-    <div class="consent-card">
-        <h2><i data-lucide="alert-triangle"></i> ATENÇÃO</h2>
-        <p>Antes de prosseguir, esteja ciente de que:</p>
-        <ul style="text-align: left; margin-bottom: 25px; padding-left: 20px;">
-            <li style="font-size: 14px; color: var(--text-muted); margin-bottom: 10px;">Este é um simulador apenas para fins educativos e estimativas financeiras referente à aquisição de imóveis na planta pelo programa Minha Casa Minha Vida;</li>
-            <li style="font-size: 14px; color: var(--text-muted); margin-bottom: 10px;">Usamos valores pré-programados, como 30% da renda mensal para parcelas da entrada e 100% da renda para intermediárias/anuais/chaves;</li>
-            <li style="font-size: 14px; color: var(--text-muted); margin-bottom: 10px;">Valores reais, condições de pagamento e detalhes deverão ser verificados diretamente com o seu corretor responsável.</li>
-        </ul>
-        <button id="btnConcordo" class="btn btn-primary">Sim. De acordo</button>
+    <div class="consent-wrapper">
+        <header>
+            <h1>Simulador Imobiliário</h1>
+            <p>Módulo Comprador - Raul Mendes Imob</p>
+        </header>
+        <div class="consent-card">
+            <h2><i data-lucide="alert-triangle"></i> ATENÇÃO</h2>
+            <p>Antes de prosseguir, esteja ciente de que:</p>
+            <ul>
+                <li>Este é um simulador apenas para <strong>fins educativos e estimativas financeiras</strong> referente à aquisição de imóveis na planta pelo programa Minha Casa Minha Vida;</li>
+                <li>Usamos <strong>cálculos e fórmulas</strong> pré-estabelecidas com intuito de se aproximar da realidade;</li>
+                <li>Usamos como base de cálculos <strong>Tabela Price</strong> de Financiamento via Minha Casa Minha Vida;</li>
+                <li>Valores reais, condições de pagamento e detalhes deverão ser <strong>verificados diretamente com o seu corretor</strong> responsável.</li>
+            </ul>
+            <button id="btnConcordo" class="btn btn-primary">Sim. De acordo</button>
+            <div class="consent-footer">
+                <p>Siga no Instagram: <a href="https://instagram.com/raulmendes.imob" target="_blank">@raulmendes.imob</a></p>
+                <p>Dúvidas? <a href="mailto:suporte@suporte.com">suporte@suporte.com</a></p>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -259,13 +269,13 @@
                     <div class="input-wrapper"><i data-lucide="piggy-bank"></i><input type="text" id="fgtsVal" class="money-mask" placeholder="R$ 0,00"></div>
                 </div>
             </div>
-            <div style="margin-top: 24px;"><button id="btnGerarDiagnostico" class="btn btn-primary"><i data-lucide="bar-chart-3"></i> GERAR DIAGNÓSTICO</button></div>
+            <div style="margin-top: 24px;"><button id="btnGerarDiagnostico" class="btn btn-primary"><i data-lucide="bar-chart-3"></i> GERAR ANÁLISE DE PERFIL</button></div>
         </section>
 
         <!-- RESULTADO DO DIAGNÓSTICO -->
         <div id="diagnosticoContainer" class="hidden">
             <section class="card bloco-diagnostico fade-in">
-                <h3 class="section-title"><i data-lucide="check-circle"></i> 📊 Seu Diagnóstico MCMV</h3>
+                <h3 class="section-title"><i data-lucide="check-circle"></i> 📊 Sua Análise de Perfil MCMV</h3>
                 <div id="diagnosticoResumo" class="diag-container"></div>
             </section>
 
@@ -282,15 +292,15 @@
                     <div class="form-group" style="background: #f0f9ff; padding: 15px; border-radius: var(--radius-md); border: 1px solid #bae6fd;">
                         <label for="valorAto">💳 Valor do Ato (1ª Parcela)</label>
                         <div class="input-wrapper"><i data-lucide="wallet"></i><input type="text" id="valorAto" class="money-mask" placeholder="R$ 0,00"></div>
-                        <p style="color: #0369a1; font-weight: 500; font-size: 12px; margin-top: 5px;">💡 Quanto maior o valor do Ato, menor os valores das parcelas mensais.</p>
+                        <p style="color: #0369a1; font-weight: 500; font-size: 12px; margin-top: 5px;">💡 Quanto maior o valor do Ato, menor os valores das parcelas mensais da entrada.</p>
                     </div>
 
                     <div class="form-group" style="background: #fffbeb; padding: 15px; border-radius: var(--radius-md); border: 1px solid #fef3c7;">
                         <label for="usaIntermediarias">📅 Deseja incluir estimativa com intermediárias/anuais/chaves?</label>
                         <div class="input-wrapper"><i data-lucide="help-circle"></i>
                             <select id="usaIntermediarias">
+                                <option value="sim" selected>Sim, quero incluir</option>
                                 <option value="nao">Não. Apenas parcelas mensais</option>
-                                <option value="sim">Sim, quero incluir</option>
                             </select>
                         </div>
                         <p style="color: #b45309; font-weight: 500; font-size: 12px; margin-top: 5px;">💡 Valores serão estimados conforme prazo escolhido. Cada empreendimento possui regras próprias.</p>
@@ -311,7 +321,7 @@
             </section>
             <div id="fluxoResultado" class="hidden"></div>
         </div>
-        <div style="text-align: center; margin-bottom: 40px;"><button id="btnLimpar" class="btn btn-danger">🗑️ REINICIAR SIMULADOR</button></div>
+        <div style="text-align: center; margin-bottom: 40px;"><button id="btnLimpar" class="btn btn-danger-real">🗑️ REINICIAR SIMULADOR</button></div>
     </main>
 </div>
 
@@ -320,7 +330,8 @@
         REGIOES_S_SE_CO: ["SP", "RJ", "MG", "ES", "PR", "SC", "RS", "DF", "GO", "MT", "MS"],
         COMPROMETIMENTO: 0.30,
         LTV_MAX: 0.80,
-        PRAZO_MAX_MESES: 420
+        PRAZO_MAX_PADRAO: 420,
+        IDADE_LIMITE_CAIXA: 80.5 // 80 anos e 6 meses
     };
 
     let state = { dadosDiagnostico: null, prazoSelecionado: null };
@@ -370,6 +381,19 @@
         });
         document.getElementById('btnCalcularFluxo').addEventListener('click', calcularFluxo);
         document.getElementById('btnLimpar').addEventListener('click', () => { if(confirm('Deseja realmente reiniciar?')) location.reload(); });
+
+        // Bloqueio de Teto em tempo real
+        document.getElementById('valorImovel').addEventListener('blur', (e) => {
+            if (!state.dadosDiagnostico) return;
+            let val = parseMoney(e.target.value);
+            if (val > state.dadosDiagnostico.teto) {
+                e.target.value = formatMoney(state.dadosDiagnostico.teto);
+                document.getElementById('avisoTeto').textContent = `⚠️ Valor ajustado para o teto da sua faixa (${formatMoney(state.dadosDiagnostico.teto)})`;
+                document.getElementById('avisoTeto').style.display = 'block';
+            } else {
+                document.getElementById('avisoTeto').style.display = 'none';
+            }
+        });
     }
 
     function checkStepFinanceiro() {
@@ -422,17 +446,25 @@
 
         const { faixa, teto, taxa } = data;
         const idadeMedia = i2 > 0 ? Math.round((i1 + i2) / 2) : i1;
-        const parcelaMax = rendaTotal * CONFIG.COMPROMETIMENTO;
-        const taxaMensal = taxa / 100 / 12;
-        const n = Math.min(CONFIG.PRAZO_MAX_MESES, (80 - idadeMedia) * 12);
-        const capFinanciamento = (parcelaMax * (1 - Math.pow(1 + taxaMensal, -n))) / taxaMensal;
+        
+        // Cálculo de Prazo por Idade (Regra 80 anos e 6 meses)
+        const prazoMaximoIdade = Math.floor((CONFIG.IDADE_LIMITE_CAIXA - idadeMedia) * 12);
+        const prazoFinalFinanciamento = Math.min(CONFIG.PRAZO_MAX_PADRAO, prazoMaximoIdade);
 
-        state.dadosDiagnostico = { faixa, taxa, rendaTotal, capFinanciamento, teto, fgts, guardado, parcelaMax };
+        if (prazoFinalFinanciamento <= 0) return alert("Idade incompatível com financiamento pela regra da Caixa.");
+
+        const parcelaMax = rendaTotal * CONFIG.COMPROMETIMENTO;
+        const taxaMensal = Math.pow(1 + (taxa / 100), 1 / 12) - 1;
+        
+        // Fórmula PRICE para Capacidade de Financiamento
+        const capFinanciamento = (parcelaMax * (Math.pow(1 + taxaMensal, prazoFinalFinanciamento) - 1)) / (taxaMensal * Math.pow(1 + taxaMensal, prazoFinalFinanciamento));
+
+        state.dadosDiagnostico = { faixa, taxa, rendaTotal, capFinanciamento, teto, fgts, guardado, parcelaMax, prazoFinalFinanciamento };
 
         let html = `
             <div class="diag-item"><div class="diag-label">🏠 Faixa do Minha Casa Minha Vida</div><div class="diag-value">Você faz parte da <strong>Faixa ${faixa}</strong> do Programa.</div></div>
             <div class="diag-item"><div class="diag-label">💰 Teto do Programa</div><div class="diag-value">Na sua faixa, é possível adquirir imóveis de <strong>até ${formatMoney(teto)}</strong>.</div></div>
-            <div class="diag-item destaque"><div class="diag-label">📈 Taxa de Juros</div><div class="diag-value">Financiamento com taxa estimada de <strong>${taxa.toFixed(2)}% ao ano</strong>.</div></div>
+            <div class="diag-item destaque"><div class="diag-label">📈 Taxa de Juros e Prazo</div><div class="diag-value">Taxa de <strong>${taxa.toFixed(2)}% ao ano</strong> com prazo máximo de <strong>${prazoFinalFinanciamento} meses</strong>.</div></div>
             <div class="diag-item"><div class="diag-label">📊 Parcela Máxima Mensal</div><div class="diag-value">O limite de comprometimento da sua renda é de <strong>${formatMoney(parcelaMax)}</strong>.</div></div>
         `;
         if (faixa <= 2) {
@@ -456,13 +488,7 @@
         if (!state.prazoSelecionado) return alert('Selecione o prazo de entrega');
 
         const d = state.dadosDiagnostico;
-        if (!d) return alert('Por favor, gere o diagnóstico primeiro.');
-
-        if (valorImovel > d.teto) {
-            document.getElementById('avisoTeto').textContent = `⚠️ Valor acima do teto (${formatMoney(d.teto)})`;
-            document.getElementById('avisoTeto').style.display = 'block';
-            return;
-        } else document.getElementById('avisoTeto').style.display = 'none';
+        if (!d) return alert('Por favor, gere a análise de perfil primeiro.');
 
         const financiamentoEstimado = Math.min(d.capFinanciamento, valorImovel * CONFIG.LTV_MAX);
         const entradaTotal = valorImovel - financiamentoEstimado - d.fgts;
