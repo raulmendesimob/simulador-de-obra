@@ -1,5 +1,3 @@
-
-simulador_imobiliario_v16_1.html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -90,6 +88,8 @@ simulador_imobiliario_v16_1.html
         .btn-warning { background: var(--orange); color: #fff; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.15); }
         .btn-success { background: #10b981; color: #fff; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15); }
         .btn-success:hover { background: #059669; transform: translateY(-1px); }
+        .btn-purple { background: #9333ea; color: #fff; box-shadow: 0 4px 12px rgba(147, 51, 234, 0.15); }
+        .btn-purple:hover { background: #7e22ce; transform: translateY(-1px); }
         .btn-outline { background: transparent; border: 1.5px solid var(--primary); color: var(--primary); }
         .btn-outline:hover { background: var(--primary-light); }
         .btn-outline-secondary { background: transparent; border: 1.5px solid var(--secondary); color: var(--secondary); }
@@ -233,7 +233,7 @@ simulador_imobiliario_v16_1.html
             <div class="grid">
                 <div class="form-group">
                     <label for="compraCom">1. Quem participará da compra? <span class="obs-italico">(Em conjunto = Namorada(o), noivo(a), cônjuge, familiar...)</span></label>
-                    <div class="input-wrapper"><i data-lucide="users"></i>
+                    <div class="input-wrapper">
                         <select id="compraCom">
                             <option value="">Selecione...</option>
                             <option value="sozinho">Comprar Sozinho(a)</option>
@@ -244,16 +244,16 @@ simulador_imobiliario_v16_1.html
                 <div id="boxIdades" class="grid grid-2 hidden">
                     <div class="form-group">
                         <label id="labelIdade1" for="idade1">Sua Idade</label>
-                        <div class="input-wrapper"><i data-lucide="calendar"></i><select id="idade1" class="select-idade"></select></div>
+                        <div class="input-wrapper"><select id="idade1" class="select-idade"></select></div>
                     </div>
                     <div id="boxIdade2" class="form-group hidden">
                         <label for="idade2">Idade do 2º Comprador</label>
-                        <div class="input-wrapper"><i data-lucide="calendar"></i><select id="idade2" class="select-idade"></select></div>
+                        <div class="input-wrapper"><select id="idade2" class="select-idade"></select></div>
                     </div>
                 </div>
                 <div id="boxEstado" class="form-group hidden">
                     <label for="estado">3. Estado da Compra</label>
-                    <div class="input-wrapper"><i data-lucide="map-pin"></i>
+                    <div class="input-wrapper">
                         <select id="estado">
                             <option value="">Selecione o estado...</option>
                             <option value="AC">Acre</option><option value="AL">Alagoas</option><option value="AP">Amapá</option>
@@ -278,16 +278,16 @@ simulador_imobiliario_v16_1.html
                 <div class="grid grid-2">
                     <div class="form-group">
                         <label id="labelRenda1" for="renda1">Sua Renda Mensal</label>
-                        <div class="input-wrapper"><i data-lucide="banknote"></i><input type="text" id="renda1" class="money-mask" placeholder="R$ 0,00"></div>
+                        <div class="input-wrapper"><input type="text" id="renda1" class="money-mask" placeholder="R$ 0,00"></div>
                     </div>
                     <div id="boxRenda2" class="form-group hidden">
                         <label for="renda2">Renda do 2º Comprador</label>
-                        <div class="input-wrapper"><i data-lucide="banknote"></i><input type="text" id="renda2" class="money-mask" placeholder="R$ 0,00"></div>
+                        <div class="input-wrapper"><input type="text" id="renda2" class="money-mask" placeholder="R$ 0,00"></div>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="temGuardado">Possui algum valor guardado para entrada?</label>
-                    <div class="input-wrapper"><i data-lucide="help-circle"></i>
+                    <div class="input-wrapper">
                         <select id="temGuardado">
                             <option value="">Selecione...</option>
                             <option value="sim">Sim, possuo</option>
@@ -297,7 +297,7 @@ simulador_imobiliario_v16_1.html
                 </div>
                 <div id="boxValorGuardado" class="form-group hidden">
                     <label for="valorGuardado">Qual o valor guardado?</label>
-                    <div class="input-wrapper"><i data-lucide="wallet"></i><input type="text" id="valorGuardado" class="money-mask" placeholder="R$ 0,00"></div>
+                    <div class="input-wrapper"><input type="text" id="valorGuardado" class="money-mask" placeholder="R$ 0,00"></div>
                 </div>
             </div>
         </section>
@@ -308,7 +308,7 @@ simulador_imobiliario_v16_1.html
             <div class="grid">
                 <div class="form-group">
                     <label id="labelRegime">Qual seu regime de trabalho?</label>
-                    <div class="input-wrapper"><i data-lucide="award"></i>
+                    <div class="input-wrapper">
                         <select id="regimeTrabalho">
                             <option value="">Selecione...</option>
                             <option value="clt3">CLT (Mais de 3 anos de FGTS)</option>
@@ -319,7 +319,7 @@ simulador_imobiliario_v16_1.html
                 </div>
                 <div id="boxUsaFgts" class="form-group hidden">
                     <label for="usaFgts">Possui FGTS e pretende usar na compra?</label>
-                    <div class="input-wrapper"><i data-lucide="help-circle"></i>
+                    <div class="input-wrapper">
                         <select id="usaFgts">
                             <option value="">Selecione...</option>
                             <option value="sim">Sim, pretendo usar</option>
@@ -329,7 +329,7 @@ simulador_imobiliario_v16_1.html
                 </div>
                 <div id="boxFgtsVal" class="form-group hidden">
                     <label for="fgtsVal">Valor disponível no FGTS</label>
-                    <div class="input-wrapper"><i data-lucide="piggy-bank"></i><input type="text" id="fgtsVal" class="money-mask" placeholder="R$ 0,00"></div>
+                    <div class="input-wrapper"><input type="text" id="fgtsVal" class="money-mask" placeholder="R$ 0,00"></div>
                 </div>
             </div>
             <div style="margin-top: 24px;"><button id="btnGerarDiagnostico" class="btn btn-primary hidden"><i data-lucide="bar-chart-3"></i> GERAR ANÁLISE DE PERFIL</button></div>
@@ -370,12 +370,12 @@ simulador_imobiliario_v16_1.html
                 <div class="grid">
                     <div class="form-group">
                         <label for="valorImovel">💰 Valor do Imóvel Pretendido</label>
-                        <div class="input-wrapper"><i data-lucide="home"></i><input type="text" id="valorImovel" class="money-mask" placeholder="R$ 0,00"></div>
+                        <div class="input-wrapper"><input type="text" id="valorImovel" class="money-mask" placeholder="R$ 0,00"></div>
                         <div id="avisoTetoImovel" style="font-size: 11px; color: var(--danger); font-weight: 600; margin-top: 4px; display: none;"></div>
                     </div>
                     <div class="form-group" style="background: #f0f9ff; padding: 15px; border-radius: var(--radius-md); border: 1px solid #bae6fd;">
                         <label for="valorAto">💳 Valor do Ato (1ª Parcela) <span class="obs-italico">Valor Guardado p/ Entrada</span></label>
-                        <div class="input-wrapper"><i data-lucide="wallet"></i><input type="text" id="valorAto" class="money-mask" placeholder="R$ 0,00"></div>
+                        <div class="input-wrapper"><input type="text" id="valorAto" class="money-mask" placeholder="R$ 0,00"></div>
                     </div>
                     <div class="form-group">
                         <label>⏱️ Prazo estimado de entrega da obra:</label>
@@ -403,17 +403,17 @@ simulador_imobiliario_v16_1.html
                         <div class="grid">
                             <div class="form-group">
                                 <label for="valorReal">🏠 Valor Real do Imóvel (Venda)</label>
-                                <div class="input-wrapper"><i data-lucide="home"></i><input type="text" id="valorReal" class="money-mask" placeholder="R$ 0,00"></div>
+                                <div class="input-wrapper"><input type="text" id="valorReal" class="money-mask" placeholder="R$ 0,00"></div>
                             </div>
                             <div class="grid grid-2">
                                 <div class="form-group">
                                     <label for="valorAvaliacao">📋 Valor de Avaliação</label>
-                                    <div class="input-wrapper"><i data-lucide="clipboard-check"></i><input type="text" id="valorAvaliacao" class="money-mask" placeholder="R$ 0,00"></div>
+                                    <div class="input-wrapper"><input type="text" id="valorAvaliacao" class="money-mask" placeholder="R$ 0,00"></div>
                                     <div id="avisoTetoAval" style="font-size: 11px; color: var(--danger); font-weight: 600; margin-top: 4px; display: none;"></div>
                                 </div>
                                 <div class="form-group">
                                     <label for="financiamentoAprovado">💰 Financiamento</label>
-                                    <div class="input-wrapper"><i data-lucide="check-square"></i><input type="text" id="financiamentoAprovado" class="money-mask" placeholder="R$ 0,00"></div>
+                                    <div class="input-wrapper"><input type="text" id="financiamentoAprovado" class="money-mask" placeholder="R$ 0,00"></div>
                                 </div>
                             </div>
                         </div>
@@ -423,7 +423,7 @@ simulador_imobiliario_v16_1.html
                     <div class="mini-bloco subsidio">
                         <div class="form-group">
                             <label>🎁 Tem subsídio do governo?</label>
-                            <div class="input-wrapper"><i data-lucide="help-circle"></i>
+                            <div class="input-wrapper">
                                 <select id="temSubsidio">
                                     <option value="nao">Não</option>
                                     <option value="sim">Sim</option>
@@ -432,7 +432,7 @@ simulador_imobiliario_v16_1.html
                         </div>
                         <div id="boxSubsidioVal" class="form-group hidden" style="margin-top: 10px;">
                             <label>Valor do Subsídio</label>
-                            <div class="input-wrapper"><i data-lucide="gift"></i><input type="text" id="subsidioVal" class="money-mask" placeholder="R$ 0,00"></div>
+                            <div class="input-wrapper"><input type="text" id="subsidioVal" class="money-mask" placeholder="R$ 0,00"></div>
                         </div>
                     </div>
                     
@@ -442,11 +442,11 @@ simulador_imobiliario_v16_1.html
                         <div class="grid grid-2">
                             <div class="form-group">
                                 <label for="valorAtoDet">💰 Valor do Ato (R$)</label>
-                                <div class="input-wrapper"><i data-lucide="wallet"></i><input type="text" id="valorAtoDet" class="money-mask" placeholder="R$ 0,00"></div>
+                                <div class="input-wrapper"><input type="text" id="valorAtoDet" class="money-mask" placeholder="R$ 0,00"></div>
                             </div>
                             <div class="form-group">
                                 <label for="prazoObraDet">📅 Meses / Parcelas</label>
-                                <div class="input-wrapper"><i data-lucide="calendar"></i>
+                                <div class="input-wrapper">
                                     <select id="prazoObraDet">
                                         <!-- Populado via JS -->
                                     </select>
@@ -458,7 +458,7 @@ simulador_imobiliario_v16_1.html
                         <div class="mini-bloco inter">
                             <div class="form-group">
                                 <label>📌 Tem Intermediárias / Anuais / Reforços / Chaves?</label>
-                                <div class="input-wrapper"><i data-lucide="help-circle"></i>
+                                <div class="input-wrapper">
                                     <select id="temInterDet">
                                         <option value="nao">Não</option>
                                         <option value="sim">Sim</option>
@@ -467,7 +467,7 @@ simulador_imobiliario_v16_1.html
                             </div>
                             <div id="boxQtdInter" class="form-group hidden" style="margin-top: 10px;">
                                 <label>Quantidade</label>
-                                <div class="input-wrapper"><i data-lucide="hash"></i>
+                                <div class="input-wrapper">
                                     <select id="qtdInterDet">
                                         <option value="1">1</option><option value="2">2</option><option value="3">3</option>
                                         <option value="4">4</option><option value="5">5</option><option value="6">6</option>
@@ -483,7 +483,7 @@ simulador_imobiliario_v16_1.html
                         <div class="mini-bloco pos">
                             <div class="form-group">
                                 <label>🏗️ Construtora aceita Saldo Pós-Chaves / Pró-Soluto?</label>
-                                <div class="input-wrapper"><i data-lucide="help-circle"></i>
+                                <div class="input-wrapper">
                                     <select id="aceitaPosChaves">
                                         <option value="nao">Não</option>
                                         <option value="sim">Sim</option>
@@ -514,7 +514,7 @@ simulador_imobiliario_v16_1.html
                                 <input type="number" id="inccTaxa" step="0.01" value="0.50" style="padding-left: 16px;">
                                 <small style="display: block; margin-top: 4px; color: #666; font-size: 0.85em;">* INCC atualizado disponível em: <a href="https://portal.fgv.br/noticias/incc-m-2025" target="_blank" style="color: #0066cc;">portal.fgv.br/noticias/incc-m-2025</a></small>
                             </div>
-                            <button class="btn btn-warning" onclick="calcularINCC()"><i data-lucide="calculator"></i> CALCULAR INCC</button>
+                            <button class="btn btn-primary" onclick="calcularINCC()"><i data-lucide="calculator"></i> CALCULAR INCC</button>
                         </div>
                         <div id="resultadoINCC" class="hidden" style="margin-top: 16px;"></div>
                     </div>
@@ -546,7 +546,7 @@ simulador_imobiliario_v16_1.html
                                 </select>
                             </div>
                         </div>
-                        <button class="btn btn-success" onclick="calcularJuros()"><i data-lucide="calculator"></i> CALCULAR JUROS DE OBRA</button>
+                        <button class="btn btn-purple" onclick="calcularJuros()"><i data-lucide="calculator"></i> CALCULAR JUROS DE OBRA</button>
                         <div id="resultadoJuros" class="hidden" style="margin-top: 16px;"></div>
                     </div>
                 </div>
@@ -838,7 +838,7 @@ simulador_imobiliario_v16_1.html
             <div class="diag-item"><div class="diag-label">🏠 Faixa do Minha Casa Minha Vida</div><div class="diag-value">Você faz parte da <strong>Faixa ${faixa}</strong> do Programa.</div></div>
             <div class="diag-item"><div class="diag-label">💰 Teto do Programa</div><div class="diag-value">Na sua faixa, é possível adquirir imóveis de <strong>até ${formatMoney(teto)} de avaliação</strong>.</div></div>
             <div class="diag-item destaque"><div class="diag-label">📈 Taxa de Juros e Prazo</div><div class="diag-value">Taxa de <strong>${taxa.toFixed(2)}% ao ano</strong> com prazo máximo de <strong>${prazoFinalFinanciamento} meses</strong>.</div></div>
-            <div class="diag-item"><div class="diag-label">📊 Parcela</div><div class="diag-value">A sua parcela máxima de pagamento mensal do financiamento é de <strong>${formatMoney(parcelaMax)}</strong>.</div></div>
+            <div class="diag-item"><div class="diag-label">📊 Parcela</div><div class="diag-value">A sua parcela máxima de pagamento mensal do financiamento é de <strong>${formatMoney(parcelaMax)}</strong>, a ser paga após a finalização da obra.</div></div>
         `;
         if (faixa <= 2) html += `<div class="diag-item subsidio"><div class="diag-label">🎁 Subsídio do Governo</div><div class="diag-value">Você pode ter direito a <strong>subsídio</strong> (A ser verificado durante Análise Caixa).</div></div>`;
 
@@ -955,10 +955,11 @@ simulador_imobiliario_v16_1.html
                             <li>Valores são estimativas e para fins educativos. <strong>Consulte seu corretor para valores reais</strong>.</li>
                         </ul>
                     </div>
+                    
+                    <div style="text-align: center; margin-top: 16px; padding-top: 16px; border-top: 1px solid #e5e7eb;">
+                        <button id="btnResetarFluxo" class="btn btn-danger-real" style="max-width: 300px;">🔄 RESETAR FLUXO</button>
+                    </div>
                 </div>
-            </div>
-            <div style="text-align: center; margin-top: 20px;">
-                <button id="btnResetarFluxo" class="btn btn-danger-real" style="max-width: 300px;">🔄 RESETAR FLUXO</button>
             </div>
         `;
         resDiv.classList.remove('hidden');
@@ -982,7 +983,10 @@ simulador_imobiliario_v16_1.html
         const valorAval = parseMoney(document.getElementById('valorAvaliacao').value);
         const financiamentoAprovado = parseMoney(document.getElementById('financiamentoAprovado').value);
         const subsidio = document.getElementById('temSubsidio').value === 'sim' ? parseMoney(document.getElementById('subsidioVal').value) : 0;
-        const valorAto = parseMoney(document.getElementById('valorAtoDet').value);
+        let valorAto = parseMoney(document.getElementById('valorAtoDet').value);
+        const atoOriginal = valorAto;
+        const atoAjustado = valorAto === 0;
+        if (valorAto === 0) valorAto = 1000; // Mínimo de R$ 1.000
         const prazo = parseInt(document.getElementById('prazoObraDet').value);
         const temInterm = document.getElementById('temInterDet').value === 'sim';
         const aceitaPos = document.getElementById('aceitaPosChaves').value === 'sim';
@@ -1016,13 +1020,13 @@ simulador_imobiliario_v16_1.html
 
         state.ultimoCalculo = {
             valorImovel: valorReal, financiamento: financiamentoAprovado, fgts: d.fgts, subsidio, entradaTotal, 
-            ato: valorAto, mensal: parcelaMensal, prazo, ultrapassa, somaInter, aceitaPos, intermediarias, entradaUltrapassa, saldoRestante
+            ato: valorAto, mensal: parcelaMensal, prazo, ultrapassa, somaInter, aceitaPos, intermediarias, entradaUltrapassa, saldoRestante, atoAjustado
         };
 
-        renderResultadoDetalhado(valorReal, financiamentoAprovado, d.fgts, subsidio, entradaTotal, valorAto, parcelaMensal, prazo, intermediarias, ultrapassa, aceitaPos, entradaUltrapassa);
+        renderResultadoDetalhado(valorReal, financiamentoAprovado, d.fgts, subsidio, entradaTotal, valorAto, parcelaMensal, prazo, intermediarias, ultrapassa, aceitaPos, entradaUltrapassa, saldoRestante, atoAjustado);
     }
 
-    function renderResultadoDetalhado(valorImovel, financiamento, fgts, subsidio, entradaTotal, ato, mensal, prazo, intermediarias, ultrapassa, aceitaPos, entradaUltrapassa) {
+    function renderResultadoDetalhado(valorImovel, financiamento, fgts, subsidio, entradaTotal, ato, mensal, prazo, intermediarias, ultrapassa, aceitaPos, entradaUltrapassa, saldoRestante, atoAjustado) {
         const resDiv = document.getElementById('fluxoResultado');
         const hoje = new Date();
         const previsao = new Date(hoje.getFullYear(), hoje.getMonth() + prazo, 1);
@@ -1045,7 +1049,7 @@ simulador_imobiliario_v16_1.html
                 </div>
                 <div class="fluxo-body">
                     <div class="fluxo-row"><span class="fluxo-label">Valor do Imóvel</span><span class="fluxo-valor color-azul">${formatMoney(valorImovel)}</span></div>
-                    <div class="fluxo-row"><span class="fluxo-label">Financiamento Aprovado</span><span class="fluxo-valor color-laranja">${formatMoney(financiamento)}</span></div>
+                    <div class="fluxo-row"><span class="fluxo-label">Financiamento</span><span class="fluxo-valor color-laranja">${formatMoney(financiamento)}</span></div>
                     ${fgts > 0 ? `<div class="fluxo-row"><span class="fluxo-label">FGTS</span><span class="fluxo-valor color-laranja">${formatMoney(fgts)}</span></div>` : ''}
                     ${subsidio > 0 ? `<div class="fluxo-row"><span class="fluxo-label">Subsídio</span><span class="fluxo-valor color-laranja">${formatMoney(subsidio)}</span></div>` : ''}
                     
@@ -1059,7 +1063,7 @@ simulador_imobiliario_v16_1.html
                         ${ato > 0 ? `<div class="fluxo-row"><span class="fluxo-label">Ato (Sinal)</span><span class="fluxo-valor">${formatMoney(ato)}</span></div>` : ''}
                         ${interHtml}
                         <div class="fluxo-row"><span class="fluxo-label">Parcelas Mensais (${prazo}x)</span><span class="fluxo-valor">${entradaUltrapassa ? 'R$ 0,00' : formatMoney(mensal)}</span></div>
-                        ${ultrapassa && !entradaUltrapassa ? `<div class="fluxo-row"><span class="fluxo-label">Saldo Restante</span><span class="fluxo-valor" style="color: var(--danger)">Verificar Pós-Chaves</span></div>` : ''}
+                        ${ultrapassa && !entradaUltrapassa && saldoRestante > 0 ? `<div class="fluxo-row"><span class="fluxo-label" style="color: var(--danger)">Saldo Restante</span><span class="fluxo-valor" style="color: var(--danger); font-weight: 700;">${formatMoney(saldoRestante)}</span></div>` : ''}
                         ${entradaUltrapassa ? `<div class="fluxo-row"><span class="fluxo-label">Saldo Restante</span><span class="fluxo-valor" style="color: var(--danger); font-weight: 700;">Verificar Pós-Chaves</span></div>` : ''}
                     </div>
                     
@@ -1071,13 +1075,24 @@ simulador_imobiliario_v16_1.html
                     <div class="alerta-box ${ultrapassa && !entradaUltrapassa ? 'aviso' : (!entradaUltrapassa ? 'sucesso' : '')}" ${entradaUltrapassa ? 'style="display: none;"' : ''}>
                         <i data-lucide="${ultrapassa ? 'alert-circle' : 'check-circle'}"></i>
                         ${ultrapassa 
-                            ? '⚠️ Fluxo de Pagamento da Entrada ultrapassa o Período de Obras.' 
+                            ? '⚠️ Fluxo de Pagamento da Entrada ultrapassa o Período de Obras.<br><span style="font-size: 12px; font-weight: 400; margin-top: 4px; display: block;">Verificar com construtora pagamento no pós-chaves, ou necessário aumentar valor do ato.</span>' 
                             : '✅ Fluxo de Pagamento da Entrada dentro do Período de Obras.'}
                     </div>
+                    
+                    ${atoAjustado ? `<div class="alerta-box" style="background: #eff6ff; border-color: #3b82f6;">
+                        <i data-lucide="info" style="color: #3b82f6;"></i>
+                        <span style="color: #1e40af; font-size: 12px;">📌 Como o valor do ato estava zerado, foi ajustado para o mínimo de R$ 1.000,00.</span>
+                    </div>` : ''}
+                    
+                    <div class="alerta-box" style="background: #eff6ff; border-color: #3b82f6;">
+                        <i data-lucide="info" style="color: #3b82f6;"></i>
+                        <span style="color: #1e40af; font-size: 12px;">📌 As parcelas mensais da entrada são limitadas a 30% da renda mensal total.</span>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 16px; padding-top: 16px; border-top: 1px solid #e5e7eb;">
+                        <button id="btnResetarFluxo" class="btn btn-danger-real" style="max-width: 300px;">🔄 RESETAR FLUXO</button>
+                    </div>
                 </div>
-            </div>
-            <div style="text-align: center; margin-top: 20px;">
-                <button id="btnResetarFluxo" class="btn btn-danger-real" style="max-width: 300px;">🔄 RESETAR FLUXO</button>
             </div>
         `;
         resDiv.classList.remove('hidden');
@@ -1149,12 +1164,13 @@ simulador_imobiliario_v16_1.html
                 const mesIdx = mesesNomes.indexOf(mesAno);
                 const ano = 2000 + parseInt(anoAno);
                 const dataPgto = new Date(ano, mesIdx, 1);
-                const mesesAteData = Math.max(0, Math.round((dataPgto - hoje) / (1000 * 60 * 60 * 24 * 30)));
                 
-                // Corrige o saldo total até a data de pagamento
-                const saldoCorrigido = saldoInter * Math.pow(1 + taxa, mesesAteData);
-                const parcelaCorrigida = saldoCorrigido / (qtd - idx);
-                saldoInter -= inter.valor; // Reduz o saldo pelo valor original
+                // Cálculo preciso de meses entre hoje e a data de pagamento
+                let mesesAteData = (dataPgto.getFullYear() - hoje.getFullYear()) * 12 + (dataPgto.getMonth() - hoje.getMonth());
+                mesesAteData = Math.max(0, mesesAteData);
+                
+                // Cada parcela é corrigida individualmente pelo seu prazo
+                const parcelaCorrigida = inter.valor * Math.pow(1 + taxa, mesesAteData);
                 
                 interCorrigidas.push({ ordem: idx + 1, valor: inter.valor, corrigido: parcelaCorrigida });
             });
