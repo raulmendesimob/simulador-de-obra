@@ -1,3 +1,5 @@
+
+simulador_imobiliario_v16_1.html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -539,7 +541,7 @@
                                 <label for="passoTabela">Intervalo da Tabela</label>
                                 <select id="passoTabela" style="padding-left: 16px;">
                                     <option value="3">3 em 3%</option>
-                                    <option value="5">5 em 5%</option>
+                                    <option value="5" selected>5 em 5%</option>
                                     <option value="10">10 em 10%</option>
                                 </select>
                             </div>
@@ -565,9 +567,8 @@
                 </div>
             </div>
         </div>
-        <div style="text-align: center; margin-bottom: 40px; display: flex; flex-direction: column; gap: 12px; max-width: 400px; margin-left: auto; margin-right: auto;">
-            <button id="btnResetarFluxo" class="btn btn-outline-secondary hidden">🔄 RESETAR FLUXO</button>
-            <button id="btnLimpar" class="btn btn-danger-real">🗑️ REINICIAR SIMULADOR</button>
+        <div style="text-align: center; margin-bottom: 40px;">
+            <button id="btnLimpar" class="btn btn-danger-real" style="max-width: 400px;">🗑️ REINICIAR SIMULADOR</button>
         </div>
     </main>
 </div>
@@ -729,7 +730,6 @@
         document.getElementById('btnCalcularEstimada').addEventListener('click', calcularFluxoEstimado);
         document.getElementById('btnCalcularDetalhada').addEventListener('click', calcularFluxoDetalhado);
         document.getElementById('btnLimpar').addEventListener('click', () => { if(confirm('Deseja realmente reiniciar?')) location.reload(); });
-        document.getElementById('btnResetarFluxo').addEventListener('click', resetarFluxo);
     }
 
     function updateInterItems() {
@@ -870,6 +870,10 @@
         const financiamentoEstimado = Math.min(valorImovel * CONFIG.LTV_MAX, d.capFinanciamento, d.teto);
         const entradaTotal = valorImovel - financiamentoEstimado - d.fgts;
         
+        // Validação: Se entrada total for negativa ou zero, significa que os inputs ultrapassam o valor do imóvel
+        const inputsTotal = financiamentoEstimado + d.fgts;
+        const entradaUltrapassa = inputsTotal >= valorImovel;
+        
         const prazo = state.prazoSelecionado;
         let qtdInter = 0;
         if (prazo === 12) qtdInter = 1;
@@ -888,13 +892,13 @@
         state.ultimoCalculo = {
             valorImovel, financiamento: financiamentoEstimado, fgts: d.fgts, entradaTotal, 
             ato: valorAto, mensal: parcelaMensal, prazo, ultrapassa,
-            intermediarias: [], qtdInter, valorInter, saldoRestante, usouAtoDefault
+            intermediarias: [], qtdInter, valorInter, saldoRestante, usouAtoDefault, entradaUltrapassa
         };
 
-        renderResultadoEstimado(valorImovel, financiamentoEstimado, d.fgts, entradaTotal, valorAto, parcelaMensal, prazo, qtdInter, valorInter, ultrapassa, saldoRestante, usouAtoDefault);
+        renderResultadoEstimado(valorImovel, financiamentoEstimado, d.fgts, entradaTotal, valorAto, parcelaMensal, prazo, qtdInter, valorInter, ultrapassa, saldoRestante, usouAtoDefault, entradaUltrapassa);
     }
 
-    function renderResultadoEstimado(valorImovel, financiamento, fgts, entradaTotal, ato, mensal, prazo, qtdInter, valorInter, ultrapassa, saldoRestante, usouAtoDefault) {
+    function renderResultadoEstimado(valorImovel, financiamento, fgts, entradaTotal, ato, mensal, prazo, qtdInter, valorInter, ultrapassa, saldoRestante, usouAtoDefault, entradaUltrapassa) {
         const resDiv = document.getElementById('fluxoResultado');
         const hoje = new Date();
         const previsao = new Date(hoje.getFullYear(), hoje.getMonth() + prazo, 1);
@@ -926,11 +930,17 @@
                         <div class="fluxo-secao-titulo"><i data-lucide="credit-card"></i> Divisão do Pagamento</div>
                         <div class="fluxo-row"><span class="fluxo-label">Ato (Sinal)</span><span class="fluxo-valor">${formatMoney(ato)}</span></div>
                         ${interHtml}
-                        <div class="fluxo-row"><span class="fluxo-label">Parcelas Mensais (${prazo}x)</span><span class="fluxo-valor">${formatMoney(mensal)}</span></div>
-                        ${saldoRestante > 0 ? `<div class="fluxo-row"><span class="fluxo-label">Saldo Restante (Pós-Chaves)</span><span class="fluxo-valor" style="color: var(--danger)">${formatMoney(saldoRestante)}</span></div>` : ''}
+                        <div class="fluxo-row"><span class="fluxo-label">Parcelas Mensais (${prazo}x)</span><span class="fluxo-valor">${entradaUltrapassa ? 'R$ 0,00' : formatMoney(mensal)}</span></div>
+                        ${saldoRestante > 0 && !entradaUltrapassa ? `<div class="fluxo-row"><span class="fluxo-label">Saldo Restante (Pós-Chaves)</span><span class="fluxo-valor" style="color: var(--danger)">${formatMoney(saldoRestante)}</span></div>` : ''}
+                        ${entradaUltrapassa ? `<div class="fluxo-row"><span class="fluxo-label">Saldo Restante</span><span class="fluxo-valor" style="color: var(--danger); font-weight: 700;">Verificar Pós-Chaves</span></div>` : ''}
                     </div>
+                    
+                    ${entradaUltrapassa ? `<div class="alerta-box" style="background: #fee2e2; border-color: #ef4444;">
+                        <i data-lucide="alert-triangle" style="color: #ef4444;"></i>
+                        <span style="color: #991b1b; font-weight: 600;">⚠️ Fluxo de Entrada Ultrapassa o valor do imóvel. Verificar</span>
+                    </div>` : ''}
 
-                    <div class="alerta-box ${ultrapassa ? 'aviso' : 'sucesso'}">
+                    <div class="alerta-box ${ultrapassa && !entradaUltrapassa ? 'aviso' : (!entradaUltrapassa ? 'sucesso' : '')}" ${entradaUltrapassa ? 'style="display: none;"' : ''}>
                         <i data-lucide="${ultrapassa ? 'alert-circle' : 'check-circle'}"></i>
                         ${ultrapassa 
                             ? '⚠️ Fluxo de Pagamento da Entrada ultrapassa o Período de Obras. Verifique com corretor/construtora a possibilidade de Pagamento Pós-Chaves.' 
@@ -947,12 +957,20 @@
                     </div>
                 </div>
             </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button id="btnResetarFluxo" class="btn btn-danger-real" style="max-width: 300px;">🔄 RESETAR FLUXO</button>
+            </div>
         `;
         resDiv.classList.remove('hidden');
         document.getElementById('blocosExtras').classList.remove('hidden');
-        document.getElementById('btnResetarFluxo').classList.remove('hidden');
         resDiv.scrollIntoView({ behavior: 'smooth' });
         lucide.createIcons();
+        
+        // Reanexa o event listener do botão resetar
+        const btnReset = document.getElementById('btnResetarFluxo');
+        if (btnReset) {
+            btnReset.onclick = resetarFluxo;
+        }
     }
 
     function calcularFluxoDetalhado() {
@@ -973,6 +991,10 @@
 
         const entradaTotal = valorReal - financiamentoAprovado - d.fgts - subsidio;
         
+        // Validação: Se entrada total for negativa ou zero, significa que os inputs ultrapassam o valor do imóvel
+        const inputsTotal = financiamentoAprovado + d.fgts + subsidio;
+        const entradaUltrapassa = inputsTotal >= valorReal;
+        
         let somaInter = 0;
         let intermediarias = [];
         if (temInterm) {
@@ -986,18 +1008,21 @@
         }
 
         const saldoParaMensais = entradaTotal - valorAto - somaInter;
-        const parcelaMensal = Math.max(0, saldoParaMensais / prazo);
-        const ultrapassa = saldoParaMensais < 0;
+        const parcelaMensalCalculada = Math.max(0, saldoParaMensais / prazo);
+        const limiteMensal = d.rendaTotal * 0.30;
+        const parcelaMensal = Math.min(parcelaMensalCalculada, limiteMensal);
+        const ultrapassa = parcelaMensalCalculada > limiteMensal;
+        const saldoRestante = ultrapassa ? (parcelaMensalCalculada - limiteMensal) * prazo : 0;
 
         state.ultimoCalculo = {
             valorImovel: valorReal, financiamento: financiamentoAprovado, fgts: d.fgts, subsidio, entradaTotal, 
-            ato: valorAto, mensal: parcelaMensal, prazo, ultrapassa, somaInter, aceitaPos, intermediarias
+            ato: valorAto, mensal: parcelaMensal, prazo, ultrapassa, somaInter, aceitaPos, intermediarias, entradaUltrapassa, saldoRestante
         };
 
-        renderResultadoDetalhado(valorReal, financiamentoAprovado, d.fgts, subsidio, entradaTotal, valorAto, parcelaMensal, prazo, intermediarias, ultrapassa, aceitaPos);
+        renderResultadoDetalhado(valorReal, financiamentoAprovado, d.fgts, subsidio, entradaTotal, valorAto, parcelaMensal, prazo, intermediarias, ultrapassa, aceitaPos, entradaUltrapassa);
     }
 
-    function renderResultadoDetalhado(valorImovel, financiamento, fgts, subsidio, entradaTotal, ato, mensal, prazo, intermediarias, ultrapassa, aceitaPos) {
+    function renderResultadoDetalhado(valorImovel, financiamento, fgts, subsidio, entradaTotal, ato, mensal, prazo, intermediarias, ultrapassa, aceitaPos, entradaUltrapassa) {
         const resDiv = document.getElementById('fluxoResultado');
         const hoje = new Date();
         const previsao = new Date(hoje.getFullYear(), hoje.getMonth() + prazo, 1);
@@ -1033,11 +1058,17 @@
                         <div class="fluxo-secao-titulo"><i data-lucide="credit-card"></i> Divisão do Pagamento</div>
                         ${ato > 0 ? `<div class="fluxo-row"><span class="fluxo-label">Ato (Sinal)</span><span class="fluxo-valor">${formatMoney(ato)}</span></div>` : ''}
                         ${interHtml}
-                        <div class="fluxo-row"><span class="fluxo-label">Parcelas Mensais (${prazo}x)</span><span class="fluxo-valor">${formatMoney(mensal)}</span></div>
-                        ${ultrapassa ? `<div class="fluxo-row"><span class="fluxo-label">Saldo Restante</span><span class="fluxo-valor" style="color: var(--danger)">Verificar Pós-Chaves</span></div>` : ''}
+                        <div class="fluxo-row"><span class="fluxo-label">Parcelas Mensais (${prazo}x)</span><span class="fluxo-valor">${entradaUltrapassa ? 'R$ 0,00' : formatMoney(mensal)}</span></div>
+                        ${ultrapassa && !entradaUltrapassa ? `<div class="fluxo-row"><span class="fluxo-label">Saldo Restante</span><span class="fluxo-valor" style="color: var(--danger)">Verificar Pós-Chaves</span></div>` : ''}
+                        ${entradaUltrapassa ? `<div class="fluxo-row"><span class="fluxo-label">Saldo Restante</span><span class="fluxo-valor" style="color: var(--danger); font-weight: 700;">Verificar Pós-Chaves</span></div>` : ''}
                     </div>
+                    
+                    ${entradaUltrapassa ? `<div class="alerta-box" style="background: #fee2e2; border-color: #ef4444;">
+                        <i data-lucide="alert-triangle" style="color: #ef4444;"></i>
+                        <span style="color: #991b1b; font-weight: 600;">⚠️ Fluxo de Entrada Ultrapassa o valor do imóvel. Verificar</span>
+                    </div>` : ''}
 
-                    <div class="alerta-box ${ultrapassa ? 'aviso' : 'sucesso'}">
+                    <div class="alerta-box ${ultrapassa && !entradaUltrapassa ? 'aviso' : (!entradaUltrapassa ? 'sucesso' : '')}" ${entradaUltrapassa ? 'style="display: none;"' : ''}>
                         <i data-lucide="${ultrapassa ? 'alert-circle' : 'check-circle'}"></i>
                         ${ultrapassa 
                             ? '⚠️ Fluxo de Pagamento da Entrada ultrapassa o Período de Obras.' 
@@ -1045,12 +1076,20 @@
                     </div>
                 </div>
             </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button id="btnResetarFluxo" class="btn btn-danger-real" style="max-width: 300px;">🔄 RESETAR FLUXO</button>
+            </div>
         `;
         resDiv.classList.remove('hidden');
         document.getElementById('blocosExtras').classList.remove('hidden');
-        document.getElementById('btnResetarFluxo').classList.remove('hidden');
         resDiv.scrollIntoView({ behavior: 'smooth' });
         lucide.createIcons();
+        
+        // Reanexa o event listener do botão resetar
+        const btnReset = document.getElementById('btnResetarFluxo');
+        if (btnReset) {
+            btnReset.onclick = resetarFluxo;
+        }
     }
 
     function toggleBloco(tipo) {
@@ -1183,7 +1222,7 @@
             <div class="incc-secao">
                 <div class="incc-secao-titulo"><i data-lucide="calendar"></i> Parcelas Mensais</div>
                 <div class="incc-row"><span class="incc-label">Valor em Contrato (cada)</span><span class="incc-valor">${formatMoney(mensal)}</span></div>
-                <div class="incc-row"><span class="incc-label">Aumento Médio Estimado (cada)</span><span class="incc-valor">+${formatMoney(aumentoMedio)}</span></div>
+                <div class="incc-row"><span class="incc-label">Aumento médio a cada nova parcela</span><span class="incc-valor">+${formatMoney(aumentoMedio)}</span></div>
                 <div class="incc-row"><span class="incc-label">Última Parcela Estimada</span><span class="incc-valor">${formatMoney(ultimaParcela)}</span></div>
             </div>
             ${htmlInter}
@@ -1193,6 +1232,14 @@
                 * INCC atualizado disponível em: <a href="https://portal.fgv.br/noticias/incc-m-2025" target="_blank">portal.fgv.br/noticias/incc-m-2025</a>
             </div>
         `;
+        
+        // Armazena os resultados para o PDF
+        state.inccResultado = {
+            taxa: taxa * 100,
+            mensal: { original: mensal, aumentoMedio, ultimaParcela },
+            intermediarias: htmlInter ? true : false,
+            posObra: htmlPosObra ? true : false
+        };
         
         document.getElementById('resultadoINCC').innerHTML = html;
         document.getElementById('resultadoINCC').classList.remove('hidden');
@@ -1251,6 +1298,15 @@
             </div>
         `;
         
+        // Armazena os resultados para o PDF
+        state.jurosResultado = {
+            taxaEfetiva,
+            tr,
+            taxas,
+            passo,
+            rows
+        };
+        
         document.getElementById('resultadoJuros').innerHTML = html;
         document.getElementById('resultadoJuros').classList.remove('hidden');
         state.jurosCalculado = true;
@@ -1265,12 +1321,11 @@
     
     function resetarFluxo() {
         // Limpa os resultados de fluxo, INCC, Juros e PDF
-        document.getElementById('resultadoFluxoEstimado').classList.add('hidden');
-        document.getElementById('resultadoFluxoDetalhado').classList.add('hidden');
+        document.getElementById('fluxoResultado').classList.add('hidden');
+        document.getElementById('fluxoResultado').innerHTML = '';
         document.getElementById('blocoINCC').classList.add('hidden');
         document.getElementById('blocoJuros').classList.add('hidden');
         document.getElementById('blocoPDF').classList.add('hidden');
-        document.getElementById('btnResetarFluxo').classList.add('hidden');
         
         // Reseta os estados
         state.ultimoCalculo = null;
@@ -1315,69 +1370,286 @@
         const doc = new jsPDF({ unit: "mm", format: "a4" });
         
         const dataDoc = new Date().toLocaleDateString("pt-BR");
-        
-        const { valorImovel, financiamento, fgts, entradaTotal, ato, mensal, prazo } = state.ultimoCalculo;
         const d = state.dadosDiagnostico;
+        const calc = state.ultimoCalculo;
         
-        let y = 14;
+        // Cores simplificadas
+        const azulEscuro = [30, 58, 138];
+        const cinzaClaro = [243, 244, 246];
+        const cinzaMedio = [156, 163, 175];
+        
+        let y = 15;
         const left = 14;
         const right = 196;
+        const pageWidth = 210;
         
+        // ===== CABEÇALHO =====
+        doc.setTextColor(...azulEscuro);
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(14);
-        doc.text("SIMULAÇÃO FINANCEIRA – IMÓVEL NA PLANTA", 105, y, { align: "center" });
+        doc.setFontSize(16);
+        doc.text("SIMULAÇÃO FINANCEIRA - IMÓVEL NA PLANTA", 105, y, { align: "center" });
+        y += 6;
+        
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(0, 0, 0);
+        doc.text("Programa Minha Casa Minha Vida", 105, y, { align: "center" });
+        y += 8;
+        
+        doc.setFontSize(9);
+        doc.text(`Raul Mendes Imobiliária | @raulmendes.imob | ${dataDoc}`, 105, y, { align: "center" });
+        y += 8;
+        
+        doc.setDrawColor(...cinzaMedio);
+        doc.line(left, y, right, y);
+        y += 8;
+        
+        // ===== BLOCO 1: ANÁLISE DE PERFIL MCMV =====
+        doc.setTextColor(...azulEscuro);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(11);
+        doc.text("1. ANÁLISE DE PERFIL MCMV", left, y);
+        y += 6;
+        
+        doc.setTextColor(0, 0, 0);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(9);
+        
+        doc.text(`Faixa MCMV: ${d.faixa}`, left + 3, y); y += 5;
+        doc.text(`Taxa de Juros: ${d.taxa.toFixed(2)}% ao ano`, left + 3, y); y += 5;
+        doc.text(`Teto de Financiamento: ${formatMoney(d.teto)}`, left + 3, y); y += 5;
+        doc.text(`Capacidade de Financiamento: ${formatMoney(d.capFinanciamento)}`, left + 3, y); y += 5;
+        doc.text(`Renda Total: ${formatMoney(d.rendaTotal)}`, left + 3, y); 
+        doc.text(`FGTS Disponível: ${formatMoney(d.fgts)}`, left + 95, y); y += 8;
+        
+        doc.setDrawColor(...cinzaMedio);
+        doc.line(left, y, right, y);
+        y += 6;
+        
+        // ===== BLOCO 2: FLUXO DE PAGAMENTO =====
+        doc.setTextColor(...azulEscuro);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(11);
+        doc.text("2. FLUXO DE PAGAMENTO", left, y);
+        y += 6;
+        
+        doc.setTextColor(0, 0, 0);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(9);
+        
+        // Valor do Imóvel e Financiamento
+        const isDetalhada = calc.subsidio !== undefined;
+        doc.text(`Valor do Imóvel ${isDetalhada ? '(Real)' : '(Pretendido)'}: ${formatMoney(calc.valorImovel)}`, left + 3, y); y += 5;
+        
+        if (isDetalhada && calc.valorAvaliacao) {
+            doc.text(`Valor de Avaliação: ${formatMoney(calc.valorAvaliacao)}`, left + 3, y); y += 5;
+        }
+        
+        doc.text(`Financiamento ${isDetalhada ? 'Aprovado' : 'Estimado'}: ${formatMoney(calc.financiamento)}`, left + 3, y); y += 5;
+        
+        if (calc.fgts > 0) {
+            doc.text(`FGTS Utilizado: ${formatMoney(calc.fgts)}`, left + 3, y); y += 5;
+        }
+        
+        if (calc.subsidio && calc.subsidio > 0) {
+            doc.text(`Subsídio do Governo: ${formatMoney(calc.subsidio)}`, left + 3, y); y += 5;
+        }
+        
+        y += 3;
+        
+        // Destaque para Entrada Total
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(10);
+        doc.text(`ENTRADA TOTAL: ${formatMoney(calc.entradaTotal)}`, left + 3, y);
         y += 7;
         
-        doc.setDrawColor(200);
+        doc.setTextColor(0, 0, 0);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(9);
+        
+        // Divisão do Pagamento
+        doc.setFont("helvetica", "bold");
+        doc.text("Divisão do Pagamento:", left + 3, y); y += 5;
+        doc.setFont("helvetica", "normal");
+        
+        if (calc.ato > 0) {
+            doc.text(`• Ato (Sinal): ${formatMoney(calc.ato)}`, left + 5, y); y += 5;
+        }
+        
+        // Intermediárias
+        if (calc.intermediarias && calc.intermediarias.length > 0) {
+            calc.intermediarias.forEach((inter, idx) => {
+                doc.text(`• ${idx + 1}ª Intermediária (${inter.data}): ${formatMoney(inter.valor)}`, left + 5, y); y += 5;
+            });
+        } else if (calc.qtdInter > 0 && calc.valorInter > 0) {
+            for (let i = 1; i <= calc.qtdInter; i++) {
+                doc.text(`• ${i}ª Intermediária: ${formatMoney(calc.valorInter)}`, left + 5, y); y += 5;
+            }
+        }
+        
+        doc.text(`• Parcelas Mensais (${calc.prazo}x): ${formatMoney(calc.mensal)}`, left + 5, y); y += 5;
+        
+        if (calc.saldoRestante && calc.saldoRestante > 0) {
+            doc.setTextColor(239, 68, 68);
+            doc.text(`• Saldo para Pós-Chaves: ${formatMoney(calc.saldoRestante)}`, left + 5, y); y += 5;
+            doc.setTextColor(0, 0, 0);
+        }
+        
+        y += 3;
+        
+        // Continua na próxima página se necessário
+        if (y > 240) {
+            doc.addPage();
+            y = 20;
+        }
+        
+        // ===== BLOCO 3: ESTIMATIVA DE INCC =====
+        if (state.inccCalculado) {
+            doc.setDrawColor(...cinzaMedio);
+            doc.line(left, y, right, y);
+            y += 6;
+            
+            doc.setTextColor(...azulEscuro);
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(11);
+            doc.text("3. ESTIMATIVA DE INCC", left, y);
+            y += 6;
+            
+            doc.setTextColor(0, 0, 0);
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(9);
+            
+            const incc = state.inccResultado;
+            doc.text(`Taxa Mensal Utilizada: ${incc.taxa.toFixed(2)}%`, left + 3, y); y += 7;
+            
+            // Parcelas Mensais
+            doc.setFont("helvetica", "bold");
+            doc.text("Parcelas Mensais:", left + 3, y); y += 5;
+            doc.setFont("helvetica", "normal");
+            doc.text(`Valor Original (cada): ${formatMoney(incc.mensal.original)}`, left + 5, y); y += 5;
+            doc.text(`Aumento médio a cada nova parcela: +${formatMoney(incc.mensal.aumentoMedio)}`, left + 5, y); y += 5;
+            doc.text(`Última Parcela Estimada: ${formatMoney(incc.mensal.ultimaParcela)}`, left + 5, y); y += 7;
+            
+            if (incc.intermediarias) {
+                doc.setFont("helvetica", "bold");
+                doc.text("Intermediárias: Valores corrigidos conforme prazo", left + 3, y); y += 7;
+            }
+            
+            if (incc.posObra) {
+                doc.setFont("helvetica", "bold");
+                doc.text("Pós-Obra: Verificar com corretor a forma de correção", left + 3, y); y += 7;
+            }
+            
+            doc.setFont("helvetica", "italic");
+            doc.setFontSize(8);
+            doc.text("* Valores aproximados para fins de simulação e entendimento.", left + 3, y); y += 8;
+        }
+        
+        // ===== BLOCO 4: JUROS DE OBRA =====
+        if (state.jurosCalculado) {
+            if (y > 200) {
+                doc.addPage();
+                y = 20;
+            }
+            
+            doc.setDrawColor(...cinzaMedio);
+            doc.line(left, y, right, y);
+            y += 6;
+            
+            doc.setTextColor(...azulEscuro);
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(11);
+            doc.text("4. TABELA DE JUROS DE OBRA (5 em 5%)", left, y);
+            y += 6;
+            
+            doc.setTextColor(0, 0, 0);
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(9);
+            
+            const juros = state.jurosResultado;
+            doc.text(`Taxa Efetiva: ${juros.taxaEfetiva.toFixed(2)}% ao ano | TR: ${juros.tr.toFixed(2)}% | Taxas/Seguros: ${formatMoney(juros.taxas)}`, left + 3, y); y += 7;
+            
+            // Tabela
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(8);
+            doc.text("% da Obra", left + 10, y);
+            doc.text("Parcela Estimada (mês)", left + 100, y);
+            y += 4;
+            
+            doc.setDrawColor(200);
+            doc.line(left + 5, y, right - 5, y);
+            y += 4;
+            
+            doc.setFont("helvetica", "normal");
+            juros.rows.forEach((row, idx) => {
+                // Zebrado
+                if (idx % 2 === 0) {
+                    doc.setFillColor(...cinzaClaro);
+                    doc.rect(left + 5, y - 3, right - left - 10, 5, 'F');
+                }
+                
+                doc.text(`${row.perc}%`, left + 15, y);
+                doc.text(formatMoney(row.parcela), left + 100, y);
+                y += 5;
+                
+                // Nova página se necessário
+                if (y > 270) {
+                    doc.addPage();
+                    y = 20;
+                }
+            });
+            
+            y += 3;
+            doc.setFont("helvetica", "italic");
+            doc.setFontSize(7);
+            doc.text("* Valores aproximados. A TR possui variação mensal.", left + 3, y); y += 8;
+        }
+        
+        // ===== BLOCO 5: OBSERVAÇÕES E DISCLAIMERS =====
+        if (y > 230) {
+            doc.addPage();
+            y = 20;
+        }
+        
+        doc.setDrawColor(...cinzaMedio);
         doc.line(left, y, right, y);
         y += 6;
         
+        doc.setTextColor(...azulEscuro);
         doc.setFont("helvetica", "bold");
         doc.setFontSize(11);
-        doc.text("Identificação", left, y);
+        doc.text("5. OBSERVAÇÕES E DISCLAIMERS", left, y);
         y += 6;
         
+        doc.setTextColor(0, 0, 0);
         doc.setFont("helvetica", "normal");
-        doc.setFontSize(10);
-        doc.text(`Corretor(a): Raul Mendes | Instagram: @raulmendes.imob`, left, y); y += 5;
-        doc.text(`Data do documento: ${dataDoc}`, left, y); y += 5;
+        doc.setFontSize(8);
         
-        y += 2;
-        doc.setDrawColor(220);
+        const obs = [
+            "• Este documento é uma simulação para fins educativos e estimativas financeiras.",
+            "• Valores reais, condições de pagamento e detalhes deverão ser verificados com o corretor responsável.",
+            "• A aprovação do financiamento está sujeita à análise da instituição financeira.",
+            "• Valores de INCC e Juros de Obra são estimativas baseadas em taxas médias.",
+            "• Consulte sempre seu corretor para valores atualizados e condições reais do empreendimento."
+        ];
+        
+        obs.forEach(texto => {
+            doc.text(texto, left + 3, y); y += 5;
+        });
+        
+        // ===== RODAPÉ =====
+        y += 5;
+        doc.setDrawColor(...cinzaMedio);
         doc.line(left, y, right, y);
-        y += 6;
+        y += 4;
         
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(11);
-        doc.text("Resumo Financeiro", left, y);
-        y += 6;
-        
+        doc.setTextColor(...cinzaMedio);
         doc.setFont("helvetica", "normal");
-        doc.setFontSize(10);
-        doc.text(`Valor do imóvel: ${formatMoney(valorImovel)}`, left, y); y += 5;
-        doc.text(`Valor do financiamento: ${formatMoney(financiamento)}`, left, y); y += 5;
-        doc.text(`FGTS considerado: ${formatMoney(fgts)}`, left, y); y += 5;
-        doc.text(`Renda familiar: ${formatMoney(d.rendaTotal)}`, left, y); y += 5;
-        doc.text(`Faixa MCMV: ${d.faixa} | Taxa: ${d.taxa.toFixed(2)}% ao ano`, left, y); y += 5;
+        doc.setFontSize(8);
+        doc.text("Raul Mendes Imobiliária | Instagram: @raulmendes.imob", 105, y, { align: "center" });
         
-        y += 2;
-        doc.setDrawColor(220);
-        doc.line(left, y, right, y);
-        y += 6;
-        
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(11);
-        doc.text("Fluxo de Pagamento – Entrada", left, y);
-        y += 6;
-        
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(10);
-        doc.text(`Entrada Total: ${formatMoney(entradaTotal)}`, left, y); y += 5;
-        doc.text(`Ato (Sinal): ${formatMoney(ato)}`, left, y); y += 5;
-        doc.text(`Mensais (${prazo}x): ${formatMoney(mensal)}`, left, y); y += 5;
-        
-        doc.save("simulacao-imobiliaria.pdf");
-        alert('PDF gerado com sucesso!');
+        doc.save("simulacao-imobiliaria-raul-mendes.pdf");
+        alert('✅ PDF gerado com sucesso!');
     }
 
     function setupMasks() {
