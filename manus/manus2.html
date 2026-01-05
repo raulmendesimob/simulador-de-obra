@@ -86,6 +86,8 @@
         .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
         .btn-secondary { background: var(--secondary); color: #fff; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15); }
         .btn-warning { background: var(--orange); color: #fff; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.15); }
+        .btn-success { background: #10b981; color: #fff; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15); }
+        .btn-success:hover { background: #059669; transform: translateY(-1px); }
         .btn-outline { background: transparent; border: 1.5px solid var(--primary); color: var(--primary); }
         .btn-outline:hover { background: var(--primary-light); }
         .btn-outline-secondary { background: transparent; border: 1.5px solid var(--secondary); color: var(--secondary); }
@@ -508,7 +510,7 @@
                             <div class="form-group">
                                 <label for="inccTaxa">Taxa média mensal do INCC (%)</label>
                                 <input type="number" id="inccTaxa" step="0.01" value="0.50" style="padding-left: 16px;">
-                                <small style="display: block; margin-top: 4px; color: #666; font-size: 0.85em;">* Consulta da TR atualizada: <a href="https://debit.com.br/tabelas/tr-bacen" target="_blank" style="color: #0066cc;">debit.com.br/tabelas/tr-bacen</a></small>
+                                <small style="display: block; margin-top: 4px; color: #666; font-size: 0.85em;">* INCC atualizado disponível em: <a href="https://portal.fgv.br/noticias/incc-m-2025" target="_blank" style="color: #0066cc;">portal.fgv.br/noticias/incc-m-2025</a></small>
                             </div>
                             <button class="btn btn-warning" onclick="calcularINCC()"><i data-lucide="calculator"></i> CALCULAR INCC</button>
                         </div>
@@ -542,7 +544,7 @@
                                 </select>
                             </div>
                         </div>
-                        <button class="btn btn-warning" onclick="calcularJuros()"><i data-lucide="calculator"></i> CALCULAR JUROS DE OBRA</button>
+                        <button class="btn btn-success" onclick="calcularJuros()"><i data-lucide="calculator"></i> CALCULAR JUROS DE OBRA</button>
                         <div id="resultadoJuros" class="hidden" style="margin-top: 16px;"></div>
                     </div>
                 </div>
@@ -948,6 +950,7 @@
         `;
         resDiv.classList.remove('hidden');
         document.getElementById('blocosExtras').classList.remove('hidden');
+        document.getElementById('btnResetarFluxo').classList.remove('hidden');
         resDiv.scrollIntoView({ behavior: 'smooth' });
         lucide.createIcons();
     }
@@ -1045,6 +1048,7 @@
         `;
         resDiv.classList.remove('hidden');
         document.getElementById('blocosExtras').classList.remove('hidden');
+        document.getElementById('btnResetarFluxo').classList.remove('hidden');
         resDiv.scrollIntoView({ behavior: 'smooth' });
         lucide.createIcons();
     }
@@ -1071,16 +1075,25 @@
         let saldo = totalSemCorrecao;
         let primeiraParcela = 0;
         let ultimaParcela = 0;
+        let parcelaAnterior = mensal;
+        let somaAumentos = 0;
         
         for (let mes = 1; mes <= prazo; mes++) {
             saldo = saldo * (1 + taxa);
             const parcelaMes = saldo / (prazo - mes + 1);
             if (mes === 1) primeiraParcela = parcelaMes;
             if (mes === prazo) ultimaParcela = parcelaMes;
+            
+            // Calcular o aumento em relação à parcela anterior
+            const aumentoMes = parcelaMes - parcelaAnterior;
+            somaAumentos += aumentoMes;
+            parcelaAnterior = parcelaMes;
+            
             saldo -= parcelaMes;
         }
         
-        const aumentoMedio = (primeiraParcela + ultimaParcela) / 2 - mensal;
+        // Aumento médio por parcela
+        const aumentoMedio = somaAumentos / prazo;
         
         let htmlInter = '';
         if (intermediarias.length > 0) {
@@ -1107,10 +1120,13 @@
                 interCorrigidas.push({ ordem: idx + 1, valor: inter.valor, corrigido: parcelaCorrigida });
             });
             
+            // Gerar string com valores em contrato (podem ser diferentes no modo Detalhado)
+            const valoresContrato = interCorrigidas.map(ic => formatMoney(ic.valor)).join(' | ');
+            
             htmlInter = `
                 <div class="incc-secao">
                     <div class="incc-secao-titulo"><i data-lucide="calendar-check"></i> Intermediárias</div>
-                    <div class="incc-row"><span class="incc-label">Valor Total em Contrato</span><span class="incc-valor">${formatMoney(intermediarias.reduce((s, i) => s + i.valor, 0))}</span></div>
+                    <div class="incc-row"><span class="incc-label">Valor em Contrato</span><span class="incc-valor">${valoresContrato}</span></div>
             `;
             interCorrigidas.forEach(ic => {
                 htmlInter += `<div class="incc-row"><span class="incc-label">${ic.ordem}ª Parcela Corrigida</span><span class="incc-valor">${formatMoney(ic.corrigido)}</span></div>`;
@@ -1118,18 +1134,18 @@
             htmlInter += `</div>`;
         } else if (qtdInter > 0 && valorInter > 0) {
             // Cálculo INCC para Intermediárias Automáticas (Modo Estimada)
-            // Fórmula de tempo: 12m=12, 18m=6+12, 24m=12+12, 30m=12+12+6, 36m=12+12+12
+            // Fórmula: 12m=12ª parcela, 18m=12ª+18ª, 24m=12ª+24ª, 30m=12ª+24ª+30ª, 36m=12ª+24ª+36ª
             let mesesCorrecao = [];
             if (prazo === 12) {
                 mesesCorrecao = [12];
             } else if (prazo === 18) {
-                mesesCorrecao = [6, 12];
+                mesesCorrecao = [12, 18];
             } else if (prazo === 24) {
-                mesesCorrecao = [12, 12];
+                mesesCorrecao = [12, 24];
             } else if (prazo === 30) {
-                mesesCorrecao = [12, 12, 6];
+                mesesCorrecao = [12, 24, 30];
             } else if (prazo === 36) {
-                mesesCorrecao = [12, 12, 12];
+                mesesCorrecao = [12, 24, 36];
             }
             
             let interCorrigidas = [];
@@ -1139,10 +1155,13 @@
                 interCorrigidas.push({ ordem: i + 1, valor: valorInter, corrigido: valorCorrigido, meses });
             }
             
+            // Gerar string com valores em contrato (no Estimado são todos iguais = 100% renda)
+            const valoresContrato = interCorrigidas.map(ic => formatMoney(ic.valor)).join(' | ');
+            
             htmlInter = `
                 <div class="incc-secao">
                     <div class="incc-secao-titulo"><i data-lucide="calendar-check"></i> Intermediárias</div>
-                    <div class="incc-row"><span class="incc-label">Valor Total em Contrato</span><span class="incc-valor">${formatMoney(valorInter * qtdInter)}</span></div>
+                    <div class="incc-row"><span class="incc-label">Valor em Contrato</span><span class="incc-valor">${valoresContrato}</span></div>
             `;
             interCorrigidas.forEach(ic => {
                 htmlInter += `<div class="incc-row"><span class="incc-label">${ic.ordem}ª Parcela Corrigida (${ic.meses} meses)</span><span class="incc-valor">${formatMoney(ic.corrigido)}</span></div>`;
