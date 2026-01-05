@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador Imobiliário Pro v14 - Raul Mendes Imob</title>
+    <title>Simulador Imobiliário Pro v16.1 - Raul Mendes Imob</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
@@ -29,12 +29,13 @@
             --bg-bloco-2: #fffcf5;
             --bg-bloco-3: #f7fff9;
             --bg-diagnostico: #f9f8ff;
-            --bg-simulacao-estimada: #f0fdfa;
-            --bg-simulacao-detalhada: #eff6ff;
+            --bg-simulacao-estimada: #d1fae5;
+            --bg-simulacao-detalhada: #bfdbfe;
             
             --bg-sub-container: #ffffff;
             --bg-inter-bloco: #fffbeb;
             --bg-pos-bloco: #f0f9ff;
+            --bg-subsidio-bloco: #fef3c7;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -63,8 +64,8 @@
         .bloco-3 { background-color: var(--bg-bloco-3); }
         .bloco-diagnostico { background-color: var(--bg-diagnostico); border: 2px solid #eef2ff; }
         
-        .bloco-simulacao-estimada { background-color: var(--bg-simulacao-estimada); border: 2px solid #ccfbf1; }
-        .bloco-simulacao-detalhada { background-color: var(--bg-simulacao-detalhada); border: 2px solid #dbeafe; }
+        .bloco-simulacao-estimada { background-color: var(--bg-simulacao-estimada); border: 2px solid #6ee7b7; }
+        .bloco-simulacao-detalhada { background-color: var(--bg-simulacao-detalhada); border: 2px solid #93c5fd; }
 
         .section-title { font-family: 'Poppins', sans-serif; font-size: 17px; color: var(--text-main); margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
         .section-title i { color: var(--primary); width: 22px; height: 22px; }
@@ -87,22 +88,22 @@
         .btn-warning { background: var(--orange); color: #fff; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.15); }
         .btn-outline { background: transparent; border: 1.5px solid var(--primary); color: var(--primary); }
         .btn-outline:hover { background: var(--primary-light); }
+        .btn-outline-secondary { background: transparent; border: 1.5px solid var(--secondary); color: var(--secondary); }
+        .btn-outline-secondary:hover { background: #eff6ff; }
         .btn-danger-real { background: var(--danger); color: #fff; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15); margin-top: 20px; }
 
-        /* Cards de Escolha */
+        /* Cards de Escolha v15 */
         .choice-grid { display: grid; grid-template-columns: 1fr; gap: 20px; margin-top: 24px; }
         @media (min-width: 600px) { .choice-grid { grid-template-columns: 1fr 1fr; } }
-        .choice-card { background: #fff; border: 2px solid #f1f5f9; border-radius: var(--radius-lg); padding: 24px; text-align: center; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; gap: 12px; }
-        .choice-card.estimada:hover { border-color: var(--primary); background: var(--bg-simulacao-estimada); }
-        .choice-card.detalhada:hover { border-color: var(--secondary); background: var(--bg-simulacao-detalhada); }
-        .choice-card i { width: 40px; height: 40px; margin-bottom: 8px; }
-        .choice-card.estimada i { color: var(--primary); }
-        .choice-card.detalhada i { color: var(--secondary); }
-        .choice-card h4 { font-family: 'Poppins'; font-size: 18px; color: var(--text-main); }
+        .choice-card { border: 2px solid #e2e8f0; border-radius: var(--radius-lg); padding: 28px 24px; text-align: center; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+        .choice-card.estimada { background: var(--bg-simulacao-estimada); border-color: #6ee7b7; }
+        .choice-card.detalhada { background: var(--bg-simulacao-detalhada); border-color: #93c5fd; }
+        .choice-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+        .choice-card h4 { font-family: 'Poppins'; font-size: 22px; color: var(--text-main); font-weight: 800; margin-top: 8px; }
         .choice-card span { font-size: 13px; font-weight: 700; text-transform: uppercase; }
         .choice-card.estimada span { color: var(--primary); }
         .choice-card.detalhada span { color: var(--secondary); }
-        .choice-card p { font-size: 14px; color: var(--text-muted); line-height: 1.4; }
+        .choice-card p { font-size: 14px; color: var(--text-muted); line-height: 1.5; margin-top: 4px; }
 
         .diag-container { display: flex; flex-direction: column; gap: 12px; }
         .diag-item { background: #fff; border-left: 4px solid var(--secondary); padding: 16px; border-radius: 0 var(--radius-md) var(--radius-md) 0; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
@@ -127,7 +128,7 @@
 
         .alerta-box { padding: 14px; border-radius: var(--radius-md); margin-top: 16px; text-align: center; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .alerta-box.sucesso { background: #f0fdf4; color: var(--primary-dark); border: 1px solid #bbf7d0; }
-        .alerta-box.erro { background: #fef2f2; color: var(--danger); border: 1px solid #fecaca; }
+        .alerta-box.aviso { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
 
         .prazo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin-top: 8px; }
         .prazo-btn { padding: 12px; border: 1.5px solid #e2e8f0; border-radius: var(--radius-md); background: #fff; cursor: pointer; text-align: center; transition: all 0.2s; }
@@ -139,8 +140,10 @@
         .mini-bloco { border-radius: var(--radius-md); padding: 16px; margin-top: 12px; border: 1px solid #e2e8f0; }
         .mini-bloco.inter { background: var(--bg-inter-bloco); border-top: 3px solid var(--warning); }
         .mini-bloco.pos { background: var(--bg-pos-bloco); border-top: 3px solid var(--secondary); }
+        .mini-bloco.subsidio { background: var(--bg-subsidio-bloco); border-top: 3px solid var(--warning); }
         .mini-bloco-titulo { font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
         .inter-item { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; background: #ffffff; border-radius: 8px; margin-bottom: 8px; border: 1px solid #edf2f7; }
+        @media (max-width: 500px) { .inter-item { grid-template-columns: 1fr; } }
 
         /* Blocos Expansíveis v13 */
         .bloco-expansivel { background: #fff; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid #e2e8f0; margin-bottom: 16px; box-shadow: var(--shadow-lg); }
@@ -157,10 +160,12 @@
         .bloco-conteudo-exp.open { display: block; }
 
         /* Tabela de Juros */
-        .juros-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
-        .juros-table th, .juros-table td { padding: 10px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        .juros-table { width: 70%; max-width: 600px; border-collapse: collapse; margin: 16px auto; }
+        .juros-table th, .juros-table td { padding: 12px 20px; text-align: center; border-bottom: 1px solid #e2e8f0; }
         .juros-table th { background: #f8fafc; font-weight: 700; font-size: 13px; text-transform: uppercase; color: var(--text-muted); }
         .juros-table td { font-size: 14px; }
+        .juros-table td:first-child { font-weight: 600; color: var(--secondary); }
+        @media (max-width: 768px) { .juros-table { width: 100%; } }
 
         .hidden { display: none !important; }
         .fade-in { animation: fadeIn 0.4s ease-out forwards; }
@@ -172,6 +177,8 @@
         .obs-box { background: #fffbeb; border: 1px solid #fde68a; padding: 12px; border-radius: var(--radius-md); font-size: 13px; color: var(--text-main); margin-top: 12px; line-height: 1.5; }
         .obs-box a { color: var(--secondary); text-decoration: none; font-weight: 600; }
         .obs-box a:hover { text-decoration: underline; }
+        .obs-box ul { margin-left: 18px; margin-top: 6px; }
+        .obs-box li { margin-bottom: 4px; }
         
         /* INCC Result Sections v14 */
         .incc-secao { background: #fff; border-radius: var(--radius-md); padding: 16px; margin-bottom: 16px; border: 1px solid #e2e8f0; }
@@ -321,7 +328,7 @@
                     <div class="input-wrapper"><i data-lucide="piggy-bank"></i><input type="text" id="fgtsVal" class="money-mask" placeholder="R$ 0,00"></div>
                 </div>
             </div>
-            <div style="margin-top: 24px;"><button id="btnGerarDiagnostico" class="btn btn-primary"><i data-lucide="bar-chart-3"></i> GERAR ANÁLISE DE PERFIL</button></div>
+            <div style="margin-top: 24px;"><button id="btnGerarDiagnostico" class="btn btn-primary hidden"><i data-lucide="bar-chart-3"></i> GERAR ANÁLISE DE PERFIL</button></div>
         </section>
 
         <!-- RESULTADO DO DIAGNÓSTICO -->
@@ -331,40 +338,39 @@
                 <div id="diagnosticoResumo" class="diag-container"></div>
             </section>
 
-            <!-- ESCOLHA DO TIPO DE SIMULAÇÃO -->
+            <!-- ESCOLHA DO TIPO DE SIMULAÇÃO v15 -->
             <section id="blocoEscolha" class="card fade-in">
                 <h3 class="section-title"><i data-lucide="layers"></i> Escolha o tipo de simulação</h3>
                 <div class="choice-grid">
                     <div class="choice-card estimada" onclick="selectSimType('estimada')">
-                        <i data-lucide="search"></i>
                         <span>Simulação Estimada</span>
                         <h4>🔍 Quero apenas ter uma ideia</h4>
                         <p>Ideal para quem está começando a pesquisar e ainda não tem um imóvel definido.</p>
                         <button class="btn btn-outline">Selecionar</button>
                     </div>
                     <div class="choice-card detalhada" onclick="selectSimType('detalhada')">
-                        <i data-lucide="target"></i>
                         <span>Simulação Detalhada</span>
                         <h4>🎯 Já conheço o empreendimento</h4>
-                        <p>Ideal para quem já está em negociação e possui o valor real e de avaliação do imóvel.</p>
-                        <button class="btn btn-outline">Selecionar</button>
+                        <p>Ideal para quem já está em negociação e possui os valores reais.</p>
+                        <button class="btn btn-outline-secondary">Selecionar</button>
                     </div>
                 </div>
             </section>
 
-            <!-- BLOCO DE SIMULAÇÃO ESTIMADA -->
+            <!-- BLOCO DE SIMULAÇÃO ESTIMADA v15 -->
             <section id="blocoSimulacaoEstimada" class="card bloco-simulacao-estimada fade-in hidden">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h3 class="section-title" style="margin-bottom: 0;"><i data-lucide="calculator"></i> Simulação Estimada</h3>
-                    <button class="btn btn-outline" style="width: auto; padding: 8px 16px; font-size: 13px;" onclick="backToChoice()"><i data-lucide="arrow-left"></i> Voltar</button>
+                    <button class="btn btn-outline-secondary" style="width: auto; padding: 8px 16px; font-size: 13px;" onclick="backToChoice()"><i data-lucide="arrow-left"></i> Voltar</button>
                 </div>
                 <div class="grid">
                     <div class="form-group">
                         <label for="valorImovel">💰 Valor do Imóvel Pretendido</label>
                         <div class="input-wrapper"><i data-lucide="home"></i><input type="text" id="valorImovel" class="money-mask" placeholder="R$ 0,00"></div>
+                        <div id="avisoTetoImovel" style="font-size: 11px; color: var(--danger); font-weight: 600; margin-top: 4px; display: none;"></div>
                     </div>
                     <div class="form-group" style="background: #f0f9ff; padding: 15px; border-radius: var(--radius-md); border: 1px solid #bae6fd;">
-                        <label for="valorAto">💳 Valor do Ato (1ª Parcela)</label>
+                        <label for="valorAto">💳 Valor do Ato (1ª Parcela) <span class="obs-italico">Valor Guardado p/ Entrada</span></label>
                         <div class="input-wrapper"><i data-lucide="wallet"></i><input type="text" id="valorAto" class="money-mask" placeholder="R$ 0,00"></div>
                     </div>
                     <div class="form-group">
@@ -381,25 +387,48 @@
                 </div>
             </section>
 
-            <!-- BLOCO DE SIMULAÇÃO DETALHADA v12 -->
+            <!-- BLOCO DE SIMULAÇÃO DETALHADA v15 -->
             <section id="blocoSimulacaoDetalhada" class="card bloco-simulacao-detalhada fade-in hidden">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h3 class="section-title" style="margin-bottom: 0;"><i data-lucide="target"></i> Simulação Detalhada</h3>
                     <button class="btn btn-outline" style="width: auto; padding: 8px 16px; font-size: 13px;" onclick="backToChoice()"><i data-lucide="arrow-left"></i> Voltar</button>
                 </div>
                 <div class="grid">
-                    <!-- Container de Valores do Imóvel -->
+                    <!-- Container de Valores do Imóvel v15 -->
                     <div class="sub-container">
-                        <div class="grid grid-2">
+                        <div class="grid">
                             <div class="form-group">
                                 <label for="valorReal">🏠 Valor Real do Imóvel (Venda)</label>
                                 <div class="input-wrapper"><i data-lucide="home"></i><input type="text" id="valorReal" class="money-mask" placeholder="R$ 0,00"></div>
                             </div>
-                            <div class="form-group">
-                                <label for="valorAvaliacao">📋 Valor de Avaliação</label>
-                                <div class="input-wrapper"><i data-lucide="clipboard-check"></i><input type="text" id="valorAvaliacao" class="money-mask" placeholder="R$ 0,00"></div>
-                                <div id="avisoTetoAval" style="font-size: 11px; color: var(--danger); font-weight: 600; margin-top: 4px; display: none;"></div>
+                            <div class="grid grid-2">
+                                <div class="form-group">
+                                    <label for="valorAvaliacao">📋 Valor de Avaliação</label>
+                                    <div class="input-wrapper"><i data-lucide="clipboard-check"></i><input type="text" id="valorAvaliacao" class="money-mask" placeholder="R$ 0,00"></div>
+                                    <div id="avisoTetoAval" style="font-size: 11px; color: var(--danger); font-weight: 600; margin-top: 4px; display: none;"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="financiamentoAprovado">💰 Financiamento</label>
+                                    <div class="input-wrapper"><i data-lucide="check-square"></i><input type="text" id="financiamentoAprovado" class="money-mask" placeholder="R$ 0,00"></div>
+                                </div>
                             </div>
+                        </div>
+                    </div>
+                    
+                    <!-- SUBSÍDIO v15 -->
+                    <div class="mini-bloco subsidio">
+                        <div class="form-group">
+                            <label>🎁 Tem subsídio do governo?</label>
+                            <div class="input-wrapper"><i data-lucide="help-circle"></i>
+                                <select id="temSubsidio">
+                                    <option value="nao">Não</option>
+                                    <option value="sim">Sim</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="boxSubsidioVal" class="form-group hidden" style="margin-top: 10px;">
+                            <label>Valor do Subsídio</label>
+                            <div class="input-wrapper"><i data-lucide="gift"></i><input type="text" id="subsidioVal" class="money-mask" placeholder="R$ 0,00"></div>
                         </div>
                     </div>
                     
@@ -479,6 +508,7 @@
                             <div class="form-group">
                                 <label for="inccTaxa">Taxa média mensal do INCC (%)</label>
                                 <input type="number" id="inccTaxa" step="0.01" value="0.50" style="padding-left: 16px;">
+                                <small style="display: block; margin-top: 4px; color: #666; font-size: 0.85em;">* Consulta da TR atualizada: <a href="https://debit.com.br/tabelas/tr-bacen" target="_blank" style="color: #0066cc;">debit.com.br/tabelas/tr-bacen</a></small>
                             </div>
                             <button class="btn btn-warning" onclick="calcularINCC()"><i data-lucide="calculator"></i> CALCULAR INCC</button>
                         </div>
@@ -495,11 +525,12 @@
                     <div class="bloco-conteudo-exp" id="conteudoJuros">
                         <div class="grid grid-2">
                             <div class="form-group">
-                                <label for="trTaxa">TR - Taxa Referencial (%)</label>
+                                <label for="trTaxa">TR (%)</label>
                                 <input type="number" id="trTaxa" step="0.01" value="0.17" style="padding-left: 16px;">
+                                <small style="font-size: 11px; color: #666; display: block; margin-top: 4px;">* Consulta da TR atualizada: <a href="https://www.debit.com.br/tabelas/tr-bacen" target="_blank" style="color: #059669;">debit.com.br/tabelas/tr-bacen</a></small>
                             </div>
                             <div class="form-group">
-                                <label for="taxasAdm">Taxas Adm + Seguros (R$)</label>
+                                <label for="taxasAdm">Taxas Adm + Seguros (R$) <span style="font-size: 11px; color: #666; font-weight: 400;">(Valor Médio)</span></label>
                                 <input type="text" id="taxasAdm" class="money-mask" placeholder="R$ 0,00">
                             </div>
                             <div class="form-group">
@@ -532,7 +563,10 @@
                 </div>
             </div>
         </div>
-        <div style="text-align: center; margin-bottom: 40px;"><button id="btnLimpar" class="btn btn-danger-real">🗑️ REINICIAR SIMULADOR</button></div>
+        <div style="text-align: center; margin-bottom: 40px; display: flex; flex-direction: column; gap: 12px; max-width: 400px; margin-left: auto; margin-right: auto;">
+            <button id="btnResetarFluxo" class="btn btn-outline-secondary hidden">🔄 RESETAR FLUXO</button>
+            <button id="btnLimpar" class="btn btn-danger-real">🗑️ REINICIAR SIMULADOR</button>
+        </div>
     </main>
 </div>
 
@@ -560,7 +594,6 @@
         popularPrazosObra();
         setupEventListeners(); 
         setupMasks(); 
-        // Preencher taxas padrão
         document.getElementById('taxasAdm').value = formatMoney(65);
     });
 
@@ -605,10 +638,12 @@
             checkStepFinanceiro();
         });
         ['idade1', 'idade2', 'estado'].forEach(id => { document.getElementById(id).addEventListener('change', checkStepFinanceiro); });
-        ['renda1', 'renda2', 'temGuardado', 'valorGuardado'].forEach(id => { document.getElementById(id).addEventListener('input', checkStepTrabalho); document.getElementById(id).addEventListener('change', checkStepTrabalho); });
+        ['renda1', 'renda2', 'temGuardado', 'valorGuardado'].forEach(id => { 
+            document.getElementById(id).addEventListener('input', () => { checkStepTrabalho(); atualizarBotaoDiagnostico(); }); 
+            document.getElementById(id).addEventListener('change', () => { checkStepTrabalho(); atualizarBotaoDiagnostico(); }); 
+        });
         document.getElementById('temGuardado').addEventListener('change', (e) => { document.getElementById('boxValorGuardado').classList.toggle('hidden', e.target.value !== 'sim'); });
         
-        // Lógica FGTS Restrita v12
         document.getElementById('regimeTrabalho').addEventListener('change', (e) => {
             const isClt3 = e.target.value === 'clt3';
             document.getElementById('boxUsaFgts').classList.toggle('hidden', !isClt3);
@@ -618,14 +653,19 @@
                 document.getElementById('fgtsVal').value = '';
             }
         });
-        document.getElementById('usaFgts').addEventListener('change', (e) => { document.getElementById('boxFgtsVal').classList.toggle('hidden', e.target.value !== 'sim'); });
+        document.getElementById('usaFgts').addEventListener('change', (e) => { 
+            document.getElementById('boxFgtsVal').classList.toggle('hidden', e.target.value !== 'sim'); 
+            atualizarBotaoDiagnostico();
+        });
+        document.getElementById('fgtsVal').addEventListener('input', atualizarBotaoDiagnostico);
+        document.getElementById('fgtsVal').addEventListener('change', atualizarBotaoDiagnostico);
+        document.getElementById('regimeTrabalho').addEventListener('change', atualizarBotaoDiagnostico);
         
         document.getElementById('btnGerarDiagnostico').addEventListener('click', gerarDiagnostico);
         document.querySelectorAll('.prazo-btn').forEach(btn => {
             btn.addEventListener('click', () => { document.querySelectorAll('.prazo-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); state.prazoSelecionado = parseInt(btn.dataset.meses); });
         });
         
-        // Eventos Detalhada
         document.getElementById('temInterDet').addEventListener('change', (e) => {
             const sim = e.target.value === 'sim';
             document.getElementById('boxQtdInter').classList.toggle('hidden', !sim);
@@ -634,7 +674,10 @@
         });
         document.getElementById('qtdInterDet').addEventListener('change', updateInterItems);
         
-        // Trava de Avaliação v12
+        document.getElementById('temSubsidio').addEventListener('change', (e) => {
+            document.getElementById('boxSubsidioVal').classList.toggle('hidden', e.target.value !== 'sim');
+        });
+        
         document.getElementById('valorAvaliacao').addEventListener('blur', (e) => {
             if (!state.dadosDiagnostico) return;
             let val = parseMoney(e.target.value);
@@ -645,11 +688,46 @@
             } else {
                 document.getElementById('avisoTetoAval').style.display = 'none';
             }
+            
+            // Preenche o financiamento apenas se estiver vazio (sugestão inicial)
+            const campoFin = document.getElementById('financiamentoAprovado');
+            if (!campoFin.value || parseMoney(campoFin.value) === 0) {
+                const finEst = Math.min(val * CONFIG.LTV_MAX, state.dadosDiagnostico.capFinanciamento, state.dadosDiagnostico.teto);
+                campoFin.value = formatMoney(finEst);
+            }
+        });
+        
+        // Validação do Financiamento (editável)
+        document.getElementById('financiamentoAprovado').addEventListener('blur', (e) => {
+            if (!state.dadosDiagnostico) return;
+            const valorAval = parseMoney(document.getElementById('valorAvaliacao').value);
+            if (!valorAval) return;
+            
+            const finDigitado = parseMoney(e.target.value);
+            const limiteMax = Math.min(valorAval * CONFIG.LTV_MAX, state.dadosDiagnostico.capFinanciamento, state.dadosDiagnostico.teto);
+            
+            if (finDigitado > limiteMax) {
+                e.target.value = formatMoney(limiteMax);
+                alert(`⚠️ O financiamento aprovado não pode ultrapassar:\n\n• 80% da Avaliação: ${formatMoney(valorAval * CONFIG.LTV_MAX)}\n• Capacidade pela Renda: ${formatMoney(state.dadosDiagnostico.capFinanciamento)}\n• Teto da Faixa: ${formatMoney(state.dadosDiagnostico.teto)}\n\nValor ajustado para: ${formatMoney(limiteMax)}`);
+            }
+        });
+        
+        document.getElementById('valorImovel').addEventListener('blur', (e) => {
+            if (!state.dadosDiagnostico) return;
+            let val = parseMoney(e.target.value);
+            if (val > state.dadosDiagnostico.teto) {
+                e.target.value = formatMoney(state.dadosDiagnostico.teto);
+                document.getElementById('avisoTetoImovel').style.display = 'block';
+                document.getElementById('avisoTetoImovel').textContent = `⚠️ Valor limitado ao teto da faixa (${formatMoney(state.dadosDiagnostico.teto)}). Para valores maiores, use a Simulação Detalhada.`;
+            } else {
+                document.getElementById('avisoTetoImovel').style.display = 'none';
+            }
         });
 
         document.getElementById('btnCalcularEstimada').addEventListener('click', calcularFluxoEstimado);
         document.getElementById('btnCalcularDetalhada').addEventListener('click', calcularFluxoDetalhado);
         document.getElementById('btnLimpar').addEventListener('click', () => { if(confirm('Deseja realmente reiniciar?')) location.reload(); });
+        document.getElementById('btnResetarFluxo').addEventListener('click', resetarFluxo);
     }
 
     function updateInterItems() {
@@ -756,11 +834,11 @@
 
         let html = `
             <div class="diag-item"><div class="diag-label">🏠 Faixa do Minha Casa Minha Vida</div><div class="diag-value">Você faz parte da <strong>Faixa ${faixa}</strong> do Programa.</div></div>
-            <div class="diag-item"><div class="diag-label">💰 Teto do Programa</div><div class="diag-value">Na sua faixa, é possível adquirir imóveis de <strong>até ${formatMoney(teto)}</strong>.</div></div>
+            <div class="diag-item"><div class="diag-label">💰 Teto do Programa</div><div class="diag-value">Na sua faixa, é possível adquirir imóveis de <strong>até ${formatMoney(teto)} de avaliação</strong>.</div></div>
             <div class="diag-item destaque"><div class="diag-label">📈 Taxa de Juros e Prazo</div><div class="diag-value">Taxa de <strong>${taxa.toFixed(2)}% ao ano</strong> com prazo máximo de <strong>${prazoFinalFinanciamento} meses</strong>.</div></div>
-            <div class="diag-item"><div class="diag-label">📊 Parcela Máxima Mensal</div><div class="diag-value">O limite de comprometimento da sua renda é de <strong>${formatMoney(parcelaMax)}</strong>.</div></div>
+            <div class="diag-item"><div class="diag-label">📊 Parcela</div><div class="diag-value">A sua parcela máxima de pagamento mensal do financiamento é de <strong>${formatMoney(parcelaMax)}</strong>.</div></div>
         `;
-        if (faixa <= 2) html += `<div class="diag-item subsidio"><div class="diag-label">🎁 Subsídio do Governo</div><div class="diag-value">Você pode ter direito a subsídio (A ser verificado durante Análise Caixa).</div></div>`;
+        if (faixa <= 2) html += `<div class="diag-item subsidio"><div class="diag-label">🎁 Subsídio do Governo</div><div class="diag-value">Você pode ter direito a <strong>subsídio</strong> (A ser verificado durante Análise Caixa).</div></div>`;
 
         document.getElementById('diagnosticoResumo').innerHTML = html;
         document.getElementById('diagnosticoContainer').classList.remove('hidden');
@@ -774,43 +852,123 @@
     }
 
     function calcularFluxoEstimado() {
+        limparResultadosINCC_Juros(); // Limpa INCC e Juros ao recalcular
         const d = state.dadosDiagnostico;
         if (!d) return alert('Gere a análise de perfil primeiro.');
         if (!state.prazoSelecionado) return alert('Selecione o prazo de entrega');
 
         const valorImovel = parseMoney(document.getElementById('valorImovel').value);
-        const valorAto = parseMoney(document.getElementById('valorAto').value) || 1000;
+        let valorAto = parseMoney(document.getElementById('valorAto').value);
+        const usouAtoDefault = valorAto === 0;
+        if (valorAto === 0) valorAto = 1000;
+        
         if (!valorImovel) return alert('Informe o valor do imóvel');
 
-        const financiamentoEstimado = Math.min(d.capFinanciamento, valorImovel * CONFIG.LTV_MAX, d.teto);
+        // Financiamento = menor entre: 80% avaliação, capacidade renda, teto (mesma lógica da detalhada)
+        const financiamentoEstimado = Math.min(valorImovel * CONFIG.LTV_MAX, d.capFinanciamento, d.teto);
         const entradaTotal = valorImovel - financiamentoEstimado - d.fgts;
-        const parcelaMensal = (entradaTotal - valorAto) / state.prazoSelecionado;
-        const ultrapassa = parcelaMensal > d.parcelaMax;
+        
+        const prazo = state.prazoSelecionado;
+        let qtdInter = 0;
+        if (prazo === 12) qtdInter = 1;
+        else if (prazo === 18 || prazo === 24) qtdInter = 2;
+        else if (prazo === 30 || prazo === 36) qtdInter = 3;
+        
+        const valorInter = qtdInter > 0 ? d.rendaTotal : 0;
+        const totalInter = valorInter * qtdInter;
+        
+        const saldoParaMensais = entradaTotal - valorAto - totalInter;
+        const parcelaMensal = Math.max(0, saldoParaMensais / prazo);
+        const ultrapassa = parcelaMensal > (d.rendaTotal * 0.30);
+        
+        const saldoRestante = ultrapassa ? (parcelaMensal - (d.rendaTotal * 0.30)) * prazo : 0;
 
         state.ultimoCalculo = {
             valorImovel, financiamento: financiamentoEstimado, fgts: d.fgts, entradaTotal, 
-            ato: valorAto, mensal: parcelaMensal, prazo: state.prazoSelecionado, ultrapassa,
-            intermediarias: []
+            ato: valorAto, mensal: parcelaMensal, prazo, ultrapassa,
+            intermediarias: [], qtdInter, valorInter, saldoRestante, usouAtoDefault
         };
 
-        renderResultado(valorImovel, financiamentoEstimado, d.fgts, entradaTotal, valorAto, parcelaMensal, state.prazoSelecionado, 0, 0, ultrapassa);
+        renderResultadoEstimado(valorImovel, financiamentoEstimado, d.fgts, entradaTotal, valorAto, parcelaMensal, prazo, qtdInter, valorInter, ultrapassa, saldoRestante, usouAtoDefault);
+    }
+
+    function renderResultadoEstimado(valorImovel, financiamento, fgts, entradaTotal, ato, mensal, prazo, qtdInter, valorInter, ultrapassa, saldoRestante, usouAtoDefault) {
+        const resDiv = document.getElementById('fluxoResultado');
+        const hoje = new Date();
+        const previsao = new Date(hoje.getFullYear(), hoje.getMonth() + prazo, 1);
+        const mesesNomes = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+        const previsaoTexto = `${mesesNomes[previsao.getMonth()]}/${previsao.getFullYear().toString().substr(-2)}`;
+
+        let interHtml = '';
+        if (qtdInter > 0) {
+            interHtml = `<div class="fluxo-row"><span class="fluxo-label">Intermediárias/Anuais (${qtdInter}x)</span><span class="fluxo-valor">${formatMoney(valorInter)}</span></div>`;
+        }
+
+        resDiv.innerHTML = `
+            <div class="fluxo-card fade-in">
+                <div class="fluxo-header">
+                    <h4>📋 Fluxo de Pagamento - ${prazo} meses</h4>
+                    <p>📅 Previsão estimada de entrega: <strong>${previsaoTexto}</strong></p>
+                </div>
+                <div class="fluxo-body">
+                    <div class="fluxo-row"><span class="fluxo-label">Valor do Imóvel</span><span class="fluxo-valor color-azul">${formatMoney(valorImovel)}</span></div>
+                    <div class="fluxo-row"><span class="fluxo-label">Financiamento Estimado</span><span class="fluxo-valor color-laranja">${formatMoney(financiamento)}</span></div>
+                    ${fgts > 0 ? `<div class="fluxo-row"><span class="fluxo-label">FGTS</span><span class="fluxo-valor color-laranja">${formatMoney(fgts)}</span></div>` : ''}
+                    
+                    <div class="fluxo-destaque">
+                        <span class="label">Entrada Total - Parcelamento no Período de Obras</span>
+                        <span class="valor">${formatMoney(entradaTotal)}</span>
+                    </div>
+
+                    <div class="fluxo-secao">
+                        <div class="fluxo-secao-titulo"><i data-lucide="credit-card"></i> Divisão do Pagamento</div>
+                        <div class="fluxo-row"><span class="fluxo-label">Ato (Sinal)</span><span class="fluxo-valor">${formatMoney(ato)}</span></div>
+                        ${interHtml}
+                        <div class="fluxo-row"><span class="fluxo-label">Parcelas Mensais (${prazo}x)</span><span class="fluxo-valor">${formatMoney(mensal)}</span></div>
+                        ${saldoRestante > 0 ? `<div class="fluxo-row"><span class="fluxo-label">Saldo Restante (Pós-Chaves)</span><span class="fluxo-valor" style="color: var(--danger)">${formatMoney(saldoRestante)}</span></div>` : ''}
+                    </div>
+
+                    <div class="alerta-box ${ultrapassa ? 'aviso' : 'sucesso'}">
+                        <i data-lucide="${ultrapassa ? 'alert-circle' : 'check-circle'}"></i>
+                        ${ultrapassa 
+                            ? '⚠️ Fluxo de Pagamento da Entrada ultrapassa o Período de Obras. Verifique com corretor/construtora a possibilidade de Pagamento Pós-Chaves.' 
+                            : '✅ Fluxo de Pagamento da Entrada dentro do Período de Obras.'}
+                    </div>
+                    
+                    <div class="obs-box">
+                        <strong>📌 Observações:</strong>
+                        <ul>
+                            <li>Utilizando como limitadores: <strong>30% da renda</strong> para parcelas mensais e <strong>100% da renda</strong> para parcelas intermediárias/anuais.</li>
+                            ${usouAtoDefault ? '<li>Estipulado <strong>R$ 1.000,00</strong> de ato (valor mínimo sugerido).</li>' : ''}
+                            <li>Valores são estimativas e para fins educativos. <strong>Consulte seu corretor para valores reais</strong>.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        `;
+        resDiv.classList.remove('hidden');
+        document.getElementById('blocosExtras').classList.remove('hidden');
+        resDiv.scrollIntoView({ behavior: 'smooth' });
+        lucide.createIcons();
     }
 
     function calcularFluxoDetalhado() {
+        limparResultadosINCC_Juros(); // Limpa INCC e Juros ao recalcular
         const d = state.dadosDiagnostico;
         if (!d) return alert('Gere a análise de perfil primeiro.');
 
         const valorReal = parseMoney(document.getElementById('valorReal').value);
         const valorAval = parseMoney(document.getElementById('valorAvaliacao').value);
+        const financiamentoAprovado = parseMoney(document.getElementById('financiamentoAprovado').value);
+        const subsidio = document.getElementById('temSubsidio').value === 'sim' ? parseMoney(document.getElementById('subsidioVal').value) : 0;
         const valorAto = parseMoney(document.getElementById('valorAtoDet').value);
         const prazo = parseInt(document.getElementById('prazoObraDet').value);
         const temInterm = document.getElementById('temInterDet').value === 'sim';
         const aceitaPos = document.getElementById('aceitaPosChaves').value === 'sim';
 
-        if (!valorReal || !valorAval || !prazo) return alert('Preencha os valores e selecione o prazo');
+        if (!valorReal || !financiamentoAprovado || !prazo) return alert('Preencha os valores e selecione o prazo');
 
-        const financiamentoAprovado = Math.min(valorAval * CONFIG.LTV_MAX, d.capFinanciamento, d.teto);
-        const entradaTotal = valorReal - financiamentoAprovado - d.fgts;
+        const entradaTotal = valorReal - financiamentoAprovado - d.fgts - subsidio;
         
         let somaInter = 0;
         let intermediarias = [];
@@ -826,22 +984,30 @@
 
         const saldoParaMensais = entradaTotal - valorAto - somaInter;
         const parcelaMensal = Math.max(0, saldoParaMensais / prazo);
-        const ultrapassa = parcelaMensal > d.parcelaMax;
+        const ultrapassa = saldoParaMensais < 0;
 
         state.ultimoCalculo = {
-            valorImovel: valorReal, financiamento: financiamentoAprovado, fgts: d.fgts, entradaTotal, 
+            valorImovel: valorReal, financiamento: financiamentoAprovado, fgts: d.fgts, subsidio, entradaTotal, 
             ato: valorAto, mensal: parcelaMensal, prazo, ultrapassa, somaInter, aceitaPos, intermediarias
         };
 
-        renderResultado(valorReal, financiamentoAprovado, d.fgts, entradaTotal, valorAto, parcelaMensal, prazo, 0, somaInter, ultrapassa, 0, aceitaPos);
+        renderResultadoDetalhado(valorReal, financiamentoAprovado, d.fgts, subsidio, entradaTotal, valorAto, parcelaMensal, prazo, intermediarias, ultrapassa, aceitaPos);
     }
 
-    function renderResultado(valorImovel, financiamento, fgts, entradaTotal, ato, mensal, prazo, qtdInter, valInter, ultrapassa, saldoRestante = 0, aceitaPos = false) {
+    function renderResultadoDetalhado(valorImovel, financiamento, fgts, subsidio, entradaTotal, ato, mensal, prazo, intermediarias, ultrapassa, aceitaPos) {
         const resDiv = document.getElementById('fluxoResultado');
         const hoje = new Date();
         const previsao = new Date(hoje.getFullYear(), hoje.getMonth() + prazo, 1);
         const mesesNomes = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
         const previsaoTexto = `${mesesNomes[previsao.getMonth()]}/${previsao.getFullYear().toString().substr(-2)}`;
+
+        let interHtml = '';
+        if (intermediarias.length > 0) {
+            const valores = intermediarias.map(i => i.valor);
+            const todosIguais = valores.every(v => v === valores[0]);
+            const textoValores = todosIguais ? formatMoney(valores[0]) : valores.map(v => formatMoney(v)).join(' | ');
+            interHtml = `<div class="fluxo-row"><span class="fluxo-label">Intermediárias/Anuais (${intermediarias.length}x)</span><span class="fluxo-valor">${textoValores}</span></div>`;
+        }
 
         resDiv.innerHTML = `
             <div class="fluxo-card fade-in">
@@ -851,26 +1017,28 @@
                 </div>
                 <div class="fluxo-body">
                     <div class="fluxo-row"><span class="fluxo-label">Valor do Imóvel</span><span class="fluxo-valor color-azul">${formatMoney(valorImovel)}</span></div>
-                    <div class="fluxo-row"><span class="fluxo-label">Financiamento ${state.simType === 'estimada' ? 'Estimado' : 'Aprovado'}</span><span class="fluxo-valor color-laranja">${formatMoney(financiamento)}</span></div>
+                    <div class="fluxo-row"><span class="fluxo-label">Financiamento Aprovado</span><span class="fluxo-valor color-laranja">${formatMoney(financiamento)}</span></div>
                     ${fgts > 0 ? `<div class="fluxo-row"><span class="fluxo-label">FGTS</span><span class="fluxo-valor color-laranja">${formatMoney(fgts)}</span></div>` : ''}
+                    ${subsidio > 0 ? `<div class="fluxo-row"><span class="fluxo-label">Subsídio</span><span class="fluxo-valor color-laranja">${formatMoney(subsidio)}</span></div>` : ''}
                     
                     <div class="fluxo-destaque">
                         <span class="label">Entrada Total - Parcelamento no Período de Obras</span>
-                        <span class="valor">${formatMoney(entradaTotal + fgts)}</span>
+                        <span class="valor">${formatMoney(entradaTotal)}</span>
                     </div>
 
                     <div class="fluxo-secao">
                         <div class="fluxo-secao-titulo"><i data-lucide="credit-card"></i> Divisão do Pagamento</div>
                         ${ato > 0 ? `<div class="fluxo-row"><span class="fluxo-label">Ato (Sinal)</span><span class="fluxo-valor">${formatMoney(ato)}</span></div>` : ''}
-                        ${valInter > 0 ? `<div class="fluxo-row"><span class="fluxo-label">Total Intermediárias</span><span class="fluxo-valor">${formatMoney(valInter)}</span></div>` : ''}
-                        <div class="fluxo-row"><span class="fluxo-label">Parcelas Mensais (${prazo}x)</span><span class="fluxo-valor" style="color: ${ultrapassa ? 'var(--danger)' : 'var(--text-main)'}">${formatMoney(mensal)}</span></div>
+                        ${interHtml}
+                        <div class="fluxo-row"><span class="fluxo-label">Parcelas Mensais (${prazo}x)</span><span class="fluxo-valor">${formatMoney(mensal)}</span></div>
+                        ${ultrapassa ? `<div class="fluxo-row"><span class="fluxo-label">Saldo Restante</span><span class="fluxo-valor" style="color: var(--danger)">Verificar Pós-Chaves</span></div>` : ''}
                     </div>
 
-                    <div class="alerta-box ${ultrapassa ? 'erro' : 'sucesso'}">
-                        <i data-lucide="${ultrapassa ? 'alert-triangle' : 'check-circle'}"></i>
+                    <div class="alerta-box ${ultrapassa ? 'aviso' : 'sucesso'}">
+                        <i data-lucide="${ultrapassa ? 'alert-circle' : 'check-circle'}"></i>
                         ${ultrapassa 
-                            ? (aceitaPos ? 'Parcela mensal alta. O saldo restante poderá ser negociado como Pós-Chaves.' : 'Parcela mensal ultrapassa 30% da renda. Verifique com seu corretor.') 
-                            : 'Fluxo aprovado! Parcelas cabem na sua renda.'}
+                            ? '⚠️ Fluxo de Pagamento da Entrada ultrapassa o Período de Obras.' 
+                            : '✅ Fluxo de Pagamento da Entrada dentro do Período de Obras.'}
                     </div>
                 </div>
             </div>
@@ -896,24 +1064,33 @@
         if (!state.ultimoCalculo) return alert('Calcule o fluxo de entrada primeiro.');
         
         const taxa = parseFloat(document.getElementById('inccTaxa').value) / 100 || 0.005;
-        const { mensal, prazo, intermediarias = [], ato, aceitaPos = false } = state.ultimoCalculo;
+        const { mensal, prazo, intermediarias = [], qtdInter = 0, valorInter = 0, ato, aceitaPos = false } = state.ultimoCalculo;
         
-        // Cálculo Mensais
+        // Cálculo INCC Correto: Amortização sobre Saldo Devedor
         const totalSemCorrecao = mensal * prazo;
-        let totalCorrigido = 0;
-        for (let mes = 1; mes <= prazo; mes++) {
-            const mesesRestantes = prazo - mes;
-            const correcao = mensal * Math.pow(1 + taxa, mesesRestantes);
-            totalCorrigido += correcao;
-        }
-        const aumentoMedio = (totalCorrigido - totalSemCorrecao) / prazo;
-        const ultimaParcela = mensal * Math.pow(1 + taxa, prazo - 1);
+        let saldo = totalSemCorrecao;
+        let primeiraParcela = 0;
+        let ultimaParcela = 0;
         
-        // Cálculo Intermediárias
+        for (let mes = 1; mes <= prazo; mes++) {
+            saldo = saldo * (1 + taxa);
+            const parcelaMes = saldo / (prazo - mes + 1);
+            if (mes === 1) primeiraParcela = parcelaMes;
+            if (mes === prazo) ultimaParcela = parcelaMes;
+            saldo -= parcelaMes;
+        }
+        
+        const aumentoMedio = (primeiraParcela + ultimaParcela) / 2 - mensal;
+        
         let htmlInter = '';
         if (intermediarias.length > 0) {
+            // Cálculo INCC Intermediárias: Saldo corrigido mensalmente até cada pagamento
             const hoje = new Date();
             let interCorrigidas = [];
+            const totalInter = intermediarias.reduce((s, i) => s + i.valor, 0);
+            let saldoInter = totalInter;
+            const qtd = intermediarias.length;
+            
             intermediarias.forEach((inter, idx) => {
                 const [mesAno, anoAno] = inter.data.split('/');
                 const mesesNomes = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
@@ -921,8 +1098,13 @@
                 const ano = 2000 + parseInt(anoAno);
                 const dataPgto = new Date(ano, mesIdx, 1);
                 const mesesAteData = Math.max(0, Math.round((dataPgto - hoje) / (1000 * 60 * 60 * 24 * 30)));
-                const valorCorrigido = inter.valor * Math.pow(1 + taxa, mesesAteData);
-                interCorrigidas.push({ ordem: idx + 1, valor: inter.valor, corrigido: valorCorrigido });
+                
+                // Corrige o saldo total até a data de pagamento
+                const saldoCorrigido = saldoInter * Math.pow(1 + taxa, mesesAteData);
+                const parcelaCorrigida = saldoCorrigido / (qtd - idx);
+                saldoInter -= inter.valor; // Reduz o saldo pelo valor original
+                
+                interCorrigidas.push({ ordem: idx + 1, valor: inter.valor, corrigido: parcelaCorrigida });
             });
             
             htmlInter = `
@@ -932,6 +1114,38 @@
             `;
             interCorrigidas.forEach(ic => {
                 htmlInter += `<div class="incc-row"><span class="incc-label">${ic.ordem}ª Parcela Corrigida</span><span class="incc-valor">${formatMoney(ic.corrigido)}</span></div>`;
+            });
+            htmlInter += `</div>`;
+        } else if (qtdInter > 0 && valorInter > 0) {
+            // Cálculo INCC para Intermediárias Automáticas (Modo Estimada)
+            // Fórmula de tempo: 12m=12, 18m=6+12, 24m=12+12, 30m=12+12+6, 36m=12+12+12
+            let mesesCorrecao = [];
+            if (prazo === 12) {
+                mesesCorrecao = [12];
+            } else if (prazo === 18) {
+                mesesCorrecao = [6, 12];
+            } else if (prazo === 24) {
+                mesesCorrecao = [12, 12];
+            } else if (prazo === 30) {
+                mesesCorrecao = [12, 12, 6];
+            } else if (prazo === 36) {
+                mesesCorrecao = [12, 12, 12];
+            }
+            
+            let interCorrigidas = [];
+            for (let i = 0; i < qtdInter; i++) {
+                const meses = mesesCorrecao[i] || 0;
+                const valorCorrigido = valorInter * Math.pow(1 + taxa, meses);
+                interCorrigidas.push({ ordem: i + 1, valor: valorInter, corrigido: valorCorrigido, meses });
+            }
+            
+            htmlInter = `
+                <div class="incc-secao">
+                    <div class="incc-secao-titulo"><i data-lucide="calendar-check"></i> Intermediárias</div>
+                    <div class="incc-row"><span class="incc-label">Valor Total em Contrato</span><span class="incc-valor">${formatMoney(valorInter * qtdInter)}</span></div>
+            `;
+            interCorrigidas.forEach(ic => {
+                htmlInter += `<div class="incc-row"><span class="incc-label">${ic.ordem}ª Parcela Corrigida (${ic.meses} meses)</span><span class="incc-valor">${formatMoney(ic.corrigido)}</span></div>`;
             });
             htmlInter += `</div>`;
         }
@@ -957,7 +1171,6 @@
             ${htmlPosObra}
             <div class="obs-box" style="margin-top: 16px;">
                 * Valores aproximados para fins de simulação e entendimento.<br>
-                * Taxa INCC utilizada: <strong>${(taxa * 100).toFixed(2)}%</strong> ao mês.<br>
                 * INCC atualizado disponível em: <a href="https://portal.fgv.br/noticias/incc-m-2025" target="_blank">portal.fgv.br/noticias/incc-m-2025</a>
             </div>
         `;
@@ -987,7 +1200,11 @@
         
         const rows = percList.map(perc => {
             const liberado = financiamento * (perc / 100);
-            const parcela = (liberado * jurosMensal) + (liberado * trMensal) + taxas;
+            // Aplica TR primeiro
+            const liberadoComTR = liberado * (1 + trMensal);
+            // Depois aplica a taxa de juros mensal sobre o valor corrigido pela TR
+            const juros = liberadoComTR * jurosMensal;
+            const parcela = juros + taxas;
             return { perc, parcela };
         });
         
@@ -1025,6 +1242,50 @@
         if (state.inccCalculado && state.jurosCalculado) {
             document.getElementById('blocoPDF').classList.remove('hidden');
         }
+    }
+    
+    function resetarFluxo() {
+        // Limpa os resultados de fluxo, INCC, Juros e PDF
+        document.getElementById('resultadoFluxoEstimado').classList.add('hidden');
+        document.getElementById('resultadoFluxoDetalhado').classList.add('hidden');
+        document.getElementById('blocoINCC').classList.add('hidden');
+        document.getElementById('blocoJuros').classList.add('hidden');
+        document.getElementById('blocoPDF').classList.add('hidden');
+        document.getElementById('btnResetarFluxo').classList.add('hidden');
+        
+        // Reseta os estados
+        state.ultimoCalculo = null;
+        state.inccCalculado = false;
+        state.jurosCalculado = false;
+        
+        // Limpa os campos de entrada
+        document.getElementById('valorImovelEstimado').value = '';
+        document.getElementById('valorReal').value = '';
+        document.getElementById('valorAvaliacao').value = '';
+        document.getElementById('financiamentoAprovado').value = '';
+        document.getElementById('valorAto').value = '';
+        document.getElementById('prazoObraDet').value = '';
+        document.getElementById('temInterDet').value = '';
+        document.getElementById('boxQtdInter').classList.add('hidden');
+        document.getElementById('containerInterItems').classList.add('hidden');
+        document.getElementById('temSubsidio').value = '';
+        document.getElementById('boxSubsidioVal').classList.add('hidden');
+        document.getElementById('aceitaPosChaves').value = '';
+        
+        // Scroll para o início da seção de simulação
+        document.getElementById('escolhaSimulacao').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    
+    function limparResultadosINCC_Juros() {
+        // Limpa os resultados de INCC e Juros quando o fluxo é recalculado
+        document.getElementById('resultadoINCC').innerHTML = '';
+        document.getElementById('resultadoINCC').classList.add('hidden');
+        document.getElementById('resultadoJuros').innerHTML = '';
+        document.getElementById('resultadoJuros').classList.add('hidden');
+        document.getElementById('blocoPDF').classList.add('hidden');
+        
+        state.inccCalculado = false;
+        state.jurosCalculado = false;
     }
 
     function gerarPDF() {
@@ -1113,6 +1374,42 @@
 
     function parseMoney(text) { if (!text) return 0; return parseFloat(text.replace(/[^\d,]/g, '').replace(',', '.')) || 0; }
     function formatMoney(value) { return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
+    
+    // Função para validar se todos os campos necessários estão preenchidos
+    function validarCamposDiagnostico() {
+        const r1 = parseMoney(document.getElementById('renda1').value);
+        const estado = document.getElementById('estado').value;
+        const regime = document.getElementById('regimeTrabalho').value;
+        
+        // Validações básicas
+        if (!r1 || r1 === 0) return false;
+        if (!estado) return false;
+        if (!regime) return false;
+        
+        // Se for CLT +3 anos, precisa validar FGTS
+        if (regime === 'clt3') {
+            const usaFgts = document.getElementById('usaFgts').value;
+            if (!usaFgts) return false; // Precisa escolher sim ou não
+            
+            // Se escolheu usar FGTS, precisa informar o valor
+            if (usaFgts === 'sim') {
+                const fgts = parseMoney(document.getElementById('fgtsVal').value);
+                if (!fgts || fgts === 0) return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    // Função para atualizar a visibilidade do botão
+    function atualizarBotaoDiagnostico() {
+        const btn = document.getElementById('btnGerarDiagnostico');
+        if (validarCamposDiagnostico()) {
+            btn.classList.remove('hidden');
+        } else {
+            btn.classList.add('hidden');
+        }
+    }
 </script>
 </body>
 </html>
