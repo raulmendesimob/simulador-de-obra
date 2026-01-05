@@ -884,10 +884,12 @@
         const totalInter = valorInter * qtdInter;
         
         const saldoParaMensais = entradaTotal - valorAto - totalInter;
-        const parcelaMensal = Math.max(0, saldoParaMensais / prazo);
-        const ultrapassa = parcelaMensal > (d.rendaTotal * 0.30);
+        const parcelaMensalCalculada = Math.max(0, saldoParaMensais / prazo);
+        const limiteMensal = d.rendaTotal * 0.30;
         
-        const saldoRestante = ultrapassa ? (parcelaMensal - (d.rendaTotal * 0.30)) * prazo : 0;
+        const parcelaMensal = Math.min(parcelaMensalCalculada, limiteMensal);
+        const ultrapassa = parcelaMensalCalculada > limiteMensal;
+        const saldoRestante = ultrapassa ? (parcelaMensalCalculada - limiteMensal) * prazo : 0;
 
         state.ultimoCalculo = {
             valorImovel, financiamento: financiamentoEstimado, fgts: d.fgts, entradaTotal, 
