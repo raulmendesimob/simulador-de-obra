@@ -581,8 +581,8 @@
         }
 
         function monthsToEntrega() {
-            const idx = document.getElementById("entregaSelect").selectedIndex;
-            return Math.max(0, idx);
+            const select = document.getElementById("entregaSelect");
+            return select.value || "";
         }
 
         function calcGeometricSum(base, rate, n) {
@@ -796,20 +796,21 @@
 
         /* ========================= PDF ========================= */
         async function gerarPDF() {
-            // Com a versão UMD do jsPDF 2.5.1, o acesso correto é window.jspdf.jsPDF
-            let jsPDF;
-            if (window.jspdf && window.jspdf.jsPDF) {
-                jsPDF = window.jspdf.jsPDF;
-            } else if (typeof window.jsPDF === 'function') {
-                jsPDF = window.jsPDF;
-            }
+            try {
+                // Com a versão UMD do jsPDF 2.5.1, o acesso correto é window.jspdf.jsPDF
+                let jsPDF;
+                if (window.jspdf && window.jspdf.jsPDF) {
+                    jsPDF = window.jspdf.jsPDF;
+                } else if (typeof window.jsPDF === 'function') {
+                    jsPDF = window.jsPDF;
+                }
 
-            if (!jsPDF) {
-                alert("A biblioteca jsPDF não foi carregada corretamente. Por favor, aguarde um momento ou recarregue a página.");
-                return;
-            }
+                if (!jsPDF) {
+                    alert("A biblioteca jsPDF não foi carregada corretamente. Por favor, aguarde um momento ou recarregue a página.");
+                    return;
+                }
 
-            const doc = new jsPDF({ unit: "mm", format: "a4" });
+                const doc = new jsPDF({ unit: "mm", format: "a4" });
 
             const im = limparMoeda(document.getElementById("valorImovel").value);
             const fi = limparMoeda(document.getElementById("valorFinanciamento").value);
@@ -982,7 +983,8 @@
                 doc.setFontSize(10);
 
                 if (inccEntrada && entrada) {
-                    const est = calcINCCEntradaEstimado(entrada, inccRate);
+                    const dataEntrega = document.getElementById("entregaSelect").value;
+                    const est = calcINCCEntradaEstimado(entrada, inccRate, dataEntrega);
                     
                     doc.setFont("helvetica", "bold");
                     doc.text("1ª Parcela Mensal (Em contrato):", colA, y);
@@ -1018,8 +1020,8 @@
                 }
 
                 if (inccSaldo) {
-                    const m = monthsToEntrega();
-                    const fv = calcINCCSaldoDevedor(fi, inccRate, m);
+                    const dataEntrega = monthsToEntrega();
+                    const fv = calcINCCSaldoDevedor(fi, inccRate, dataEntrega);
 
                     if (inccEntrada && entrada) y += line + 2;
                     doc.setFont("helvetica", "bold");
@@ -1077,6 +1079,10 @@
             );
 
             doc.save("simulacao-sbpe-pos-obra.pdf");
+            } catch (error) {
+                console.error("Erro ao gerar PDF:", error);
+                alert("Ocorreu um erro ao gerar o PDF: " + error.message);
+            }
         }
 
         /* ========================= INIT ========================= */
