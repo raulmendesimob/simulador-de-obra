@@ -595,13 +595,13 @@
             const p = entradaObj.parcelas || 0;
             const mensal = entradaObj.mensal || 0;
             
-            // Mensais: 1ª parcela SEM correção, depois corrige mês a mês
+            // Mensais: 1ª parcela SEM correção (mês atual), depois corrige mês a mês
             let totalMensaisBase = mensal * p;
-            let primeiraParcelaMensal = mensal; // 1ª SEM correção
-            let totalMensaisCorrig = mensal; // Começa com a 1ª
+            let primeiraParcelaMensal = mensal; 
+            let totalMensaisCorrig = mensal; 
             let ultimaParcelaMensal = mensal;
             
-            // Cada mês seguinte é corrigido individualmente
+            // Cada mês seguinte é corrigido individualmente (juros compostos sobre o valor base)
             for (let i = 1; i < p; i++) {
                 const parcelaCorrigida = mensal * Math.pow(1 + rate, i);
                 if (i === p - 1) ultimaParcelaMensal = parcelaCorrigida;
@@ -1008,8 +1008,8 @@
                         y += line;
                         doc.setFont("helvetica", "bold");
                         const interCorrigDisplay = entrada.interMeta.map((it, idx) => {
-                            const v = entrada.interVals[idx];
-                            const m = Math.max(0, it.mesesAte || 0);
+                            const v = it.valorBase || 0;
+                            const m = calcularMesesAteData(it.data);
                             const corrig = v * Math.pow(1 + inccRate, m);
                             return moeda(corrig);
                         }).join(" | ");
