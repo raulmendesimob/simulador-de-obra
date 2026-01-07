@@ -418,23 +418,21 @@
                         <div class="form-group">
                             <label>Incluir na Entrada?</label>
                             <div class="input-wrapper">
-                            <div class="input-wrapper">
-                            <select id="pdfINCCEntrada">
-                                <option value="nao" selected>Não</option>
-                                <option value="sim">Sim</option>
-                            </select>
-                        </div>
+                                <select id="pdfINCCEntrada">
+                                    <option value="nao" selected>Não</option>
+                                    <option value="sim">Sim</option>
+                                </select>
+                            </div>
                         </div>
 
                         <div class="form-group">
                             <label>Incluir no Saldo Devedor?</label>
                             <div class="input-wrapper">
-                            <div class="input-wrapper">
-                            <select id="pdfINCCSaldo">
-                                <option value="nao" selected>Não</option>
-                                <option value="sim">Sim</option>
-                            </select>
-                        </div>
+                                <select id="pdfINCCSaldo">
+                                    <option value="nao" selected>Não</option>
+                                    <option value="sim">Sim</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -460,14 +458,9 @@
 
         function moeda(n, arredondar = false) {
             if (arredondar) {
-                // Arredondamento para cima para passar a ideia de estimativa conservadora
-                if (n > 10000) {
-                    // Para valores altos (Financiamento/Intermediárias), arredonda para o milhar superior
-                    n = Math.ceil(n / 1000) * 1000;
-                } else {
-                    // Para parcelas, arredonda para a dezena superior (ex: 1733 -> 1740)
-                    n = Math.ceil(n / 10) * 10;
-                }
+                // Arredondamento para a dezena superior para passar a ideia de estimativa conservadora
+                // Mantendo a dezena para não distorcer tanto o valor real (ex: 10.246 -> 10.250)
+                n = Math.ceil(n / 10) * 10;
                 return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 0, maximumFractionDigits: 0 });
             }
             return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -592,11 +585,8 @@
         }
 
         function monthsToEntrega() {
-            const select = document.getElementById("entregaSelect");
-            const dataStr = select.value;
-            if (dataStr) {
-                return calcularMesesAteData(dataStr);
-            }
+            // Para o financiamento, o prazo de obra é o que importa.
+            // Se o usuário definiu 30 parcelas de entrada, esse é o prazo de obra.
             return parseInt(document.getElementById("parcelasEntrada").value, 10) || 0;
         }
 
@@ -610,33 +600,51 @@
             const p = entradaObj.parcelas || 0;
             const mensal = entradaObj.mensal || 0;
             
-            // Mensais: 1ª parcela SEM correção (mês atual), depois corrige mês a mês
+            // 1. Mensais: 1ª parcela SEM correção (mês atual), depois corrige mês a mês
             let totalMensaisBase = mensal * p;
             let primeiraParcelaMensal = mensal; 
             let totalMensaisCorrig = mensal; 
             let ultimaParcelaMensal = mensal;
             
-            // Cada mês seguinte é corrigido individualmente (juros compostos sobre o valor base)
             for (let i = 1; i < p; i++) {
                 const parcelaCorrigida = mensal * Math.pow(1 + rate, i);
                 if (i === p - 1) ultimaParcelaMensal = parcelaCorrigida;
                 totalMensaisCorrig += parcelaCorrigida;
             }
 
+            // 2. Intermediárias: Lógica de Saldo Devedor Progressivo (Escada de Correção)
             let totalInterBase = 0;
             let totalInterCorrig = 0;
             let interCorrigValues = [];
 
             if (entradaObj.interMeta && entradaObj.interMeta.length) {
-                entradaObj.interMeta.forEach((it, idx) => {
-                    const v = it.valorBase || 0;
-                    const dataPagto = it.dataPagto || dataEntrega;
-                    const mesesAte = calcularMesesAteData(dataPagto);
-                    const valorCorrigido = v * Math.pow(1 + rate, mesesAte);
+                // Ordena as intermediárias por data
+                const sortedInter = [...entradaObj.interMeta].sort((a, b) => {
+                    return calcularMesesAteData(a.data) - calcularMesesAteData(b.data);
+                });
+
+                totalInterBase = sortedInter.reduce((acc, it) => acc + (it.valorBase || 0), 0);
+                let saldoDevedorInter = totalInterBase;
+                let mesesAnteriores = 0;
+
+                sortedInter.forEach((it, idx) => {
+                    // Para bater com o exemplo do usuário (Fev/27 = 14 meses), usamos a data exata
+                    const mesesAte = calcularMesesAteData(it.data);
+                    const diffMeses = mesesAte - mesesAnteriores;
                     
-                    totalInterBase += v;
-                    totalInterCorrig += valorCorrigido;
-                    interCorrigValues.push(valorCorrigido);
+                    // Corrige o saldo total remanescente pelo período entre parcelas
+                    saldoDevedorInter = saldoDevedorInter * Math.pow(1 + rate, diffMeses);
+                    
+                    // A parcela é o saldo corrigido dividido pelo número de parcelas que ainda faltam pagar
+                    const qtdRestante = sortedInter.length - idx;
+                    const valorParcela = saldoDevedorInter / qtdRestante;
+                    
+                    interCorrigValues.push(valorParcela);
+                    totalInterCorrig += valorParcela;
+                    
+                    // O novo saldo devedor é o que sobrou após pagar a parcela atual
+                    saldoDevedorInter = saldoDevedorInter - valorParcela;
+                    mesesAnteriores = mesesAte;
                 });
             }
 
@@ -1022,12 +1030,7 @@
 
                         y += line;
                         doc.setFont("helvetica", "bold");
-                        const interCorrigDisplay = entrada.interMeta.map((it, idx) => {
-                            const v = it.valorBase || 0;
-                            const m = calcularMesesAteData(it.data);
-                            const corrig = v * Math.pow(1 + inccRate, m);
-                            return moeda(corrig, true);
-                        }).join(" | ");
+                        const interCorrigDisplay = est.interCorrigValues.map(v => moeda(v, true)).join(" | ");
                         doc.text("Intermediárias/Anuais (Corrigidas):", colA, y);
                         doc.setFont("helvetica", "normal");
                         doc.text(interCorrigDisplay, colB, y);
@@ -1048,7 +1051,9 @@
                     doc.setFont("helvetica", "bold");
                     doc.text("Financiamento Estimado Corrigido:", colA, y);
                     doc.setFont("helvetica", "normal");
-                    doc.text(moeda(fv, true), colB, y);
+                    // Para o financiamento, arredondamos para o milhar superior
+                    const fvMilhar = Math.ceil(fv / 1000) * 1000;
+                    doc.text(moeda(fvMilhar), colB, y);
                 }
 
                 y += 10;
