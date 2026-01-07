@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador SBPE Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/latest/umd/lucide.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #059669;
+            --primary-dark: #047857;
+            --primary-light: #d1fae5;
+            --secondary: #f59e0b;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --bg-bloco-1: #f0fdf4;
+            --bg-simulacao-estimada: #f0fdf4;
+            --radius-md: 12px;
+            --orange: #d97706;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f9fafb;
+            color: var(--text-main);
+        }
+
+        header {
+            background: #fff;
+            padding: 24px 16px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: center;
+        }
+
+        header h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        header p {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 24px auto;
+            padding: 0 16px 40px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 24px;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .collapsible-header {
+            padding: 16px 20px;
+            background: var(--primary);
+            color: #fff;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            user-select: none;
+        }
+
+        .collapsible-header.info {
+            background: var(--secondary);
+        }
+
+        .collapsible-header.warning {
+            background: #3b82f6;
+        }
+
+        .toggle-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease;
+        }
+
+        .collapsible-content {
+            display: none;
+            padding: 20px;
+        }
+
+        .collapsible-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        .input-wrapper input,
+        .input-wrapper select {
+            width: 100%;
+            padding: 16px 16px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s ease;
+            min-height: 48px;
+        }
+
+        .input-wrapper input:focus,
+        .input-wrapper select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .grid-2 {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        @media (min-width: 600px) {
+            .grid-2 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: var(--radius-md);
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 16px;
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .resultado {
+            display: none;
+            padding: 20px;
+            border-radius: var(--radius-md);
+            margin: 20px 0;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+        }
+
+        .obs-box {
+            margin-top: 10px;
+            font-style: italic;
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.35;
+        }
+
+        .obs-box a {
+            color: var(--secondary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .inter-row {
+            background: #f9fafb;
+            padding: 12px;
+            border-radius: var(--radius-md);
+            border: 1px solid #e5e7eb;
+            margin-bottom: 12px;
+        }
+
+        .inter-row .form-group {
+            margin-bottom: 12px;
+        }
+
+        .inter-row .form-group:last-child {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>Simulador Imobiliário — SFH / SBPE</h1>
+            <p>Financiamento contratado após a conclusão do empreendimento (Pós-Obra).</p>
+        </header>
+
+        <!-- Bloco 1: Informações Básicas -->
+        <div class="card">
+            <div class="collapsible-header info" onclick="toggleCollapsible(this)">
+                <span>Informações do Imóvel</span>
+                <span class="toggle-icon">▼</span>
+            </div>
+
+            <div class="collapsible-content active">
+                <div class="grid grid-2">
+                    <div class="form-group">
+                        <label>Empreendimento</label>
+                        <div class="input-wrapper">
+                            <input id="empreendimento" type="text">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Unidade / Bloco / Andar</label>
+                        <div class="input-wrapper">
+                            <input id="unidade" type="text">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Valor do Imóvel</label>
+                        <div class="input-wrapper">
+                            <input id="valorImovel" type="text" oninput="formatarMoeda(this)">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Valor Previsto para Financiamento</label>
+                        <div class="input-wrapper">
+                            <input id="valorFinanciamento" type="text" oninput="formatarMoeda(this)">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Renda Familiar Mensal</label>
+                        <div class="input-wrapper">
+                            <input id="renda" type="text" oninput="formatarMoeda(this)">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Previsão de Entrega</label>
+                        <div class="input-wrapper">
+                            <select id="entregaSelect"></select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bloco 2: Entrada e Fluxo -->
+        <div class="card">
+            <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                <span>Entrada / Fluxo Inicial</span>
+                <span class="toggle-icon">▼</span>
+            </div>
+
+            <div class="collapsible-content">
+                <div class="grid grid-2">
+                    <div class="form-group">
+                        <label>Valor do Ato</label>
+                        <div class="input-wrapper">
+                            <input id="ato" type="text" oninput="formatarMoeda(this)">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Meses / Parcelas</label>
+                        <div class="input-wrapper">
+                            <select id="parcelasEntrada">
+                            <option value="">Selecione...</option>
+                        </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="height: 1px; background: #e2e8f0; margin: 20px 0;"></div>
+
+                <div class="form-group">
+                    <label>Tem Intermediárias / Anuais / Reforços / Chaves?</label>
+                    <div class="input-wrapper">
+                        <select id="temInter" onchange="toggleInter()">
+                        <option value="nao">Não</option>
+                        <option value="sim">Sim</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="hidden" id="boxInterQtd">
+                    <div class="form-group">
+                        <label>Quantidade de Intermediárias</label>
+                        <div class="input-wrapper">
+                            <input id="qtdInter" type="number" min="1" max="12" value="1" onchange="renderInterRows()">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="boxInterRows"></div>
+
+                <div style="height: 1px; background: #e2e8f0; margin: 20px 0;"></div>
+
+                <div class="form-group">
+                    <label>Construtora aceita Saldo Pós-Chaves / Pró-Soluto?</label>
+                    <div class="input-wrapper">
+                        <select id="aceitaPos">
+                        <option value="nao">Não</option>
+                        <option value="sim">Sim</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="calcularEntrada()">Calcular Entrada</button>
+            </div>
+        </div>
+
+        <!-- Resultado Entrada -->
+        <div id="resultadoEntrada" class="resultado"></div>
+
+        <!-- Bloco 3: Gerar PDF -->
+        <div class="card">
+            <div class="collapsible-header warning" onclick="toggleCollapsible(this)">
+                <span>Gerar PDF</span>
+                <span class="toggle-icon">▼</span>
+            </div>
+
+            <div class="collapsible-content">
+                <div class="grid grid-2">
+                    <div class="form-group">
+                        <label>Cliente</label>
+                        <div class="input-wrapper">
+                            <input id="pdfCliente" type="text">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Telefone</label>
+                        <div class="input-wrapper">
+                            <input id="pdfClienteFone" type="tel" oninput="formatarTelefone(this)">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Corretor(a)</label>
+                        <div class="input-wrapper">
+                            <input id="pdfCorretor" type="text">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Telefone</label>
+                        <div class="input-wrapper">
+                            <input id="pdfCorretorFone" type="tel" oninput="formatarTelefone(this)">
+                        </div>
+                    </div>
+                </div>
+
+                <div style="height: 1px; background: #e2e8f0; margin: 20px 0;"></div>
+
+                <div class="form-group">
+                    <label>Deseja incluir estimativa do INCC?</label>
+                    <div class="input-wrapper">
+                        <select id="pdfINCCIncluir" onchange="toggleINCC()">
+                        <option value="nao" selected>Não</option>
+                        <option value="sim">Sim</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="hidden" id="boxINCCtaxa">
+                    <div class="form-group">
+                        <label>INCC (média mensal) %</label>
+                        <div class="input-wrapper">
+                            <input id="pdfINCCtaxa" type="text" value="0,5" inputmode="decimal">
+                        </div>
+                    </div>
+                    <div class="obs-box">
+                        INCC atualizado disponível em: <a href="https://portal.fgv.br/noticias/incc-m-2025" target="_blank" rel="noopener">portal.fgv.br/noticias/incc-m-2025</a>
+                    </div>
+
+                    <div style="height: 1px; background: #e2e8f0; margin: 20px 0;"></div>
+
+                    <div class="grid grid-2">
+                        <div class="form-group">
+                            <label>Incluir na Entrada?</label>
+                            <div class="input-wrapper">
+                            <div class="input-wrapper">
+                            <select id="pdfINCCEntrada">
+                                <option value="nao" selected>Não</option>
+                                <option value="sim">Sim</option>
+                            </select>
+                        </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Incluir no Saldo Devedor?</label>
+                            <div class="input-wrapper">
+                            <div class="input-wrapper">
+                            <select id="pdfINCCSaldo">
+                                <option value="nao" selected>Não</option>
+                                <option value="sim">Sim</option>
+                            </select>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="gerarPDF()">Gerar PDF da Simulação</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ========================= FORMATAÇÃO ========================= */
+        function formatarMoeda(el) {
+            let v = (el.value || "").replace(/\D/g, "");
+            if (!v) { el.value = ""; return; }
+            v = (parseInt(v, 10) / 100).toFixed(2).replace(".", ",");
+            v = v.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            el.value = "R$ " + v;
+        }
+
+        function limparMoeda(v) {
+            return parseFloat((v || "").replace(/[R$\.\s]/g, "").replace(",", ".")) || 0;
+        }
+
+        function moeda(n, arredondar = false) {
+            if (arredondar) {
+                // Arredonda para a centena mais próxima para valores menores, ou milhar para valores maiores
+                if (n > 10000) {
+                    n = Math.ceil(n / 1000) * 1000;
+                } else {
+                    n = Math.ceil(n / 10) * 10; // Arredonda para a dezena mais próxima para parcelas
+                }
+                return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 0, maximumFractionDigits: 0 });
+            }
+            return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+        }
+
+        function formatarTelefone(input) {
+            let v = (input.value || "").replace(/\D/g, "").slice(0, 11);
+            if (v.length <= 2) { input.value = v; return; }
+            const ddd = v.slice(0, 2);
+            const rest = v.slice(2);
+            if (rest.length <= 4) { input.value = `(${ddd}) ${rest}`; return; }
+            if (rest.length <= 8) { input.value = `(${ddd}) ${rest.slice(0, 4)}-${rest.slice(4)}`; return; }
+            input.value = `(${ddd}) ${rest.slice(0, 5)}-${rest.slice(5)}`;
+        }
+
+        /* ========================= MESES/ANO ========================= */
+        function gerarMesAno() {
+            const h = new Date();
+            const arr = [];
+            const m = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+            for (let i = 0; i < 48; i++) {
+                const d = new Date(h.getFullYear(), h.getMonth() + i, 1);
+                arr.push(`${m[d.getMonth()]}/${String(d.getFullYear()).slice(-2)}`);
+            }
+            return arr;
+        }
+
+        (function() {
+            const s = document.getElementById("entregaSelect");
+            const meses = gerarMesAno();
+            meses.forEach(t => {
+                const o = document.createElement("option");
+                o.textContent = t;
+                s.appendChild(o);
+            });
+
+            const psel = document.getElementById("parcelasEntrada");
+            for (let i = 1; i <= 45; i++) {
+                const opt = document.createElement("option");
+                opt.value = i;
+                opt.textContent = i;
+                psel.appendChild(opt);
+            }
+        })();
+
+        /* ========================= UI ========================= */
+        function toggleCollapsible(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector(".toggle-icon");
+            const isActive = content.classList.contains("active");
+            content.classList.toggle("active");
+            icon.style.transform = isActive ? "rotate(0deg)" : "rotate(180deg)";
+        }
+
+        function toggleInter() {
+            const tem = document.getElementById("temInter").value;
+            const boxQtd = document.getElementById("boxInterQtd");
+            const boxRows = document.getElementById("boxInterRows");
+            if (tem === "sim") {
+                boxQtd.classList.remove("hidden");
+                renderInterRows();
+            } else {
+                boxQtd.classList.add("hidden");
+                boxRows.innerHTML = "";
+                document.getElementById("qtdInter").value = 1;
+            }
+        }
+
+        function renderInterRows() {
+            const q = parseInt(document.getElementById("qtdInter").value, 10) || 0;
+            const interList = document.getElementById("boxInterRows");
+            interList.innerHTML = "";
+            if (q <= 0) return;
+
+            const meses = gerarMesAno();
+            for (let i = 1; i <= q; i++) {
+                const r = document.createElement("div");
+                r.className = "inter-row";
+                r.innerHTML = `
+                    <div class="form-group">
+                        <label>${i}º Pagamento</label>
+                        <div class="input-wrapper">
+                            <select>${meses.map(mm => `<option>${mm}</option>`).join("")}</select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Valor (R$)</label>
+                        <div class="input-wrapper">
+                            <input type="text" oninput="formatarMoeda(this)">
+                        </div>
+                    </div>
+                `;
+                interList.appendChild(r);
+            }
+        }
+
+        function setResultado(id, tipo, html) {
+            const el = document.getElementById(id);
+            el.className = "resultado " + tipo;
+            el.innerHTML = html;
+            el.style.display = "block";
+        }
+
+        /* ========================= INCC ========================= */
+        function toggleINCC() {
+            const incluir = document.getElementById("pdfINCCIncluir").value === "sim";
+            document.getElementById("boxINCCtaxa").classList.toggle("hidden", !incluir);
+
+            if (!incluir) {
+                document.getElementById("pdfINCCtaxa").value = "0,5";
+                document.getElementById("pdfINCCEntrada").value = "nao";
+                document.getElementById("pdfINCCSaldo").value = "nao";
+            }
+        }
+
+        function parsePercentToMonthlyRate() {
+            const raw = (document.getElementById("pdfINCCtaxa").value || "0").trim()
+                .replace("%", "").replace(/\s+/g, "").replace(",", ".");
+            const p = parseFloat(raw);
+            if (!isFinite(p) || p < 0) return 0;
+            return p / 100;
+        }
+
+        function monthsToEntrega() {
+            const select = document.getElementById("entregaSelect");
+            const dataStr = select.value;
+            if (dataStr) {
+                return calcularMesesAteData(dataStr);
+            }
+            return parseInt(document.getElementById("parcelasEntrada").value, 10) || 0;
+        }
+
+        function calcGeometricSum(base, rate, n) {
+            if (n <= 0) return 0;
+            if (rate === 0) return base * n;
+            return base * ((Math.pow(1 + rate, n) - 1) / rate);
+        }
+
+        function calcINCCEntradaEstimado(entradaObj, rate, dataEntrega) {
+            const p = entradaObj.parcelas || 0;
+            const mensal = entradaObj.mensal || 0;
+            
+            // Mensais: 1ª parcela SEM correção (mês atual), depois corrige mês a mês
+            let totalMensaisBase = mensal * p;
+            let primeiraParcelaMensal = mensal; 
+            let totalMensaisCorrig = mensal; 
+            let ultimaParcelaMensal = mensal;
+            
+            // Cada mês seguinte é corrigido individualmente (juros compostos sobre o valor base)
+            for (let i = 1; i < p; i++) {
+                const parcelaCorrigida = mensal * Math.pow(1 + rate, i);
+                if (i === p - 1) ultimaParcelaMensal = parcelaCorrigida;
+                totalMensaisCorrig += parcelaCorrigida;
+            }
+
+            let totalInterBase = 0;
+            let totalInterCorrig = 0;
+            let interCorrigValues = [];
+
+            if (entradaObj.interMeta && entradaObj.interMeta.length) {
+                entradaObj.interMeta.forEach((it, idx) => {
+                    const v = it.valorBase || 0;
+                    const dataPagto = it.dataPagto || dataEntrega;
+                    const mesesAte = calcularMesesAteData(dataPagto);
+                    const valorCorrigido = v * Math.pow(1 + rate, mesesAte);
+                    
+                    totalInterBase += v;
+                    totalInterCorrig += valorCorrigido;
+                    interCorrigValues.push(valorCorrigido);
+                });
+            }
+
+            return {
+                mensalBaseTotal: totalMensaisBase,
+                mensalCorrigTotal: totalMensaisCorrig,
+                interBaseTotal: totalInterBase,
+                interCorrigTotal: totalInterCorrig,
+                entradaCorrigTotal: (entradaObj.ato || 0) + totalMensaisCorrig + totalInterCorrig,
+                primeiraParcelaMensal: primeiraParcelaMensal,
+                ultimaParcelaMensal: ultimaParcelaMensal,
+                interCorrigValues: interCorrigValues
+            };
+        }
+
+        function calcINCCSaldoDevedor(financiamentoValor, rate, prazoMeses) {
+            const pv = financiamentoValor || 0;
+            const meses = typeof prazoMeses === 'number' ? prazoMeses : calcularMesesAteData(prazoMeses);
+            return pv * Math.pow(1 + rate, meses);
+        }
+
+        /* ========================= CÁLCULO DE MESES ========================= */
+        function calcularMesesAteData(dataStr) {
+            // dataStr formato: "Fev/27", "Fev/28", etc
+            if (!dataStr) return 0;
+            
+            const hoje = new Date();
+            const [mesStr, anoStr] = dataStr.split('/');
+            const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+            const mesIdx = meses.indexOf(mesStr);
+            const ano = 2000 + parseInt(anoStr, 10);
+            
+            const dataEntrega = new Date(ano, mesIdx, 1);
+            const diffMs = dataEntrega - hoje;
+            const diffMeses = Math.floor(diffMs / (1000 * 60 * 60 * 24 * 30.44));
+            
+            return Math.max(0, diffMeses);
+        }
+
+                /* ========================= CÁLCULOS ========================= */
+        function calcularEntrada() {
+            const im = limparMoeda(document.getElementById("valorImovel").value);
+            const fi = limparMoeda(document.getElementById("valorFinanciamento").value);
+            const at = limparMoeda(document.getElementById("ato").value);
+            const re = limparMoeda(document.getElementById("renda").value);
+            const p = parseInt(document.getElementById("parcelasEntrada").value, 10) || 0;
+
+            if (!im || !fi || !re || !p) {
+                setResultado("resultadoEntrada", "erro", 
+                    `<h3>⚠️ Dados Incompletos</h3>
+                     <p>Preencha: Valor do Imóvel, Financiamento, Renda e Meses/Parcelas.</p>`);
+                return;
+            }
+
+            const entrada = im - fi;
+            const temInter = document.getElementById("temInter").value === "sim";
+            const interVals = [];
+            const interMeta = [];
+
+            if (temInter) {
+                const interRows = document.querySelectorAll("#boxInterRows .inter-row");
+                interRows.forEach((row) => {
+                    const select = row.querySelector("select");
+                    const input = row.querySelector("input");
+                    const val = limparMoeda(input.value);
+                    if (val > 0) {
+                        interVals.push(val);
+                        interMeta.push(select.value);
+                    }
+                });
+            }
+
+            const somaInter = interVals.reduce((a, b) => a + b, 0);
+            const entradaLiq = entrada - somaInter - at;
+            
+            const rendaMensal = re;
+            const limiteRenda = rendaMensal * 0.30;
+            const parcelaMensal = entradaLiq > 0 ? entradaLiq / p : 0;
+            
+            const excedeLimite = parcelaMensal > limiteRenda;
+            const saldoRestante = excedeLimite ? (parcelaMensal - limiteRenda) * p : 0;
+            const parcelaAjustada = excedeLimite ? limiteRenda : parcelaMensal;
+
+            const entregaSelect = document.getElementById("entregaSelect");
+            const entregaTexto = entregaSelect.options[entregaSelect.selectedIndex].text;
+
+            let html = `
+                <div style="padding: 20px; border-bottom: 1px solid #e2e8f0; margin-bottom: 20px;">
+                    <div style="font-family: 'Poppins'; font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">Fluxo de Pagamento – ${p} meses</div>
+                    <div style="font-size: 13px; color: var(--text-muted);">Previsão estimada de entrega: ${entregaTexto}</div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid #e2e8f0;">
+                    <span style="color: var(--text-muted); font-size: 14px;">Valor do Imóvel</span>
+                    <span style="font-weight: 700; color: var(--secondary); font-size: 15px;">${moeda(im)}</span>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid #e2e8f0;">
+                    <span style="color: var(--text-muted); font-size: 14px;">Financiamento Estimado</span>
+                    <span style="font-weight: 700; color: var(--warning); font-size: 15px;">${moeda(fi)}</span>
+                </div>
+
+                <div style="background: var(--bg-simulacao-estimada); border: 2px solid #6ee7b7; border-radius: var(--radius-md); padding: 24px; text-align: center; margin: 20px 0;">
+                    <div style="font-size: 13px; font-weight: 700; color: var(--primary); text-transform: uppercase; margin-bottom: 8px;">Entrada Total - Parcelamento no Período de Obras</div>
+                    <div style="font-family: 'Poppins'; font-size: 32px; font-weight: 800; color: var(--primary);">${moeda(entrada)}</div>
+                </div>
+
+                <div style="background: var(--bg-bloco-1); padding: 20px; border-radius: var(--radius-md); margin: 20px 0;">
+                    <div style="font-size: 12px; font-weight: 700; color: var(--secondary); text-transform: uppercase; margin-bottom: 16px;">Divisão do Pagamento</div>
+                    
+                    <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #e2e8f0;">
+                        <span style="color: var(--text-muted); font-size: 14px;">Ato (Sinal)</span>
+                        <span style="font-weight: 700; color: var(--text-main); font-size: 14px;">${moeda(at)}</span>
+                    </div>
+            `;
+
+            if (temInter && interVals.length > 0) {
+                const qtdInter = interVals.length;
+                const interDisplay = interVals.map(v => moeda(v)).join(" | ");
+                html += `
+                    <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #e2e8f0;">
+                        <span style="color: var(--text-muted); font-size: 14px;">Intermediárias/Anuais (${qtdInter}x)</span>
+                        <span style="font-weight: 700; color: var(--text-main); font-size: 14px;">${interDisplay}</span>
+                    </div>
+                `;
+            }
+
+            html += `
+                    <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #e2e8f0;">
+                        <span style="color: var(--text-muted); font-size: 14px;">Parcelas Mensais (${p}x)</span>
+                        <span style="font-weight: 700; color: var(--text-main); font-size: 14px;">${moeda(parcelaAjustada)}</span>
+                    </div>
+            `;
+
+            if (saldoRestante > 0) {
+                html += `
+                    <div style="display: flex; justify-content: space-between; padding: 12px 0;">
+                        <span style="color: var(--text-muted); font-size: 14px;">Saldo Restante (Pós-Chaves)</span>
+                        <span style="font-weight: 700; color: var(--danger); font-size: 14px;">${moeda(saldoRestante)}</span>
+                    </div>
+                `;
+            }
+
+            html += `</div>`;
+
+            if (saldoRestante > 0) {
+                html += `<div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: var(--radius-md); padding: 16px; margin: 20px 0; text-align: center;"><div style="font-size: 13px; color: var(--orange); font-weight: 700;">Fluxo de Pagamento da Entrada ultrapassa o Periodo de Obras.</div></div>`;
+            }
+
+            html += `
+                <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: var(--radius-md); padding: 16px; margin: 20px 0;">
+                    <div style="font-size: 13px; font-weight: 700; color: var(--orange); margin-bottom: 8px;">Observações:</div>
+                    <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: var(--text-main); line-height: 1.6;">
+                        <li>Utilizando como limitador: <strong>30% da renda</strong> para parcelas mensais.</li>
+                    </ul>
+                </div>
+            `;
+
+            window.__lastEntradaCalc = {
+                entradaTotal: entrada,
+                ato: at,
+                parcelas: p,
+                mensal: parcelaAjustada,
+                interVals: interVals,
+                interMeta: interMeta.map((meta, idx) => ({ data: meta, mesesAte: idx, valorBase: interVals[idx] })),
+                saldoRestante: saldoRestante,
+                status: saldoRestante > 0 ? "aviso" : "sucesso"
+            };
+
+            setResultado("resultadoEntrada", "sucesso", html);
+        }
+
+        /* ========================= PDF ========================= */
+        async function gerarPDF() {
+            try {
+                // Com a versão UMD do jsPDF 2.5.1, o acesso correto é window.jspdf.jsPDF
+                let jsPDF;
+                if (window.jspdf && window.jspdf.jsPDF) {
+                    jsPDF = window.jspdf.jsPDF;
+                } else if (typeof window.jsPDF === 'function') {
+                    jsPDF = window.jsPDF;
+                }
+
+                if (!jsPDF) {
+                    alert("A biblioteca jsPDF não foi carregada corretamente. Por favor, aguarde um momento ou recarregue a página.");
+                    return;
+                }
+
+                const doc = new jsPDF({ unit: "mm", format: "a4" });
+
+            const im = limparMoeda(document.getElementById("valorImovel").value);
+            const fi = limparMoeda(document.getElementById("valorFinanciamento").value);
+            const at = limparMoeda(document.getElementById("ato").value);
+            const re = limparMoeda(document.getElementById("renda").value);
+            const p = parseInt(document.getElementById("parcelasEntrada").value, 10) || 0;
+
+            const empreendimento = document.getElementById("empreendimento").value || "-";
+            const unidade = document.getElementById("unidade").value || "-";
+            const entrega = document.getElementById("entregaSelect").value || "-";
+            const cliente = document.getElementById("pdfCliente").value || "-";
+            const clienteFone = document.getElementById("pdfClienteFone").value || "-";
+            const corretor = document.getElementById("pdfCorretor").value || "-";
+            const corretorFone = document.getElementById("pdfCorretorFone").value || "-";
+
+            const incluirINCC = document.getElementById("pdfINCCIncluir").value === "sim";
+            const inccRate = incluirINCC ? parsePercentToMonthlyRate() : 0;
+            const inccEntrada = incluirINCC && (document.getElementById("pdfINCCEntrada").value === "sim");
+            const inccSaldo = incluirINCC && (document.getElementById("pdfINCCSaldo").value === "sim");
+            const entrada = window.__lastEntradaCalc || null;
+
+            const azul = [5, 150, 105];
+            const amarelo = [255, 249, 196];
+
+            // Cabeçalho
+            doc.setFillColor(...azul);
+            doc.rect(0, 0, 210, 26, "F");
+            doc.setTextColor(255, 255, 255);
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(16);
+            doc.text("SIMULAÇÃO FINANCEIRA – SFH / SBPE", 105, 14, { align: "center" });
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "normal");
+            doc.text("Financiamento contratado após a conclusão do empreendimento (Pós-Obra)", 105, 20, { align: "center" });
+
+            let y = 34;
+            doc.setTextColor(0, 0, 0);
+
+            // Identificação
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(11);
+            doc.text("Identificação", 14, y);
+            y += 8;
+
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(10);
+            const colA = 14;
+            const colB = 110;
+            const line = 6;
+
+            doc.setFont("helvetica", "bold");
+            doc.text("Cliente:", colA, y);
+            doc.setFont("helvetica", "normal");
+            doc.text(cliente, colA + 32, y);
+            doc.setFont("helvetica", "bold");
+            doc.text("Telefone:", colB, y);
+            doc.setFont("helvetica", "normal");
+            doc.text(clienteFone, colB + 28, y);
+
+            y += line;
+            doc.setFont("helvetica", "bold");
+            doc.text("Corretor(a):", colA, y);
+            doc.setFont("helvetica", "normal");
+            doc.text(corretor, colA + 32, y);
+            doc.setFont("helvetica", "bold");
+            doc.text("Telefone:", colB, y);
+            doc.setFont("helvetica", "normal");
+            doc.text(corretorFone, colB + 28, y);
+
+            y += line;
+            doc.setFont("helvetica", "bold");
+            doc.text("Empreendimento:", colA, y);
+            doc.setFont("helvetica", "normal");
+            doc.text(empreendimento, colA + 42, y);
+
+            y += line;
+            doc.setFont("helvetica", "bold");
+            doc.text("Unidade:", colA, y);
+            doc.setFont("helvetica", "normal");
+            doc.text(unidade, colA + 32, y);
+
+            y += 10;
+            doc.setDrawColor(200);
+            doc.line(14, y, 196, y);
+            y += 8;
+
+            // Dados da Simulação
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(11);
+            doc.text("Dados da Simulação", 14, y);
+            y += 8;
+
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(10);
+
+            doc.setFont("helvetica", "bold");
+            doc.text("Valor do Imóvel:", colA, y);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(0, 0, 0);
+            doc.text(moeda(im), colB, y);
+
+            y += line;
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(0, 0, 0);
+            doc.text("Financiamento Estimado:", colA, y);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(217, 119, 6);
+            doc.text(moeda(fi), colB, y);
+
+            y += line + 2;
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(0, 0, 0);
+            doc.text("Entrada Total:", colA, y);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(59, 130, 246);
+            doc.text(moeda(im - fi), colB, y);
+
+            y += line + 2;
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(0, 0, 0);
+            doc.text("Ato (Sinal):", colA, y);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(5, 150, 105);
+            doc.text(moeda(at), colB, y);
+
+            y += line;
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(0, 0, 0);
+            doc.text(`Parcelas Mensais (${p}x):`, colA, y);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(5, 150, 105);
+            doc.text(moeda(entrada ? entrada.mensal : 0), colB, y);
+
+            if (entrada && entrada.interVals && entrada.interVals.length > 0) {
+                y += line;
+                doc.setFont("helvetica", "bold");
+                doc.setTextColor(0, 0, 0);
+                const interDisplay = entrada.interVals.map(v => moeda(v)).join(" | ");
+                doc.text(`Intermediárias/Anuais (${entrada.interVals.length}x):`, colA, y);
+                doc.setFont("helvetica", "normal");
+                doc.setTextColor(5, 150, 105);
+                doc.text(interDisplay, colB, y);
+            }
+
+            if (entrada && entrada.saldoRestante > 0) {
+                y += line;
+                doc.setFont("helvetica", "bold");
+                doc.setTextColor(0, 0, 0);
+                doc.text("Saldo Pós-Chaves:", colA, y);
+                doc.setFont("helvetica", "normal");
+                doc.setTextColor(239, 68, 68);
+                doc.text(moeda(entrada.saldoRestante), colB, y);
+            }
+
+            doc.setTextColor(0, 0, 0);
+
+            y += 10;
+            doc.setDrawColor(200);
+            doc.line(14, y, 196, y);
+            y += 8;
+
+            // INCC
+            if (incluirINCC && (inccEntrada || inccSaldo)) {
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(11);
+                doc.text("Estimativa INCC", 14, y);
+                y += 8;
+
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(10);
+
+                if (inccEntrada && entrada) {
+                    const dataEntrega = document.getElementById("entregaSelect").value;
+                    const est = calcINCCEntradaEstimado(entrada, inccRate, dataEntrega);
+                    
+                    doc.setFont("helvetica", "bold");
+                    doc.text("1ª Parcela Mensal (Em contrato):", colA, y);
+                    doc.setFont("helvetica", "normal");
+                    doc.text(moeda(est.primeiraParcelaMensal), colB, y);
+
+                    y += line;
+                    doc.setFont("helvetica", "bold");
+                    doc.text(`${entrada.parcelas}ª Parcela Mensal (Estimada):`, colA, y);
+                    doc.setFont("helvetica", "normal");
+                    doc.text(moeda(est.ultimaParcelaMensal, true), colB, y);
+
+                    if (entrada.interVals && entrada.interVals.length > 0) {
+                        y += line + 2;
+                        doc.setFont("helvetica", "bold");
+                        const interDisplay = entrada.interVals.map(v => moeda(v)).join(" | ");
+                        doc.text("Intermediárias/Anuais (Em contrato):", colA, y);
+                        doc.setFont("helvetica", "normal");
+                        doc.text(interDisplay, colB, y);
+
+                        y += line;
+                        doc.setFont("helvetica", "bold");
+                        const interCorrigDisplay = entrada.interMeta.map((it, idx) => {
+                            const v = it.valorBase || 0;
+                            const m = calcularMesesAteData(it.data);
+                            const corrig = v * Math.pow(1 + inccRate, m);
+                            return moeda(corrig, true);
+                        }).join(" | ");
+                        doc.text("Intermediárias/Anuais (Corrigidas):", colA, y);
+                        doc.setFont("helvetica", "normal");
+                        doc.text(interCorrigDisplay, colB, y);
+                    }
+                }
+
+                if (inccSaldo) {
+                    const dataEntrega = monthsToEntrega();
+                    const fv = calcINCCSaldoDevedor(fi, inccRate, dataEntrega);
+
+                    if (inccEntrada && entrada) y += line + 2;
+                    doc.setFont("helvetica", "bold");
+                    doc.text("Financiamento Estimado:", colA, y);
+                    doc.setFont("helvetica", "normal");
+                    doc.text(moeda(fi), colB, y);
+
+                    y += line;
+                    doc.setFont("helvetica", "bold");
+                    doc.text("Financiamento Estimado Corrigido:", colA, y);
+                    doc.setFont("helvetica", "normal");
+                    doc.text(moeda(fv, true), colB, y);
+                }
+
+                y += 10;
+                doc.setDrawColor(200);
+                doc.line(14, y, 196, y);
+                y += 8;
+            }
+
+            // Alerta saldo restante
+            if (entrada && entrada.saldoRestante > 0) {
+                doc.setFillColor(...amarelo);
+                doc.roundedRect(14, y, 182, 18, 4, 4, "F");
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(11);
+                doc.text("Atenção", 18, y + 7);
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(10);
+                doc.text("Existe saldo restante para financiamento pós-obra.", 18, y + 13);
+                y += 26;
+            }
+
+            // Observações
+            y += 4;
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(11);
+            doc.text("Observações Importantes", 14, y);
+            y += 8;
+
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(9);
+            const obsText = "As estimativas de INCC foram calculadas com base na média mensal do ano de 2025. Este índice sofre variação mensal, sendo impossível prever com precisão o valor final. As estimativas apresentadas neste simulador são apenas para fins de consciência e planejamento financeiro, auxiliando o comprador a evitar surpresas. Não substitui análise bancária oficial.";
+            const obsLines = doc.splitTextToSize(obsText, 182);
+            doc.text(obsLines, 14, y);
+
+            // Rodapé
+            doc.setFontSize(8);
+            doc.setTextColor(90);
+            doc.text(
+                "Simulador Imobiliário • Uso educativo • Valores estimados • Não substitui análise bancária",
+                105,
+                288,
+                { align: "center" }
+            );
+
+            doc.save("simulacao-sbpe-pos-obra.pdf");
+            } catch (error) {
+                console.error("Erro ao gerar PDF:", error);
+                alert("Ocorreu um erro ao gerar o PDF: " + error.message);
+            }
+        }
+
+        /* ========================= INIT ========================= */
+        toggleInter();
+        toggleINCC();
+    </script>
+</body>
+</html>
