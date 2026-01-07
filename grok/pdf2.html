@@ -460,11 +460,13 @@
 
         function moeda(n, arredondar = false) {
             if (arredondar) {
-                // Arredonda para a centena mais próxima para valores menores, ou milhar para valores maiores
+                // Arredondamento para cima para passar a ideia de estimativa conservadora
                 if (n > 10000) {
+                    // Para valores altos (Financiamento/Intermediárias), arredonda para o milhar superior
                     n = Math.ceil(n / 1000) * 1000;
                 } else {
-                    n = Math.ceil(n / 10) * 10; // Arredonda para a dezena mais próxima para parcelas
+                    // Para parcelas, arredonda para a dezena superior (ex: 1733 -> 1740)
+                    n = Math.ceil(n / 10) * 10;
                 }
                 return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 0, maximumFractionDigits: 0 });
             }
@@ -608,33 +610,50 @@
             const p = entradaObj.parcelas || 0;
             const mensal = entradaObj.mensal || 0;
             
-            // Mensais: 1ª parcela SEM correção (mês atual), depois corrige mês a mês
+            // 1. Mensais: 1ª parcela SEM correção (mês atual), depois corrige mês a mês
             let totalMensaisBase = mensal * p;
             let primeiraParcelaMensal = mensal; 
             let totalMensaisCorrig = mensal; 
             let ultimaParcelaMensal = mensal;
             
-            // Cada mês seguinte é corrigido individualmente (juros compostos sobre o valor base)
             for (let i = 1; i < p; i++) {
                 const parcelaCorrigida = mensal * Math.pow(1 + rate, i);
                 if (i === p - 1) ultimaParcelaMensal = parcelaCorrigida;
                 totalMensaisCorrig += parcelaCorrigida;
             }
 
+            // 2. Intermediárias: Lógica de Saldo Devedor Progressivo
             let totalInterBase = 0;
             let totalInterCorrig = 0;
             let interCorrigValues = [];
 
             if (entradaObj.interMeta && entradaObj.interMeta.length) {
-                entradaObj.interMeta.forEach((it, idx) => {
-                    const v = it.valorBase || 0;
-                    const dataPagto = it.dataPagto || dataEntrega;
-                    const mesesAte = calcularMesesAteData(dataPagto);
-                    const valorCorrigido = v * Math.pow(1 + rate, mesesAte);
+                // Ordena as intermediárias por data para garantir o cálculo progressivo
+                const sortedInter = [...entradaObj.interMeta].sort((a, b) => {
+                    return calcularMesesAteData(a.data) - calcularMesesAteData(b.data);
+                });
+
+                totalInterBase = sortedInter.reduce((acc, it) => acc + (it.valorBase || 0), 0);
+                let saldoDevedorInter = totalInterBase;
+                let mesesAnteriores = 0;
+
+                sortedInter.forEach((it, idx) => {
+                    const mesesAte = calcularMesesAteData(it.data);
+                    const diffMeses = mesesAte - mesesAnteriores;
                     
-                    totalInterBase += v;
-                    totalInterCorrig += valorCorrigido;
-                    interCorrigValues.push(valorCorrigido);
+                    // Corrige o saldo devedor até o vencimento atual
+                    saldoDevedorInter = saldoDevedorInter * Math.pow(1 + rate, diffMeses);
+                    
+                    // Calcula a parcela (Saldo / Quantidade Restante)
+                    const qtdRestante = sortedInter.length - idx;
+                    const valorParcela = saldoDevedorInter / qtdRestante;
+                    
+                    interCorrigValues.push(valorParcela);
+                    totalInterCorrig += valorParcela;
+                    
+                    // Subtrai a parcela paga do saldo
+                    saldoDevedorInter -= valorParcela;
+                    mesesAnteriores = mesesAte;
                 });
             }
 
@@ -667,9 +686,9 @@
             const mesIdx = meses.indexOf(mesStr);
             const ano = 2000 + parseInt(anoStr, 10);
             
-            const dataEntrega = new Date(ano, mesIdx, 1);
-            const diffMs = dataEntrega - hoje;
-            const diffMeses = Math.floor(diffMs / (1000 * 60 * 60 * 24 * 30.44));
+            // Cálculo de diferença de meses baseado no calendário (mais preciso para INCC)
+            const diffAnos = ano - hoje.getFullYear();
+            const diffMeses = (diffAnos * 12) + (mesIdx - hoje.getMonth());
             
             return Math.max(0, diffMeses);
         }
@@ -1020,12 +1039,7 @@
 
                         y += line;
                         doc.setFont("helvetica", "bold");
-                        const interCorrigDisplay = entrada.interMeta.map((it, idx) => {
-                            const v = it.valorBase || 0;
-                            const m = calcularMesesAteData(it.data);
-                            const corrig = v * Math.pow(1 + inccRate, m);
-                            return moeda(corrig, true);
-                        }).join(" | ");
+                        const interCorrigDisplay = est.interCorrigValues.map(v => moeda(v, true)).join(" | ");
                         doc.text("Intermediárias/Anuais (Corrigidas):", colA, y);
                         doc.setFont("helvetica", "normal");
                         doc.text(interCorrigDisplay, colB, y);
