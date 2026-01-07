@@ -1152,14 +1152,14 @@
         const aumentoMedio = somaAumentos / prazo;
         
         let htmlInter = '';
+        let interCorrigidas = [];
         if (intermediarias.length > 0) {
-            // Cálculo INCC Intermediárias: Saldo corrigido mensalmente até cada pagamento
+            // Lógica de Saldo Devedor Progressivo (Escada de Correção) para Detalhado
             const hoje = new Date();
-            let interCorrigidas = [];
-            const totalInter = intermediarias.reduce((s, i) => s + i.valor, 0);
-            let saldoInter = totalInter;
-            const qtd = intermediarias.length;
-            
+            const totalInterBase = intermediarias.reduce((s, i) => s + i.valor, 0);
+            let saldoDevedorInter = totalInterBase;
+            let mesesAnteriores = 0;
+
             intermediarias.forEach((inter, idx) => {
                 const [mesAno, anoAno] = inter.data.split('/');
                 const mesesNomes = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
@@ -1167,14 +1167,19 @@
                 const ano = 2000 + parseInt(anoAno);
                 const dataPgto = new Date(ano, mesIdx, 1);
                 
-                // Cálculo preciso de meses entre hoje e a data de pagamento
-                let mesesAteData = (dataPgto.getFullYear() - hoje.getFullYear()) * 12 + (dataPgto.getMonth() - hoje.getMonth());
-                mesesAteData = Math.max(0, mesesAteData);
+                let mesesAte = (dataPgto.getFullYear() - hoje.getFullYear()) * 12 + (dataPgto.getMonth() - hoje.getMonth());
+                mesesAte = Math.max(0, mesesAte);
                 
-                // Cada parcela é corrigida individualmente pelo seu prazo
-                const parcelaCorrigida = inter.valor * Math.pow(1 + taxa, mesesAteData);
+                const diffMeses = mesesAte - mesesAnteriores;
+                saldoDevedorInter = saldoDevedorInter * Math.pow(1 + taxa, diffMeses);
                 
-                interCorrigidas.push({ ordem: idx + 1, valor: inter.valor, corrigido: parcelaCorrigida });
+                const qtdRestante = intermediarias.length - idx;
+                const valorParcela = saldoDevedorInter / qtdRestante;
+                
+                interCorrigidas.push({ ordem: idx + 1, valor: inter.valor, corrigido: valorParcela, meses: mesesAte });
+                
+                saldoDevedorInter = saldoDevedorInter - valorParcela;
+                mesesAnteriores = mesesAte;
             });
             
             // Gerar string com valores em contrato (podem ser diferentes no modo Detalhado)
@@ -1203,7 +1208,6 @@
             }
             
             // Lógica de Saldo Devedor Progressivo (Escada de Correção)
-            let interCorrigidas = [];
             let totalInterBase = valorInter * qtdInter;
             let saldoDevedorInter = totalInterBase;
             let mesesAnteriores = 0;
@@ -1431,7 +1435,7 @@
         y += 8;
         
         doc.setFontSize(9);
-        doc.text(`Raul Mendes Imobiliária | @raulmendes.imob | ${dataDoc}`, 105, y, { align: "center" });
+        doc.text(`${dataDoc}`, 105, y, { align: "center" });
         y += 8;
         
         doc.setDrawColor(...cinzaMedio);
@@ -1449,12 +1453,23 @@
         doc.setFont("helvetica", "normal");
         doc.setFontSize(9);
         
-        doc.text(`Faixa MCMV: ${d.faixa}`, left + 3, y); y += 5;
-        doc.text(`Taxa de Juros: ${d.taxa.toFixed(2)}% ao ano`, left + 3, y); y += 5;
-        doc.text(`Teto de Financiamento: ${formatMoney(d.teto)}`, left + 3, y); y += 5;
-        doc.text(`Capacidade de Financiamento: ${formatMoney(d.capFinanciamento)}`, left + 3, y); y += 5;
-        doc.text(`Renda Total: ${formatMoney(d.rendaTotal)}`, left + 3, y); 
-        doc.text(`FGTS Disponível: ${formatMoney(d.fgts)}`, left + 95, y); y += 8;
+        doc.setFont("helvetica", "bold"); doc.text("Faixa MCMV:", left + 3, y); 
+        doc.setFont("helvetica", "normal"); doc.text(`${d.faixa}`, left + 35, y); y += 5;
+        
+        doc.setFont("helvetica", "bold"); doc.text("Taxa de Juros:", left + 3, y); 
+        doc.setFont("helvetica", "normal"); doc.text(`${d.taxa.toFixed(2)}% ao ano`, left + 35, y); y += 5;
+        
+        doc.setFont("helvetica", "bold"); doc.text("Teto de Financiamento:", left + 3, y); 
+        doc.setFont("helvetica", "normal"); doc.text(`${formatMoney(d.teto)}`, left + 45, y); y += 5;
+        
+        doc.setFont("helvetica", "bold"); doc.text("Capacidade de Financiamento:", left + 3, y); 
+        doc.setFont("helvetica", "normal"); doc.text(`${formatMoney(d.capFinanciamento)}`, left + 55, y); y += 5;
+        
+        doc.setFont("helvetica", "bold"); doc.text("Renda Total:", left + 3, y); 
+        doc.setFont("helvetica", "normal"); doc.text(`${formatMoney(d.rendaTotal)}`, left + 35, y); 
+        
+        doc.setFont("helvetica", "bold"); doc.text("FGTS Disponível:", left + 95, y); 
+        doc.setFont("helvetica", "normal"); doc.text(`${formatMoney(d.fgts)}`, left + 125, y); y += 8;
         
         doc.setDrawColor(...cinzaMedio);
         doc.line(left, y, right, y);
@@ -1473,26 +1488,32 @@
         
         // Valor do Imóvel e Financiamento
         const isDetalhada = calc.subsidio !== undefined;
-        doc.text(`Valor do Imóvel ${isDetalhada ? '(Real)' : '(Pretendido)'}: ${formatMoney(calc.valorImovel)}`, left + 3, y); y += 5;
+        const labelImovel = `Valor do Imóvel ${isDetalhada ? '(Real)' : '(Pretendido)'}:`;
+        doc.setFont("helvetica", "bold"); doc.setTextColor(0, 0, 0); doc.text(labelImovel, left + 3, y);
+        doc.setFont("helvetica", "normal"); doc.text(formatMoney(calc.valorImovel), left + 65, y); y += 5;
         
         if (isDetalhada && calc.valorAvaliacao) {
-            doc.text(`Valor de Avaliação: ${formatMoney(calc.valorAvaliacao)}`, left + 3, y); y += 5;
+            doc.setFont("helvetica", "bold"); doc.text("Valor de Avaliação:", left + 3, y);
+            doc.setFont("helvetica", "normal"); doc.text(formatMoney(calc.valorAvaliacao), left + 45, y); y += 5;
         }
         
-        doc.text(`Financiamento ${isDetalhada ? 'Aprovado' : 'Estimado'}: ${formatMoney(calc.financiamento)}`, left + 3, y); y += 5;
+        const labelFin = `Financiamento ${isDetalhada ? 'Aprovado' : 'Estimado'}:`;
+        doc.setFont("helvetica", "bold"); doc.setTextColor(0, 0, 0); doc.text(labelFin, left + 3, y);
+        doc.setFont("helvetica", "normal"); doc.setTextColor(245, 158, 11); doc.text(formatMoney(calc.financiamento), left + 65, y); y += 5;
         
         if (state.inccCalculado) {
-            doc.setFont("helvetica", "bold");
-            doc.text(`Financiamento Estimado com INCC: ${formatMoney(calc.financiamento)}`, left + 3, y); y += 5;
-            doc.setFont("helvetica", "normal");
+            doc.setFont("helvetica", "bold"); doc.setTextColor(0, 0, 0); doc.text("Financiamento Estimado com INCC:", left + 3, y);
+            doc.setFont("helvetica", "normal"); doc.setTextColor(245, 158, 11); doc.text(formatMoney(calc.financiamento), left + 65, y); y += 5;
         }
         
         if (calc.fgts > 0) {
-            doc.text(`FGTS Utilizado: ${formatMoney(calc.fgts)}`, left + 3, y); y += 5;
+            doc.setFont("helvetica", "bold"); doc.setTextColor(0, 0, 0); doc.text("FGTS Utilizado:", left + 3, y);
+            doc.setFont("helvetica", "normal"); doc.setTextColor(245, 158, 11); doc.text(formatMoney(calc.fgts), left + 65, y); y += 5;
         }
         
         if (calc.subsidio && calc.subsidio > 0) {
-            doc.text(`Subsídio do Governo: ${formatMoney(calc.subsidio)}`, left + 3, y); y += 5;
+            doc.setFont("helvetica", "bold"); doc.setTextColor(0, 0, 0); doc.text("Subsídio do Governo:", left + 3, y);
+            doc.setFont("helvetica", "normal"); doc.setTextColor(245, 158, 11); doc.text(formatMoney(calc.subsidio), left + 65, y); y += 5;
         }
         
         y += 3;
@@ -1500,7 +1521,11 @@
         // Destaque para Entrada Total
         doc.setFont("helvetica", "bold");
         doc.setFontSize(10);
-        doc.text(`ENTRADA TOTAL: ${formatMoney(calc.entradaTotal)}`, left + 3, y);
+        doc.setTextColor(0, 0, 0);
+        doc.text("ENTRADA TOTAL:", left + 3, y);
+        doc.setTextColor(5, 150, 105);
+        doc.text(formatMoney(calc.entradaTotal), left + 45, y);
+        doc.setTextColor(0, 0, 0);
         y += 7;
         
         doc.setTextColor(0, 0, 0);
@@ -1513,24 +1538,28 @@
         doc.setFont("helvetica", "normal");
         
         if (calc.ato > 0) {
-            doc.text(`• Ato (Sinal): ${formatMoney(calc.ato)}`, left + 5, y); y += 5;
+            doc.setFont("helvetica", "bold"); doc.setTextColor(0, 0, 0); doc.text("• Ato (Sinal):", left + 5, y);
+            doc.setFont("helvetica", "normal"); doc.setTextColor(5, 150, 105); doc.text(formatMoney(calc.ato), left + 45, y); y += 5;
         }
         
         // Intermediárias
         if (calc.intermediarias && calc.intermediarias.length > 0) {
             calc.intermediarias.forEach((inter, idx) => {
-                doc.text(`• ${idx + 1}ª Intermediária (${inter.data}): ${formatMoney(inter.valor)}`, left + 5, y); y += 5;
+                doc.setFont("helvetica", "bold"); doc.setTextColor(0, 0, 0); doc.text(`• ${idx + 1}ª Intermediária (${inter.data}):`, left + 5, y);
+                doc.setFont("helvetica", "normal"); doc.setTextColor(5, 150, 105); doc.text(formatMoney(inter.valor), left + 65, y); y += 5;
             });
         } else if (calc.qtdInter > 0 && calc.valorInter > 0) {
             for (let i = 1; i <= calc.qtdInter; i++) {
-                doc.text(`• ${i}ª Intermediária: ${formatMoney(calc.valorInter)}`, left + 5, y); y += 5;
+                doc.setFont("helvetica", "bold"); doc.setTextColor(0, 0, 0); doc.text(`• ${i}ª Intermediária:`, left + 5, y);
+                doc.setFont("helvetica", "normal"); doc.setTextColor(5, 150, 105); doc.text(formatMoney(calc.valorInter), left + 65, y); y += 5;
             }
         }
         
-        doc.text(`• Parcelas Mensais (${calc.prazo}x): ${formatMoney(calc.mensal)}`, left + 5, y); y += 5;
+        doc.setFont("helvetica", "bold"); doc.setTextColor(0, 0, 0); doc.text(`• Parcelas Mensais (${calc.prazo}x):`, left + 5, y);
+        doc.setFont("helvetica", "normal"); doc.setTextColor(5, 150, 105); doc.text(formatMoney(calc.mensal), left + 65, y); y += 5;
         
         if (calc.saldoRestante && calc.saldoRestante > 0) {
-            doc.setTextColor(239, 68, 68);
+            doc.setFont("helvetica", "bold"); doc.setTextColor(239, 68, 68);
             doc.text(`• Saldo para Pós-Chaves: ${formatMoney(calc.saldoRestante)}`, left + 5, y); y += 5;
             doc.setTextColor(0, 0, 0);
         }
@@ -1653,10 +1682,13 @@
             y += 3;
             doc.setFont("helvetica", "italic");
             doc.setFontSize(7);
-            doc.text("* Valores aproximados. A TR possui variação mensal.", left + 3, y); y += 8;
+            doc.text("* Valores aproximados. A TR possui variação mensal.", left + 3, y); y += 5;
+            doc.setFont("helvetica", "italic");
+            doc.setFontSize(7);
+            doc.text("* Cálculos e estimativas são apenas para fins de consciência e planejamento financeiro, auxiliando o comprador a evitar surpresas.", left + 3, y); y += 8;
         }
         
-        // ===== BLOCO 5: OBSERVAÇÕES E DISCLAIMERS =====
+        // ===== BLOCO 5: OBSERVAÇÕES =====
         if (y > 230) {
             doc.addPage();
             y = 20;
@@ -1669,7 +1701,7 @@
         doc.setTextColor(...azulEscuro);
         doc.setFont("helvetica", "bold");
         doc.setFontSize(11);
-        doc.text("5. OBSERVAÇÕES E DISCLAIMERS", left, y);
+        doc.text("5. OBSERVAÇÕES", left, y);
         y += 6;
         
         doc.setTextColor(0, 0, 0);
@@ -1699,7 +1731,7 @@
         doc.setFontSize(8);
         doc.text("Raul Mendes Imobiliária | Instagram: @raulmendes.imob", 105, y, { align: "center" });
         
-        doc.save("simulacao-imobiliaria-raul-mendes.pdf");
+        doc.save("Simulação Imobiliaria MCMV.pdf");
         alert('✅ PDF gerado com sucesso!');
     }
 
