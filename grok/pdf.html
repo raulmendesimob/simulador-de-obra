@@ -458,7 +458,18 @@
             return parseFloat((v || "").replace(/[R$\.\s]/g, "").replace(",", ".")) || 0;
         }
 
-        function moeda(n) {
+        function moeda(n, arredondar = false) {
+            if (arredondar) {
+                // Arredondamento para cima para passar a ideia de estimativa conservadora
+                if (n > 10000) {
+                    // Para valores altos (Financiamento/Intermediárias), arredonda para o milhar superior
+                    n = Math.ceil(n / 1000) * 1000;
+                } else {
+                    // Para parcelas, arredonda para a dezena superior (ex: 1733 -> 1740)
+                    n = Math.ceil(n / 10) * 10;
+                }
+                return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 0, maximumFractionDigits: 0 });
+            }
             return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
         }
 
@@ -582,7 +593,11 @@
 
         function monthsToEntrega() {
             const select = document.getElementById("entregaSelect");
-            return select.value || "";
+            const dataStr = select.value;
+            if (dataStr) {
+                return calcularMesesAteData(dataStr);
+            }
+            return parseInt(document.getElementById("parcelasEntrada").value, 10) || 0;
         }
 
         function calcGeometricSum(base, rate, n) {
@@ -637,9 +652,9 @@
             };
         }
 
-        function calcINCCSaldoDevedor(financiamentoValor, rate, dataEntrega) {
+        function calcINCCSaldoDevedor(financiamentoValor, rate, prazoMeses) {
             const pv = financiamentoValor || 0;
-            const meses = calcularMesesAteData(dataEntrega);
+            const meses = typeof prazoMeses === 'number' ? prazoMeses : calcularMesesAteData(prazoMeses);
             return pv * Math.pow(1 + rate, meses);
         }
 
@@ -654,9 +669,9 @@
             const mesIdx = meses.indexOf(mesStr);
             const ano = 2000 + parseInt(anoStr, 10);
             
-            const dataEntrega = new Date(ano, mesIdx, 1);
-            const diffMs = dataEntrega - hoje;
-            const diffMeses = Math.floor(diffMs / (1000 * 60 * 60 * 24 * 30.44));
+            // Cálculo de diferença de meses baseado no calendário (mais preciso para INCC)
+            const diffAnos = ano - hoje.getFullYear();
+            const diffMeses = (diffAnos * 12) + (mesIdx - hoje.getMonth());
             
             return Math.max(0, diffMeses);
         }
@@ -993,9 +1008,9 @@
 
                     y += line;
                     doc.setFont("helvetica", "bold");
-                    doc.text(`${entrada.parcelas}ª Parcela Mensal (Corrigida):`, colA, y);
+                    doc.text(`${entrada.parcelas}ª Parcela Mensal (Estimada):`, colA, y);
                     doc.setFont("helvetica", "normal");
-                    doc.text(moeda(est.ultimaParcelaMensal), colB, y);
+                    doc.text(moeda(est.ultimaParcelaMensal, true), colB, y);
 
                     if (entrada.interVals && entrada.interVals.length > 0) {
                         y += line + 2;
@@ -1011,7 +1026,7 @@
                             const v = it.valorBase || 0;
                             const m = calcularMesesAteData(it.data);
                             const corrig = v * Math.pow(1 + inccRate, m);
-                            return moeda(corrig);
+                            return moeda(corrig, true);
                         }).join(" | ");
                         doc.text("Intermediárias/Anuais (Corrigidas):", colA, y);
                         doc.setFont("helvetica", "normal");
@@ -1033,7 +1048,7 @@
                     doc.setFont("helvetica", "bold");
                     doc.text("Financiamento Estimado Corrigido:", colA, y);
                     doc.setFont("helvetica", "normal");
-                    doc.text(moeda(fv), colB, y);
+                    doc.text(moeda(fv, true), colB, y);
                 }
 
                 y += 10;
