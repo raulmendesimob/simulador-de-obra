@@ -10,68 +10,134 @@
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
       background:#f4f4f4;
       padding:24px;
-      margin:0
+      margin:0;
     }
+
     .container{
       max-width:900px;
       margin:auto;
       background:#fff;
       padding:24px;
       border-radius:12px;
-      box-shadow:0 10px 25px rgba(0,0,0,.05)
+      box-shadow:0 10px 25px rgba(0,0,0,.05);
     }
-    h1{font-size:22px;margin-bottom:20px}
+
+    h1{
+      font-size:22px;
+      margin-bottom:8px;
+    }
+
+    .subtitle{
+      font-size:13px;
+      color:#666;
+      margin-bottom:20px;
+      line-height:1.4;
+    }
+
     .grid{
       display:grid;
       grid-template-columns:repeat(2,1fr);
-      gap:14px
+      gap:14px;
     }
+
     label{
       font-size:12px;
       color:#555;
       margin-bottom:6px;
-      display:block
+      display:block;
     }
+
     input{
       width:100%;
+      box-sizing:border-box;
       padding:10px;
       border-radius:8px;
       border:1px solid #ddd;
       font-size:14px;
-      outline:none
+      outline:none;
     }
-    input:focus{border-color:#bbb}
-    .buttons{margin-top:16px;display:flex;gap:10px}
+
+    input:focus{
+      border-color:#bbb;
+    }
+
+    .buttons{
+      margin-top:16px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
     button{
       padding:10px 16px;
       border-radius:8px;
       border:none;
       font-size:14px;
-      cursor:pointer
+      cursor:pointer;
     }
-    button.primary{background:#111;color:#fff}
-    button.secondary{background:#eaeaea}
+
+    button.primary{
+      background:#111;
+      color:#fff;
+    }
+
+    button.secondary{
+      background:#eaeaea;
+    }
+
     .result{
       margin-top:24px;
       background:#fafafa;
       border-radius:10px;
       padding:16px;
       border:1px solid #eee;
-      min-height:28px
+      min-height:28px;
     }
+
     .result-grid{
       display:grid;
       grid-template-columns:repeat(2,1fr);
-      gap:12px
+      gap:12px;
     }
+
     .card{
       background:#fff;
       border:1px solid #eee;
       border-radius:8px;
-      padding:12px
+      padding:12px;
     }
-    .card strong{font-size:13px;display:block;margin-bottom:4px}
-    .note{margin-top:12px;font-size:12px;color:#666;line-height:1.4}
+
+    .card strong{
+      font-size:13px;
+      display:block;
+      margin-bottom:4px;
+      color:#333;
+    }
+
+    .card span{
+      font-size:16px;
+      font-weight:600;
+      color:#111;
+    }
+
+    .note{
+      margin-top:12px;
+      font-size:12px;
+      color:#666;
+      line-height:1.45;
+    }
+
+    .alert{
+      margin-top:12px;
+      background:#fff8e8;
+      border:1px solid #ffd88a;
+      color:#7a4b00;
+      padding:12px;
+      border-radius:10px;
+      font-size:13px;
+      line-height:1.4;
+    }
+
     .error{
       background:#fff6f6;
       border:1px solid #f3c0c0;
@@ -79,11 +145,22 @@
       padding:12px;
       border-radius:10px;
       font-size:13px;
-      line-height:1.35
+      line-height:1.35;
     }
-    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
+
+    .mono{
+      font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+    }
+
     @media (max-width:720px){
-      .grid,.result-grid{grid-template-columns:1fr}
+      body{
+        padding:12px;
+      }
+
+      .grid,
+      .result-grid{
+        grid-template-columns:1fr;
+      }
     }
   </style>
 </head>
@@ -92,10 +169,15 @@
   <div class="container">
     <h1>Simulador Minha Casa Minha Vida — Financiamento Máximo</h1>
 
+    <div class="subtitle">
+      Ferramenta interna para estimar capacidade aproximada de financiamento, entrada bruta e enquadramento por faixa de renda.
+      Não considera subsídio, FGTS, descontos, análise cadastral ou aprovação oficial da Caixa.
+    </div>
+
     <div class="grid">
       <div>
-        <label for="renda">Renda familiar (R$)</label>
-        <input id="renda" value="6496,27" inputmode="decimal" placeholder="Ex.: 6496,27">
+        <label for="renda">Renda familiar mensal (R$)</label>
+        <input id="renda" value="5537,60" inputmode="decimal" placeholder="Ex.: 5537,60">
       </div>
 
       <div>
@@ -115,7 +197,7 @@
 
       <div>
         <label for="idade">Idade média dos compradores</label>
-        <input id="idade" type="number" value="28" min="0" max="120">
+        <input id="idade" type="number" value="30" min="0" max="120">
       </div>
 
       <div>
@@ -137,72 +219,198 @@
     // Helpers
     // =========================
     function parseBR(v){
-      if(v===null||v===undefined) return NaN;
-      const s=String(v).trim().replace(/\./g,"").replace(",",".");
-      const n=Number(s);
-      return Number.isFinite(n)?n:NaN;
+      if(v === null || v === undefined) return NaN;
+
+      const s = String(v)
+        .trim()
+        .replace(/\s/g, "")
+        .replace(/\./g, "")
+        .replace(",", ".");
+
+      const n = Number(s);
+      return Number.isFinite(n) ? n : NaN;
     }
+
     function money(v){
       if(!Number.isFinite(v)) return "—";
-      return v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+
+      return v.toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+      });
     }
-    function renderError(el,messages){
-      el.innerHTML=`
+
+    function percent(v){
+      if(!Number.isFinite(v)) return "—";
+
+      return (v * 100).toLocaleString("pt-BR", {
+        minimumFractionDigits: 4,
+        maximumFractionDigits: 4
+      }) + "%";
+    }
+
+    function renderError(el, messages){
+      el.innerHTML = `
         <div class="error">
           <strong>Corrija para calcular:</strong><br>
-          ${messages.map(m=>"• "+m).join("<br>")}
+          ${messages.map(m => "• " + m).join("<br>")}
         </div>
       `;
     }
 
     // =========================
-    // Seguros (estimativa DFI + MIP)
+    // Faixas Minha Casa Minha Vida
+    // Base conforme tabela enviada
     // =========================
-    function estimateInsurance(pmtTotal, idade){
-      if(!Number.isFinite(pmtTotal)||pmtTotal<=0) return 0;
+    function getFaixaMCMV(renda){
+      if(!Number.isFinite(renda) || renda <= 0){
+        return {
+          faixa: "Não identificada",
+          descricao: "Renda inválida",
+          limiteImovel: 0,
+          elegivel: false
+        };
+      }
 
-      // taxa aproximada por faixa etária (empírico)
-      let rate=0.03;
-      if(idade<=30) rate=0.028;
-      else if(idade<=40) rate=0.03;
-      else if(idade<=50) rate=0.035;
-      else rate=0.04;
+      if(renda <= 3200){
+        return {
+          faixa: "Faixa 1",
+          descricao: "Renda mensal até R$ 3.200,00",
+          limiteImovel: 275000,
+          elegivel: true
+        };
+      }
 
-      return pmtTotal*rate;
+      if(renda <= 5000){
+        return {
+          faixa: "Faixa 2",
+          descricao: "Renda mensal de R$ 3.200,01 a R$ 5.000,00",
+          limiteImovel: 275000,
+          elegivel: true
+        };
+      }
+
+      if(renda <= 9600){
+        return {
+          faixa: "Faixa 3",
+          descricao: "Renda mensal de R$ 5.000,01 a R$ 9.600,00",
+          limiteImovel: 400000,
+          elegivel: true
+        };
+      }
+
+      if(renda <= 13000){
+        return {
+          faixa: "Faixa 4",
+          descricao: "Renda mensal de R$ 9.600,01 a R$ 13.000,00",
+          limiteImovel: 600000,
+          elegivel: true
+        };
+      }
+
+      return {
+        faixa: "Fora das faixas informadas",
+        descricao: "Renda mensal acima de R$ 13.000,00",
+        limiteImovel: 0,
+        elegivel: false
+      };
     }
 
     // =========================
     // PRICE
     // =========================
-    function pvPrice(pmt, i, n){
-      if(i<=0) return pmt*n;
-      return pmt*(1-Math.pow(1+i,-n))/i;
-    }
     function pmtPrice(pv, i, n){
-      if(i<=0) return pv/n;
-      return pv*(i/(1-Math.pow(1+i,-n)));
+      if(!Number.isFinite(pv) || pv <= 0) return 0;
+      if(!Number.isFinite(i) || i <= 0) return pv / n;
+      if(!Number.isFinite(n) || n <= 0) return 0;
+
+      return pv * (i / (1 - Math.pow(1 + i, -n)));
+    }
+
+    function pvPrice(pmt, i, n){
+      if(!Number.isFinite(pmt) || pmt <= 0) return 0;
+      if(!Number.isFinite(i) || i <= 0) return pmt * n;
+      if(!Number.isFinite(n) || n <= 0) return 0;
+
+      return pmt * (1 - Math.pow(1 + i, -n)) / i;
     }
 
     // =========================
-    // Busca binária: PV máximo que respeita a parcela máxima
-    // - Usa o mesmo modelo final de seguros e taxa adm
-    // - Garante que a parcela do "aprovado" nunca passe do limite
+    // Seguros estimados
+    // DFI + MIP
+    //
+    // Importante:
+    // Esta é uma aproximação interna.
+    // Não replica exatamente a tabela oficial da seguradora/Caixa.
     // =========================
-    function maxPVByPaymentLimit(parcelaMaxima, i, n, idade, taxaAdm){
-      // teto alto para busca (pode ajustar se quiser)
-      let low=0;
-      let high=1500000; // 1,5 milhão
+    function estimateInsurance(valorFinanciado, valorImovel, idade){
+      if(!Number.isFinite(valorFinanciado) || valorFinanciado <= 0) return {
+        dfi: 0,
+        mip: 0,
+        total: 0
+      };
 
-      for(let k=0;k<45;k++){ // 45 iterações => precisão excelente
-        const mid=(low+high)/2;
+      if(!Number.isFinite(valorImovel) || valorImovel <= 0) valorImovel = valorFinanciado;
+      if(!Number.isFinite(idade) || idade < 0) idade = 30;
 
-        const pmtAJ=pmtPrice(mid,i,n);
-        const seguros=estimateInsurance(pmtAJ+taxaAdm,idade);
-        const parcelaTotal=pmtAJ+taxaAdm+seguros;
+      // DFI aproximado.
+      // Nas simulações analisadas, ele ficou muito próximo de uma taxa sobre o valor do imóvel.
+      const dfiRate = 0.0000889;
+      const dfi = valorImovel * dfiRate;
 
-        if(parcelaTotal<=parcelaMaxima) low=mid;
-        else high=mid;
+      // MIP aproximado por idade.
+      // Quanto maior a idade, maior tende a ser o seguro.
+      let mipRate = 0.000105;
+
+      if(idade <= 30){
+        mipRate = 0.000105;
+      } else if(idade <= 35){
+        mipRate = 0.000115;
+      } else if(idade <= 40){
+        mipRate = 0.000170;
+      } else if(idade <= 45){
+        mipRate = 0.000220;
+      } else if(idade <= 50){
+        mipRate = 0.000280;
+      } else if(idade <= 55){
+        mipRate = 0.000340;
+      } else if(idade <= 60){
+        mipRate = 0.000440;
+      } else {
+        mipRate = 0.000600;
       }
+
+      const mip = valorFinanciado * mipRate;
+
+      return {
+        dfi,
+        mip,
+        total: dfi + mip
+      };
+    }
+
+    // =========================
+    // Busca binária:
+    // Encontra o maior financiamento possível respeitando a parcela máxima.
+    // =========================
+    function maxPVByPaymentLimit(parcelaMaxima, i, n, idade, taxaAdm, valorImovel){
+      let low = 0;
+      let high = 1500000;
+
+      for(let k = 0; k < 50; k++){
+        const mid = (low + high) / 2;
+
+        const pmtAJ = pmtPrice(mid, i, n);
+        const seguros = estimateInsurance(mid, valorImovel, idade);
+        const parcelaTotal = pmtAJ + seguros.total + taxaAdm;
+
+        if(parcelaTotal <= parcelaMaxima){
+          low = mid;
+        } else {
+          high = mid;
+        }
+      }
+
       return low;
     }
 
@@ -210,104 +418,216 @@
     // Cálculo principal
     // =========================
     function calcular(){
-      const rendaEl=document.getElementById("renda");
-      const jurosEl=document.getElementById("juros");
-      const prazoEl=document.getElementById("prazo");
-      const imovelEl=document.getElementById("imovel");
-      const idadeEl=document.getElementById("idade");
-      const compEl=document.getElementById("comprometimento");
-      const resultadoEl=document.getElementById("resultado");
+      const rendaEl = document.getElementById("renda");
+      const jurosEl = document.getElementById("juros");
+      const prazoEl = document.getElementById("prazo");
+      const imovelEl = document.getElementById("imovel");
+      const idadeEl = document.getElementById("idade");
+      const compEl = document.getElementById("comprometimento");
+      const resultadoEl = document.getElementById("resultado");
 
-      const renda=parseBR(rendaEl.value);
-      const jurosAA=parseBR(jurosEl.value)/100;
-      const prazo=Number(prazoEl.value);
-      const valorImovel=parseBR(imovelEl.value);
-      const idade=Number(idadeEl.value);
-      const comprometimento=parseBR(compEl.value)/100;
+      const renda = parseBR(rendaEl.value);
+      const jurosAA = parseBR(jurosEl.value) / 100;
+      const prazo = Number(prazoEl.value);
+      const valorImovel = parseBR(imovelEl.value);
+      const idade = Number(idadeEl.value);
+      const comprometimento = parseBR(compEl.value) / 100;
 
       // Constantes do produto
-      const TAXA_ADM=25;
-      const LTV=0.80;
-
-      // Ajuste empírico (aplicar no PV máximo por renda, antes de comparar com LTV)
-      const AJUSTE_CAIXA=1.025;
+      const TAXA_ADM = 25;
+      const LTV = 0.80;
 
       // Validações
-      const errors=[];
-      if(!Number.isFinite(renda)||renda<=0) errors.push("Informe uma renda válida.");
-      if(!Number.isFinite(jurosAA)||jurosAA<=0) errors.push("Informe juros válidos (ex.: 5,6408 ou 7,9348).");
-      if(!Number.isFinite(prazo)||prazo<=0) errors.push("Informe um prazo válido (meses).");
-      if(!Number.isFinite(valorImovel)||valorImovel<=0) errors.push("Informe um valor de imóvel válido.");
-      if(!Number.isFinite(idade)||idade<0) errors.push("Informe uma idade válida.");
-      if(!Number.isFinite(comprometimento)||comprometimento<=0||comprometimento>1){
-        errors.push("Comprometimento deve ser entre 0 e 100 (ex.: 30).");
+      const errors = [];
+
+      if(!Number.isFinite(renda) || renda <= 0){
+        errors.push("Informe uma renda válida.");
       }
+
+      if(!Number.isFinite(jurosAA) || jurosAA <= 0){
+        errors.push("Informe juros válidos. Exemplo: 5,6408 ou 7,9348.");
+      }
+
+      if(!Number.isFinite(prazo) || prazo <= 0){
+        errors.push("Informe um prazo válido em meses.");
+      }
+
+      if(!Number.isFinite(valorImovel) || valorImovel <= 0){
+        errors.push("Informe um valor de imóvel válido.");
+      }
+
+      if(!Number.isFinite(idade) || idade < 0){
+        errors.push("Informe uma idade válida.");
+      }
+
+      if(!Number.isFinite(comprometimento) || comprometimento <= 0 || comprometimento > 1){
+        errors.push("Comprometimento deve ser entre 0 e 100. Exemplo: 30.");
+      }
+
       if(errors.length){
-        renderError(resultadoEl,errors);
+        renderError(resultadoEl, errors);
         return;
       }
 
-      // Taxa mensal (aprox)
-      const i=jurosAA/12;
+      // Faixa MCMV
+      const faixaMCMV = getFaixaMCMV(renda);
 
-      // 1) Parcela máxima (limite por renda)
-      const parcelaMaxima=renda*comprometimento;
+      // Taxa mensal equivalente
+      const taxaMensal = Math.pow(1 + jurosAA, 1 / 12) - 1;
 
-      // 2) PV máximo que cabe pela renda (já considerando seguros + taxa adm do nosso modelo final)
-      const pvMaxRendaSemAjuste=maxPVByPaymentLimit(parcelaMaxima, i, prazo, idade, TAXA_ADM);
+      // Parcela máxima pela renda
+      const parcelaMaxima = renda * comprometimento;
 
-      // 3) Aplicar ajuste empírico no PV por renda (lugar certo)
-      const pvMaxRenda=pvMaxRendaSemAjuste*AJUSTE_CAIXA;
+      // Capacidade máxima pela renda
+      const pvMaxRenda = maxPVByPaymentLimit(
+        parcelaMaxima,
+        taxaMensal,
+        prazo,
+        idade,
+        TAXA_ADM,
+        valorImovel
+      );
 
-      // 4) Teto por LTV
-      const tetoLTV=valorImovel*LTV;
+      // Teto por LTV
+      const tetoLTV = valorImovel * LTV;
 
-      // 5) Financiamento aprovado
-      const financiamento=Math.min(pvMaxRenda, tetoLTV);
+      // Financiamento estimado aprovado
+      const financiamento = Math.min(pvMaxRenda, tetoLTV);
 
-      // 6) Entrada necessária
-      const entrada=Math.max(0, valorImovel-financiamento);
+      // Entrada bruta sem subsídio
+      const entradaBruta = Math.max(0, valorImovel - financiamento);
 
-      // 7) Parcela REAL do cenário aprovado
-const pmtAJ_aprovada = pmtPrice(financiamento, i, prazo);
-const segurosAprovados = estimateInsurance(pmtAJ_aprovada + TAXA_ADM, idade);
-let parcelaReal = pmtAJ_aprovada + TAXA_ADM + segurosAprovados;
+      // Parcela estimada do cenário aprovado
+      const amortizacaoJuros = pmtPrice(financiamento, taxaMensal, prazo);
+      const seguros = estimateInsurance(financiamento, valorImovel, idade);
+      const parcelaEstimada = amortizacaoJuros + seguros.total + TAXA_ADM;
 
-// Garantir que a parcela final nunca ultrapasse o limite da renda (comportamento Caixa)
-if (parcelaReal > parcelaMaxima) {
-  parcelaReal = parcelaMaxima;
-}
+      // Identificação do limitante
+      const limitante = Math.abs(financiamento - tetoLTV) < 0.01
+        ? "Limitante: LTV de 80% do valor do imóvel."
+        : "Limitante: capacidade de pagamento pela renda.";
 
-      // 8) Informar o limitante
-      const limitante =
-        (Math.abs(financiamento - tetoLTV) < 0.01)
-          ? "Limitante: LTV (80% do valor do imóvel). Por isso a parcela final pode ficar abaixo do limite da renda."
-          : "Limitante: capacidade de pagamento pela renda (comprometimento).";
+      // Alertas
+      const alertas = [];
 
-      // 9) Mostrar (extra) o “PV máximo por renda” antes/depois do ajuste
-      resultadoEl.innerHTML=`
+      if(!faixaMCMV.elegivel){
+        alertas.push(
+          `A renda informada está fora das faixas consideradas nesta tabela do Minha Casa Minha Vida.`
+        );
+      }
+
+      if(faixaMCMV.elegivel && valorImovel > faixaMCMV.limiteImovel){
+        alertas.push(
+          `O valor do imóvel informado está acima do limite da ${faixaMCMV.faixa}. Para essa faixa, o limite considerado é ${money(faixaMCMV.limiteImovel)}.`
+        );
+      }
+
+      if(parcelaEstimada > parcelaMaxima + 0.05){
+        alertas.push(
+          `A parcela estimada ultrapassou a parcela máxima. Revise os parâmetros de seguro, taxa ou comprometimento.`
+        );
+      }
+
+      const alertaHTML = alertas.length
+        ? `
+          <div class="alert">
+            <strong>Atenção:</strong><br>
+            ${alertas.map(a => "• " + a).join("<br>")}
+          </div>
+        `
+        : "";
+
+      // Resultado
+      resultadoEl.innerHTML = `
         <div class="result-grid">
-          <div class="card"><strong>Parcela máxima permitida (renda)</strong>${money(parcelaMaxima)}</div>
-          <div class="card"><strong>Parcela estimada do financiamento aprovado</strong>${money(parcelaReal)}</div>
+          <div class="card">
+            <strong>Faixa estimada</strong>
+            <span>${faixaMCMV.faixa}</span>
+          </div>
 
-          <div class="card"><strong>Capacidade financeira máxima (renda)</strong>${money(pvMaxRenda)}</div>
-          <div class="card"><strong>Teto por LTV (80%)</strong>${money(tetoLTV)}</div>
+          <div class="card">
+            <strong>Limite de imóvel pela faixa</strong>
+            <span>${faixaMCMV.limiteImovel > 0 ? money(faixaMCMV.limiteImovel) : "—"}</span>
+          </div>
 
-          <div class="card"><strong>Financiamento aprovado</strong>${money(financiamento)}</div>
-          <div class="card"><strong>Entrada necessária</strong>${money(entrada)}</div>
+          <div class="card">
+            <strong>Parcela máxima pela renda</strong>
+            <span>${money(parcelaMaxima)}</span>
+          </div>
+
+          <div class="card">
+            <strong>Parcela estimada do financiamento</strong>
+            <span>${money(parcelaEstimada)}</span>
+          </div>
+
+          <div class="card">
+            <strong>Capacidade máxima pela renda</strong>
+            <span>${money(pvMaxRenda)}</span>
+          </div>
+
+          <div class="card">
+            <strong>Teto por LTV — 80%</strong>
+            <span>${money(tetoLTV)}</span>
+          </div>
+
+          <div class="card">
+            <strong>Financiamento estimado</strong>
+            <span>${money(financiamento)}</span>
+          </div>
+
+          <div class="card">
+            <strong>Entrada bruta estimada</strong>
+            <span>${money(entradaBruta)}</span>
+          </div>
+
+          <div class="card">
+            <strong>Amortização + Juros</strong>
+            <span>${money(amortizacaoJuros)}</span>
+          </div>
+
+          <div class="card">
+            <strong>Seguros estimados</strong>
+            <span>${money(seguros.total)}</span>
+          </div>
+
+          <div class="card">
+            <strong>DFI estimado</strong>
+            <span>${money(seguros.dfi)}</span>
+          </div>
+
+          <div class="card">
+            <strong>MIP estimado</strong>
+            <span>${money(seguros.mip)}</span>
+          </div>
+
+          <div class="card">
+            <strong>Taxa administrativa</strong>
+            <span>${money(TAXA_ADM)}</span>
+          </div>
+
+          <div class="card">
+            <strong>Taxa mensal equivalente</strong>
+            <span>${percent(taxaMensal)}</span>
+          </div>
         </div>
 
+        ${alertaHTML}
+
         <div class="note">
-          ${limitante}<br>
-          Observação: “Parcela máxima” é um limite. A “parcela do aprovado” é recalculada a partir do PV aprovado
-          (PRICE + seguros estimados + taxa adm).<br>
-          Ajuste empírico aplicado no PV máximo por renda: <strong class="mono">${AJUSTE_CAIXA}</strong> (simulação estimada).
+          <strong>${limitante}</strong><br>
+          ${faixaMCMV.descricao}.<br><br>
+
+          Observação: esta ferramenta é uma simulação interna aproximada. 
+          A entrada bruta estimada não considera subsídio, FGTS, descontos do programa, despesas cartorárias, análise cadastral, score, comprometimentos externos ou aprovação oficial da Caixa.<br><br>
+
+          Modelo utilizado: PRICE com taxa mensal equivalente, LTV de 80%, comprometimento informado da renda, taxa administrativa de 
+          <strong class="mono">${money(TAXA_ADM)}</strong> e seguros estimados por valor/idade.
         </div>
       `;
     }
 
     function limpar(){
-      document.getElementById("resultado").innerHTML="";
+      document.getElementById("resultado").innerHTML = "";
     }
 
     // Eventos
